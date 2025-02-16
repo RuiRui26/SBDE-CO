@@ -1,0 +1,157 @@
+/*------------------ Cookies styling --------------------*/
+.cookies
+{
+	background: linear-gradient(rgba(117, 164, 235, 0.1), rgba(17, 17, 69, 0.8)), url('../img/pic2.jpg');
+	background-position: center top;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.cookie-container
+{
+	height: 34vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0 1.5rem;
+}
+
+.cookie-container .landing-heading
+{
+	font-size: 3rem;
+}
+/*------------------ Cookies styling --------------------*/
+
+
+/*------------------ Future protection styling ----------------*/
+.future-protection-imgs {
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    gap: 1rem; 
+    flex-wrap: wrap;
+}
+
+.future-protection-img {
+    width: 40%; /* Adjusts image size so three fit in one row */
+    max-width: 500px; /* Prevents images from becoming too large */
+    border-radius: 3px;
+    object-fit: cover; /* Ensures uniform image appearance */
+}
+/*------------------ Future protection styling ----------------*/
+
+
+
+/*----------------------- Company value --------------------------*/
+.values .container
+{
+	text-align: center;
+}
+
+.value
+{
+	margin: 3.6rem 0;
+}
+
+.value img.value-icon {
+    width: 100px; /* Adjust the size */
+    height: auto;
+    margin-bottom: 10px; /* Space between image and heading */
+}
+
+.value .value-heading
+{
+	font-size: 1.4rem;
+	font-weight: 600;
+}
+/*----------------------- Company value --------------------------*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------- Desktop screen styling --------------------------------*/
+/*-----------------------------------------------------------------------------------------*/
+@media screen and (min-width: 789px)
+{
+	/*----------- Breadcrumb styling ----------*/
+	.breadcrumb-container 
+	{
+		height: 55vh;
+	}
+
+
+	/*-------------- Future styling --------------*/
+	.future {
+		margin-top: 3rem; /* Adjust the space as needed */
+	}
+	
+
+	.future .heading {
+		font-size: 3.6rem; /* Adjust size */
+		font-weight: 700; /* Make it bold */
+		text-align: center; /* Center text */
+		color: #111; /* Adjust color if needed */
+		margin-bottom: 1rem; /* Space below heading */
+	}
+	.future .container
+	{
+		text-align: center;
+	}
+
+	.future .para-line {
+		font-size: 1.2rem; /* Adjust text size */
+		font-weight: 400; /* Normal weight */
+		color: #555; /* Slightly lighter text */
+		max-width: 100%;  /* Allow text to use full width */
+		width: 90%;  /* Adjust as needed */
+		text-align: justify;  /* Distribute text evenly */
+		margin: 0 auto; /* Keep it centered within the container */
+		margin-bottom: 2.2rem;
+		
+	}
+	
+
+	.future-protection-imgs
+	{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 1rem;
+	}
+
+
+	/*------------------------ Company values -----------------------*/
+	.values {
+		margin-top: 4rem; /* Adjust the space as needed */
+	}
+
+	.values .heading {
+		font-size: 2.5rem; /* Increase the font size */
+		font-weight: 800; /* Make it bolder */
+		text-transform: uppercase; /* Optional: Make it all caps */
+		letter-spacing: 1px; /* Add some spacing between letters */
+	}
+
+	.company-values
+	{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 4rem;
+	}
+
+
+	
+}
