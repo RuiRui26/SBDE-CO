@@ -1,0 +1,182 @@
+/*------------------ Cookie styling --------------------*/
+.cookie
+{
+	background: linear-gradient(rgba(117, 164, 235, 0.1), rgba(17, 17, 69, 0.8)), url('../img/nmg.jpg');
+	background-position: center top;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.cookie-container
+{
+	height: 34vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0 1.5rem;
+}
+
+.cookie-container .landing-heading
+{
+	font-size: 3rem;
+}
+/*------------------ Cookie styling --------------------*/
+
+
+
+/*------------------------ Map styling ----------------------------*/
+.map-location {
+    display: flex;
+    justify-content: center;  /* Centers horizontally */
+    align-items: center;  /* Aligns items properly */
+    text-align: center;  /* Ensures text is centered */
+    font-size: 1.2rem;  /* Adjust as needed */
+    gap: 0.5rem;  /* Adds spacing between icon and text */
+}
+
+.map-location ion-icon
+{
+	font-size: 2.6rem;
+	color: var(--yellow-color);
+}
+/*------------------------ Map styling ----------------------------*/
+
+
+
+/*------------------------------ Contact Info ---------------------------*/
+.contact-info
+{
+	background: linear-gradient(rgba(108, 121, 235, 0.9), rgba(7, 15, 83, 0.9)), url("../img/hero-bg.jpg");
+	background-position: center top;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.contact-info .container
+{
+	text-align: center;
+	padding: 5rem 0;
+}
+
+.contact-info .container .row
+{
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+.contact-info .container .row .col ion-icon
+{
+	color: var(--yellow-color);
+	font-size: 3.6rem;
+}
+
+.info-name
+{
+	font-size: 1.7rem;
+	font-weight: 700;
+}
+
+.info-detail
+{
+	font-size: 1.1rem;
+	font-weight: 400;
+}
+/*------------------------------ Contact Info ---------------------------*/
+
+
+
+
+
+
+
+
+/*-------------------------------------------------------------------------------------*/
+/*----------------------------- Desktop screen styling ----------------------------------*/
+/*-------------------------------------------------------------------------------------*/
+@media screen and (min-width: 789px)
+{
+	/*----------- Breadcrumb styling ----------*/
+	.breadcrumb-container 
+	{
+		height: 50vh;
+	}
+
+
+	/*------------ Map styling ----------------*/
+	.map {
+		margin-top: 3rem; /* Adjust the space as needed */
+		margin-bottom: 3rem; 
+	}
+	
+
+
+	.map .heading {
+		text-align: center;  /* Centers the heading */
+		font-size: 3.5rem;  /* Adjust size as needed */
+		font-weight: bold;  /* Makes it bold */
+		margin-bottom: 1rem; /* Space below heading */
+	}
+	
+	.map .para-line {
+		text-align: center; /* Centers the paragraph */
+		font-size: 1.2rem; /* Adjust for better readability */
+		font-weight: 400; /* Slightly bold */
+		max-width: 800px; /* Expands text width */
+		margin: 0 auto 1.5rem auto; /* Centers and adds space */
+		line-height: 1.6; /* Improves readability */
+	}
+	
+	.map-location {
+		text-align: center; /* Centers the location line */
+		font-size: 1.2rem;
+	}
+	
+	.map iframe {
+		width: 50%;  /* Adjust width as needed */
+		height: 470px; /* Adjust height as needed */
+		display: block;
+		margin: 0 auto; /* Centers the map */
+		border-radius: 15px; /* Optional: Adds rounded corners */
+	}
+
+
+	/*-------------- Contact info ---------------*/
+	.contact-info .container {
+		text-align: center;  /* Centers text content */
+		display: flex;
+		flex-direction: column;
+		align-items: center; /* Centers everything horizontally */
+		justify-content: center; /* Ensures vertical alignment */
+	}
+	
+	.contact-icon {
+		width: 60px; /* Adjust as needed */
+		height: auto;
+		margin-bottom: 1rem; /* Space between image and text */
+	}
+	
+
+	.contact-info .container .row
+	{
+		flex-direction: row;
+	}
+
+	.contact-info .container .row .col ion-icon 
+	{
+		color: var(--yellow-color);
+		font-size: 5rem;
+	}
+
+	.info-name 
+	{
+		font-size: 2.6rem;
+	}
+
+	.info-detail 
+	{
+		font-size: 1.6rem;
+	}
+
+
+}

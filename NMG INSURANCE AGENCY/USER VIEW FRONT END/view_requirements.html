@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply | NMG Insurance Agency</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="img/NMG3.png">
+
+    <!-- External CSS link -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/view_requirements.css">
+
+    <!-- FontAwesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="menu-container nav-wrapper">
+            <div class="brand">
+                <a href="index.html">
+                    <img src="img/NMG22.png" alt="insurancy-logo">
+                </a>
+            </div>
+
+            <ul class="nav-list">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="benefits.html">Insurance</a></li>
+                <li><a href="contact.html">Contacts</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Car Insurance Requirements Section -->
+    <section class="insurance-requirements">
+        <div class="container">
+            <h2 class="heading">Car Insurance Requirements</h2>
+
+            <div class="filter-section">
+                <input type="text" id="search" placeholder="Search requirements...">
+                <select id="insurance-type">
+                    <option value="all">All Insurance Types</option>
+                    <option value="comprehensive">Comprehensive</option>
+                    <option value="third-party">Third-Party</option>
+                </select>
+            </div>
+
+            <div class="requirements-list">
+                <div class="requirement-card" data-type="all">
+                    <h3>📌 Driver’s License <i class="fas fa-chevron-down toggle"></i></h3>
+                    <p class="details">A valid driver’s license is required for all applicants.</p>
+                </div>
+
+                <div class="requirement-card" data-type="all">
+                    <h3>📌 Vehicle Registration <i class="fas fa-chevron-down toggle"></i></h3>
+                    <p class="details">The original and a photocopy of the car's registration papers are needed.</p>
+                </div>
+
+                <div class="requirement-card" data-type="comprehensive">
+                    <h3>📌 Proof of Residency <i class="fas fa-chevron-down toggle"></i></h3>
+                    <p class="details">Utility bills or government-issued ID must be provided to confirm residence.</p>
+                </div>
+
+                <div class="requirement-card" data-type="third-party">
+                    <h3>📌 Insurance History <i class="fas fa-chevron-down toggle"></i></h3>
+                    <p class="details">If you’ve had previous insurance, a history report may be required.</p>
+                </div>
+            </div>
+
+            <button id="download-btn">📄 Download Requirements (PDF)</button>
+
+            <!-- Want to Apply? Section -->
+            <div class="apply-section">
+                <p>✅ Ready to Apply? Click the button below to start your application process.</p>
+                <a href="apply_choices.html" class="apply-btn">Apply Now</a>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-container">
+            <p class="para-line white">Copyright SDBE ©2025</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Toggle Details on Click
+            document.querySelectorAll(".requirement-card").forEach(card => {
+                card.addEventListener("click", function () {
+                    this.querySelector(".details").classList.toggle("show");
+                });
+            });
+
+            // Filter by Insurance Type
+            document.getElementById("insurance-type").addEventListener("change", function () {
+                let type = this.value;
+                document.querySelectorAll(".requirement-card").forEach(card => {
+                    if (type === "all" || card.dataset.type.includes(type)) {
+                        card.style.display = "block";
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+            });
+
+            // Search Functionality
+            document.getElementById("search").addEventListener("input", function () {
+                let searchValue = this.value.toLowerCase();
+                document.querySelectorAll(".requirement-card").forEach(card => {
+                    let text = card.textContent.toLowerCase();
+                    if (text.includes(searchValue)) {
+                        card.style.display = "block";
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+            });
+
+            // Download as PDF (Future Feature)
+            document.getElementById("download-btn").addEventListener("click", function () {
+                alert("PDF Download Feature Coming Soon!");
+            });
+        });
+    </script>
+</body>
+</html>
