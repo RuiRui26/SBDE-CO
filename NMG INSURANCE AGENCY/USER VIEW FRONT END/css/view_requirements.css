@@ -1,0 +1,48 @@
+.insurance-requirements {
+    max-width: 800px;
+    margin: auto;
+    text-align: center;
+    padding: 20px;
+}
+
+.filter-section {
+    margin-bottom: 20px;
+}
+
+#search, #insurance-type {
+    padding: 10px;
+    margin: 5px;
+    width: 45%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.requirements-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.requirement-card {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: left;
+    display: none;
+}
+
+.requirement-card .details {
+    display: none;
+    margin-top: 5px;
+}
+
+#download-btn {
+    margin-top: 20px;
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
