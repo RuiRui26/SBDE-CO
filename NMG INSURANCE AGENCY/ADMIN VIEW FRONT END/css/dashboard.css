@@ -1,0 +1,123 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    height: 100vh;
+    background: #f4f4f4;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background: #023451f3;
+    padding: 20px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: fixed;
+    height: 100vh;
+}
+
+.logo {
+    width: 180px;
+    margin-bottom: 35px;
+}
+
+.menu {
+    width: 100%;
+    list-style: none;
+    padding: 0;
+}
+
+.menu li {
+    width: 100%;
+    margin: 15px 0;
+}
+
+.menu li a {
+    display: flex;
+    align-items: center; 
+    text-decoration: none;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    transition: 0.3s;
+    font-size: 18px;
+    gap: 12px; 
+}
+
+.menu li a:hover {
+    background: #074282;
+}
+
+
+.menu li a img {
+    width: 35px;  
+    height: 35px; 
+}
+
+
+/* Main Content */
+.main-content {
+    margin-left: 270px; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;  
+    justify-content: flex-start;
+    width: calc(100% - 270px);
+    padding: 40px;
+}
+
+/* Welcome Container */
+.welcome-container {
+    width: 60%;
+    height: 120px;
+    background: #023451f3;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-bottom: 100px;
+    color: #fff;
+    font-size: 24px;
+}
+
+/* Stats Container */
+.stats-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; 
+    gap: 20px; 
+    width: 80%; 
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Individual Boxes */
+.box {
+    width: 23%; /* Ensure equal width */
+    background: #023451f3;
+    color: white;
+    text-align: center;
+    padding: 60px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* Stat Number Styling */
+.stat-number {
+    margin-top: 25px;
+    font-size: 50px;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+}
+
