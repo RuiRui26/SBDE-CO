@@ -1,6 +1,6 @@
 # SBDE-CO
 Readme File For Systems Engineering
-PHP/Laravel/Django
+PHP/CSS/HTML/JS
 NMG INSURANCE
 ERD - 
 
