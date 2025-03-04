@@ -1,11 +1,33 @@
 <?php
-session_start(); // Start session at the top
+session_start();
 
-// Check if the user is NOT logged in
+// Check if the user is logged in as an admin
 if (!isset($_SESSION['admin_email'])) {
-    header("Location: ../../Logout_Login/Login.php"); // Redirect to login page
+    header("Location: ../../Logout_Login/Login.php");
     exit();
 }
+
+// Security: Prevent session hijacking by checking user agent
+if (!isset($_SESSION['user_agent'])) {
+    $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT']; // Store user agent on first login
+} elseif ($_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT']) {
+    session_unset();
+    session_destroy();
+    header("Location: ../../Logout_Login/Login.php?error=security");
+    exit();
+}
+
+// Security: Session timeout (default: 30 minutes)
+$_SESSION['timeout_duration'] = $_SESSION['timeout_duration'] ?? 1800;
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $_SESSION['timeout_duration'])) {
+    session_unset();
+    session_destroy();
+    header("Location: ../../Logout_Login/Login.php?timeout=1");
+    exit();
+}
+
+// Update last activity timestamp
+$_SESSION['last_activity'] = time();
 
 // Check if the user is NOT an admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {

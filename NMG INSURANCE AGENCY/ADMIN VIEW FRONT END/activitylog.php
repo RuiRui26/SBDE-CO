@@ -1,16 +1,8 @@
 <?php
 session_start(); 
 
-include('../Logout_Login/Restricted.php');
-
-if (!isset($_SESSION['admin_email'])) {
-    header("Location: ../../Logout_Login/Login.php"); 
-    exit();
-}
+require('../Logout_Login/Restricted.php'); 
 ?>
-
-
-
 
 
 <!DOCTYPE html>
