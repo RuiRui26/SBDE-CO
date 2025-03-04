@@ -14,11 +14,11 @@
     <div class="sidebar">
         <img src="img2/logo.png" alt="Logo" class="logo">
         <ul class="menu">
-            <li><a href="dashboard.html"><img src="img2/dashboard.png" alt="Dashboard Icon"> Dashboard</a></li>
-            <li><a href="admin.html"><img src="img2/adminprofile.png" alt="Admin Icon"> Admin Profile</a></li>
-            <li><a href="customer.html"><img src="img2/customers.png" alt="Customers Icon"> Customers</a></li>
-            <li><a href="search.html"><img src="img2/search.png" alt="Search Icon"> Search Policy</a></li>
-            <li><a href="activitylog.html"><img src="img2/activitylog.png" alt="Activity Icon"> Activity Log</a></li>
+            <li><a href="dashboard.php"><img src="img2/dashboard.png" alt="Dashboard Icon"> Dashboard</a></li>
+            <li><a href="admin.php"><img src="img2/adminprofile.png" alt="Admin Icon"> Admin Profile</a></li>
+            <li><a href="customer.php"><img src="img2/customers.png" alt="Customers Icon"> Customers</a></li>
+            <li><a href="search.php"><img src="img2/search.png" alt="Search Icon"> Search Policy</a></li>
+            <li><a href="activitylog.php"><img src="img2/activitylog.png" alt="Activity Icon"> Activity Log</a></li>
             <li><a href="#"><img src="img2/logout.png" alt="Logout Icon"> Logout</a></li>
         </ul>
     </div>

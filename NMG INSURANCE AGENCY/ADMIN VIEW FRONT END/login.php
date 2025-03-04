@@ -12,7 +12,7 @@
     <div class="container">
         <img src="img2/logo.png" alt="Logo" class="logo">
         <h2>Login</h2>
-        <form action="login.html" method="POST">
+        <form action="login.php" method="POST">
             <div class="input-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>
