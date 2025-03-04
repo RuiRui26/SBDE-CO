@@ -5,7 +5,7 @@ CREATE TABLE admin (
     Admin_ID INT AUTO_INCREMENT PRIMARY KEY,
     FullName VARCHAR(255) NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
-    Password VARCHAR(255) NOT NULL, -- Should be hashed when stored
+    Password VARCHAR(255) NOT NULL, -- Should be hashed when stored need functionality to hash reference to sir jayson login.php
     Created_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
