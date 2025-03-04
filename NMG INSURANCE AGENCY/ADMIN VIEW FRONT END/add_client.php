@@ -18,7 +18,7 @@
             <li><a href="customer.php"><img src="img2/customers.png" alt="Customers Icon"> Customers</a></li>
             <li><a href="search.php"><img src="img2/search.png" alt="Search Icon"> Search Policy</a></li>
             <li><a href="activitylog.php"><img src="img2/activitylog.png" alt="Activity Icon"> Activity Log</a></li>
-            <li><a href="#"><img src="img2/logout.png" alt="Logout Icon"> Logout</a></li>
+            <li><a href="../../Logout_Login/Logout.php"><img src="img2/logout.png" alt="Logout Icon"> Logout</a></li>
         </ul>
     </div>
     
