@@ -1,88 +1,101 @@
 <<!!!! TABLES !!!!>> NOT FINAL
 
+-- Admin Table (System administrators)
 CREATE TABLE admin (
     Admin_ID INT AUTO_INCREMENT PRIMARY KEY,
-    FullName VARCHAR(255),
-    Email VARCHAR(50) UNIQUE NOT NULL,
-    Password VARCHAR(255) NOT NULL,
+    FullName VARCHAR(255) NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    Password VARCHAR(255) NOT NULL, -- Should be hashed when stored
     Created_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Clients Table (Stores customer details)
 CREATE TABLE clients (
     Client_ID INT AUTO_INCREMENT PRIMARY KEY,
     Full_Name VARCHAR(255) NOT NULL,
     Address VARCHAR(90) NOT NULL,
     Contact_Number VARCHAR(20) NOT NULL,
-    Created_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    Created_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Vehicles Table (Client vehicle details)
 CREATE TABLE vehicles (
     Vehicle_ID INT AUTO_INCREMENT PRIMARY KEY,
     Client_ID INT,
     PlateNumber VARCHAR(20) UNIQUE NOT NULL,
     Chassis_Number VARCHAR(50) UNIQUE NOT NULL,
-    Type_of_Insurance ENUM('TPL', 'TPPD', 'OD', 'UPA'), 
+    Type_of_insurance ENUM('Pending','Approved','Rejected'),
     FOREIGN KEY (Client_ID) REFERENCES clients(Client_ID) ON DELETE CASCADE
 );
 
+-- Documents Table (Stores OR, CR, Emission, COC files)
 CREATE TABLE document (
     Document_ID INT AUTO_INCREMENT PRIMARY KEY,
     Client_ID INT,
     Vehicle_ID INT,
     Document_Type ENUM('OR', 'CR', 'Emission', 'Certificate of Coverage'),
-    File_Path TEXT NOT NULL,
+    File_Path VARCHAR(255),
     Uploaded_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (Client_ID) REFERENCES clients(Client_ID) ON DELETE CASCADE,
-    FOREIGN KEY (Vehicle_ID) REFERENCES vehicles(Vehicle_ID) ON DELETE CASCADE
+    FOREIGN KEY (Client_ID) REFERENCES clients(Client_ID) ON DELETE SET NULL,
+    FOREIGN KEY (Vehicle_ID) REFERENCES vehicles(Vehicle_ID) ON DELETE SET NULL
 );
 
+-- Insurance Registration Table (Handles insurance applications)
 CREATE TABLE insurance_registration (
     Insurance_ID INT AUTO_INCREMENT PRIMARY KEY,
     Client_ID INT,
     Vehicle_ID INT,
+    Document_ID INT,
     Admin_ID INT,
-    Type_of_Insurance ENUM('TPL', 'TPPD', 'OD', 'UPA'),
-    Status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    Type_of_insurance ENUM('Pending','Approved','Rejected'),
+    Status ENUM('Pending','Approved','Rejected'),
     OR_Picture VARCHAR(255),
     CR_Picture VARCHAR(255),
-    Applied_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (Client_ID) REFERENCES clients(Client_ID) ON DELETE CASCADE,
-    FOREIGN KEY (Vehicle_ID) REFERENCES vehicles(Vehicle_ID) ON DELETE CASCADE,
+    Created_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (Client_ID) REFERENCES clients(Client_ID) ON DELETE SET NULL,
+    FOREIGN KEY (Vehicle_ID) REFERENCES vehicles(Vehicle_ID) ON DELETE SET NULL,
+    FOREIGN KEY (Document_ID) REFERENCES document(Document_ID) ON DELETE SET NULL,
     FOREIGN KEY (Admin_ID) REFERENCES admin(Admin_ID) ON DELETE SET NULL
 );
 
+-- Lost Documents Table (Tracks lost documents)
+CREATE TABLE lost_documents (
+    Lost_Document_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Client_ID INT,
+    Insurance_ID INT,
+    Document_ID INT,
+    Certificate_of_Coverage VARCHAR(255),
+    Application_Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (Client_ID) REFERENCES clients(Client_ID) ON DELETE SET NULL,
+    FOREIGN KEY (Insurance_ID) REFERENCES insurance_registration(Insurance_ID) ON DELETE SET NULL,
+    FOREIGN KEY (Document_ID) REFERENCES document(Document_ID) ON DELETE SET NULL
+);
+
+-- LTO Transactions Table (Tracks transactions with LTO)
 CREATE TABLE lto_transaction (
     Transaction_ID INT AUTO_INCREMENT PRIMARY KEY,
     Client_ID INT,
     Vehicle_ID INT,
     Insurance_ID INT,
+    Document_ID INT,
     OR_Picture VARCHAR(255),
     CR_Picture VARCHAR(255),
     Emission_Picture VARCHAR(255),
     Certificate_of_Coverage_Picture VARCHAR(255),
-    Status ENUM('Pending', 'Processed', 'Rejected') DEFAULT 'Pending',
+    Status ENUM('Pending','Processed','Rejected'),
     Submitted_Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (Client_ID) REFERENCES clients(Client_ID) ON DELETE CASCADE,
-    FOREIGN KEY (Vehicle_ID) REFERENCES vehicles(Vehicle_ID) ON DELETE CASCADE,
-    FOREIGN KEY (Insurance_ID) REFERENCES insurance_registration(Insurance_ID) ON DELETE CASCADE
+    FOREIGN KEY (Client_ID) REFERENCES clients(Client_ID) ON DELETE SET NULL,
+    FOREIGN KEY (Vehicle_ID) REFERENCES vehicles(Vehicle_ID) ON DELETE SET NULL,
+    FOREIGN KEY (Insurance_ID) REFERENCES insurance_registration(Insurance_ID) ON DELETE SET NULL,
+    FOREIGN KEY (Document_ID) REFERENCES document(Document_ID) ON DELETE SET NULL
 );
 
+-- User Logs Table (Tracks admin actions)
 CREATE TABLE user_logs (
     Log_ID INT AUTO_INCREMENT PRIMARY KEY,
     Admin_ID INT,
     Action TEXT NOT NULL,
-    Timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Created_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (Admin_ID) REFERENCES admin(Admin_ID) ON DELETE SET NULL
 );
-
-CREATE TABLE lost_documents (
-    Lost_Document_ID INT AUTO_INCREMENT PRIMARY KEY,
-    Client_ID INT,
-    Insurance_ID INT,
-    Certificate_of_Coverage VARCHAR(255),
-    Application_Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (Client_ID) REFERENCES clients(Client_ID) ON DELETE CASCADE,
-    FOREIGN KEY (Insurance_ID) REFERENCES insurance_registration(Insurance_ID) ON DELETE CASCADE
-);
-
 
