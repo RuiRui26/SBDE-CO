@@ -7,9 +7,8 @@ if (!isset($_SESSION['admin_email'])) {
     exit();
 }
 
-// Security: Prevent session hijacking by checking user agent
 if (!isset($_SESSION['user_agent'])) {
-    $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT']; // Store user agent on first login
+    $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
 } elseif ($_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT']) {
     session_unset();
     session_destroy();
@@ -26,10 +25,8 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
     exit();
 }
 
-// Update last activity timestamp
 $_SESSION['last_activity'] = time();
 
-// Check if the user is NOT an admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     echo '
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -59,6 +56,6 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
         });
     </script>
     ';
-    exit(); // Stop further execution
+    exit(); 
 }
 ?>
