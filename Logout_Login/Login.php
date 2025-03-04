@@ -1,13 +1,10 @@
 <?php
 session_start();
 
-// Dummy credentials for testing (Replace with database validation)
-$valid_email = "admin@example.com";
-$valid_password = "password123";
-
+require_once "../DB_connection/db.php";
 // If already logged in, redirect to dashboard
 if (isset($_SESSION['username'])) {
-    header("Location: dashboard.php");
+    header("Location: ../../NMG Insurance Agency/ADMIN VIEW FRONT END/index.php");
     exit();
 }
 
@@ -15,14 +12,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Check if email and password match
-    if ($email === $valid_email && $password === $valid_password) {
-        $_SESSION['username'] = $email; // Store session
-        header("Location: dashboard.php"); // Redirect to dashboard
-        exit();
+
+     // Prepare SQL query to check admin credentials
+     $sql = "SELECT * FROM admin WHERE email = ?";
+     $stmt = $conn->prepare($sql);
+     $stmt->bind_param("s", $email);
+     $stmt->execute();
+     $result = $stmt->get_result();
+     
+     if ($result->num_rows === 1) {
+        $admin = $result->fetch_assoc();
+        
+        // Verify password
+        if (password_verify($password, $admin['password'])) {
+            $_SESSION['admin_email'] = $admin['email']; // Store session
+            header("Location: ../../NMG Insurance Agency/ADMIN VIEW FRONT END/index.php");
+            exit();
+        } else {
+            $error = "Invalid email or password.";
+        }
     } else {
         $error = "Invalid email or password.";
     }
+
+    $stmt->close();
+    $conn->close();
 }
 ?>
 
@@ -40,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <h2>Login</h2>
         <?php if (isset($error)) { echo "<p style='color: red;'>$error</p>"; } ?>
         
-        <form action="Login.php" method="POST"> <!-- Ensure correct case -->
+        <form action="Login.php" method="POST">
             <div class="input-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required>
