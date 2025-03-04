@@ -1,0 +1,150 @@
+/* Main Content Layout */
+.main-content {
+    margin-left: 270px; 
+    padding: 40px;
+    width: calc(100% - 270px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* Page Title */
+.activity-title {
+    font-size: 48px;
+    color: #023451f3;
+    margin-bottom: 40px;
+}
+
+/* Search and Add Client Section */
+.search-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; 
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+/* Search Input */
+.search-container input {
+    flex: 1; 
+    max-width: 400px;
+    padding: 15px;
+    border: 2px solid #023451f3;
+    border-radius: 8px;
+    font-size: 18px;
+}
+
+/* Add Client Button (Right Side) */
+.add-client-btn {
+    padding: 15px 30px;
+    background-color: #023451f3;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.3s;
+}
+
+.add-client-btn:hover {
+    background-color: #074282;
+}
+
+/* Table Container */
+.table-container {
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Table Header */
+thead {
+    background-color: #023451f3;
+    color: white;
+}
+
+th, td {
+    padding: 20px 30px;
+    text-align: left;
+    font-size: 20px;
+}
+
+/* Alternating Rows */
+tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+/* Hover Effect */
+tbody tr:hover {
+    background-color: #e1f0ff;
+}
+
+/* Status Styles */
+.status {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.status.pending {
+    background-color: #ffc107;
+    color: #6c5100;
+}
+
+.status.approved {
+    background-color: #4caf50;
+    color: white;
+}
+
+.view-btn {
+    padding: 12px 24px;
+    font-size: 16px;
+    color: white;
+    background-color: #4b9cff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.view-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+        width: 100%;
+    }
+
+    .search-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .search-container input {
+        width: 100%;
+    }
+
+    .add-client-btn {
+        margin-top: 15px; 
+    }
+
+    table {
+        font-size: 16px;
+    }
+
+    th, td {
+        padding: 15px;
+    }
+}
