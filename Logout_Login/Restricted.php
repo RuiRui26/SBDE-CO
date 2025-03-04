@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_agent'])) {
 } elseif ($_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT']) {
     session_unset();
     session_destroy();
-    header("Location: ../../Logout_Login/Login.php?error=security");
+    header("Location: Login.php?error=security");
     exit();
 }
 
@@ -21,7 +21,7 @@ $_SESSION['timeout_duration'] = $_SESSION['timeout_duration'] ?? 1800;
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $_SESSION['timeout_duration'])) {
     session_unset();
     session_destroy();
-    header("Location: ../../Logout_Login/Login.php?timeout=1");
+    header("Location: Login.php?error=security");
     exit();
 }
 
