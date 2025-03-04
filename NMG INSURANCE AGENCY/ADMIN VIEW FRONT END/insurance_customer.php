@@ -79,6 +79,7 @@
        
         function viewCustomer(name) {
             alert("Viewing details for " + name);
+            window.location.href = 'insurance_details.php';
         }
 
         
