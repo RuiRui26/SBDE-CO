@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DASHBOARD</title>
+    <title>Staff Information</title>
     <link rel="icon" type="image/png" href="img2/logo.png">
     <link rel="stylesheet" href="css/dashboard.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/staff_info.css">
 </head>
 
 <body>
@@ -21,7 +21,6 @@
             <li><a href="staff_info.php"><img src="img2/adminprofile.png" alt="Admin Icon"> Staff Information</a></li>
             <li><a href="search.php"><img src="img2/search.png" alt="Search Icon"> Search Policy</a></li>
             <li><a href="activitylog.php"><img src="img2/activitylog.png" alt="Activity Icon"> Activity Log</a></li>
-
             <!-- Settings with Hover & Click Dropdown -->
             <li class="has-submenu" onclick="toggleSubmenu(event)">
                 <a href="setting.php"><img src="img2/setting.png" alt="Setting Icon"> Settings</a>
@@ -29,12 +28,11 @@
                     <li><a href="page_management.php">Page Management</a></li>
                 </ul>
             </li>
-
             <li><a href="../../Logout_Login/Logout.php"><img src="img2/logout.png" alt="Logout Icon"> Logout</a></li>
         </ul>
     </div>
 
-    <!-- Admin Profile Dropdown -->
+    <!-- Profile Dropdown -->
     <div class="profile-dropdown">
         <img src="img2/samplepic.png" alt="Admin Avatar" class="avatar" onclick="toggleProfileMenu()">
         <div class="profile-menu" id="profileMenu">
@@ -45,52 +43,59 @@
         </div>
     </div>
 
-    <div class="datetime-display" id="datetimeDisplay"></div>
-
     <!-- Main Content -->
     <div class="main-content">
-        <div class="welcome-container">
-            <h1>Welcome, Admin</h1>
+
+        <!-- Staff Header -->
+        <div class="staff-header">
+            <h2>Staff Information</h2>
         </div>
 
-        <!-- Stats Container -->
-        <div class="stats-container">
+        <!-- Search Bar -->
+        <div class="search-section">
+            <input type="text" class="search-bar" placeholder="Search staff...">
+        </div>
+
+        <!-- Add Staff Button -->
+        <div class="add-button-container">
+            <button class="add-staff-btn">Add Staff</button>
+        </div>
+
+        <!-- Staff Container -->
+        <div class="staff-container">
             <?php
-            $stats = [
-                "Total Insurance Applied" => 275,
-                "Total LTO Transactions" => 185,
-                "Pending Insurance" => 60,
-                "Approved Insurance" => 215
+            $staff = [
+                ["John Doe", "Manager", "john.doe@example.com", "123-456-7890", "img2/samplepic.png"],
+                ["Jane Smith", "Cashier", "jane.smith@example.com", "987-654-3210", "img2/samplepic.png"],
+                ["Alice Johnson", "Agent", "alice.johnson@example.com", "111-222-3333", "img2/samplepic.png"],
+                ["Bob Williams", "Agent", "bob.williams@example.com", "444-555-6666", "img2/samplepic.png"],
+                ["Eva Brown", "Cashier", "eva.brown@example.com", "777-888-9999", "img2/samplepic.png"],
+                ["David Lee", "Manager", "david.lee@example.com", "101-202-3030", "img2/samplepic.png"]
             ];
 
-            foreach ($stats as $title => $value) {
-                echo "
-                <div class='stat-card'>
-                    <h3>$title</h3>
-                    <div class='transaction-number'>$value</div>
-                </div>";
+            foreach ($staff as $staffMember) {
+                echo "<div class='staff-card'>";
+                echo "<img src='" . $staffMember[4] . "' alt='" . $staffMember[0] . "' class='staff-photo'>";
+                echo "<div class='staff-details'>";
+                echo "<p><strong>Name:</strong> " . $staffMember[0] . "</p>";
+                echo "<p><strong>Role:</strong> " . $staffMember[1] . "</p>";
+                echo "<p><strong>Email:</strong> " . $staffMember[2] . "</p>";
+                echo "<p><strong>Contact:</strong> " . $staffMember[3] . "</p>";
+                echo "</div>";
+                echo "</div>";
             }
             ?>
         </div>
+
     </div>
 
+    <!-- JavaScript -->
     <script>
-        // Real-time date and time display
-        function updateDateTime() {
-            const now = new Date();
-            const dateTimeString = now.toLocaleString();
-            document.getElementById('datetimeDisplay').textContent = dateTimeString;
-        }
-
-        updateDateTime();
-        setInterval(updateDateTime, 1000);
-
-        // Toggle Profile Menu
+        // Profile Menu Toggle
         function toggleProfileMenu() {
             const menu = document.getElementById('profileMenu');
             menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
         }
-
         // Toggle Submenu for Settings (Hover + Click Support)
         function toggleSubmenu(event) {
             event.stopPropagation(); // Prevent event from bubbling up
@@ -98,24 +103,12 @@
             submenu.style.display = (submenu.style.display === 'block') ? 'none' : 'block';
         }
 
-        // Close any open submenu when clicking outside
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.submenu').forEach(submenu => {
-                submenu.style.display = 'none';
-            });
-        });
-
-        // Open submenu on hover
-        document.querySelectorAll('.has-submenu').forEach(item => {
-            item.addEventListener('mouseenter', () => {
-                const submenu = item.querySelector('.submenu');
-                submenu.style.display = 'block';
-            });
-
-            item.addEventListener('mouseleave', () => {
-                const submenu = item.querySelector('.submenu');
-                submenu.style.display = 'none';
-            });
+        // Close Profile Menu on Outside Click
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('profileMenu');
+            if (!e.target.closest('.profile-dropdown')) {
+                menu.style.display = 'none';
+            }
         });
     </script>
 

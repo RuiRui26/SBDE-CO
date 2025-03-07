@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DASHBOARD</title>
+    <title>Setting Page Management</title>
     <link rel="icon" type="image/png" href="img2/logo.png">
     <link rel="stylesheet" href="css/dashboard.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/page_management.css">
 </head>
 
 <body>
@@ -47,31 +47,48 @@
 
     <div class="datetime-display" id="datetimeDisplay"></div>
 
-    <!-- Main Content -->
+    <!-- Page Management Table -->
     <div class="main-content">
-        <div class="welcome-container">
-            <h1>Welcome, Admin</h1>
-        </div>
+        <h1>Page Management</h1>
 
-        <!-- Stats Container -->
-        <div class="stats-container">
-            <?php
-            $stats = [
-                "Total Insurance Applied" => 275,
-                "Total LTO Transactions" => 185,
-                "Pending Insurance" => 60,
-                "Approved Insurance" => 215
-            ];
+        <table class="page-management-table">
+            <thead>
+                <tr>
+                    <th>Page Name</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                // Array of pages with corresponding edit pages
+                $pages = [
+                    ["Homepage", "Active", "homepage_setting.php"],
+                    ["About Page", "Active", "about_setting.php"],
+                    ["Insurance", "Active", "insurance_setting.php"],
+                    ["Contacts", "Active", "contact_setting.php"],
+                ];
 
-            foreach ($stats as $title => $value) {
-                echo "
-                <div class='stat-card'>
-                    <h3>$title</h3>
-                    <div class='transaction-number'>$value</div>
-                </div>";
-            }
-            ?>
-        </div>
+                // Loop through each page and display rows
+                foreach ($pages as $page) {
+                    $pageName = $page[0];
+                    $status = $page[1];
+                    $editPage = $page[2];
+                    $buttonText = ($status === "Active") ? "Disable" : "Enable";
+
+                    echo "
+                    <tr>
+                        <td>$pageName</td>
+                        <td class='status $status'>" . ucfirst($status) . "</td>
+                        <td>
+                            <button class='action-btn toggle-btn' onclick='toggleStatus(this)'>$buttonText</button>
+                            <a href='$editPage' class='action-btn edit-btn'>Edit</a>
+                        </td>
+                    </tr>";
+                }
+                ?>
+            </tbody>
+        </table>
     </div>
 
     <script>
@@ -81,7 +98,6 @@
             const dateTimeString = now.toLocaleString();
             document.getElementById('datetimeDisplay').textContent = dateTimeString;
         }
-
         updateDateTime();
         setInterval(updateDateTime, 1000);
 
@@ -91,29 +107,33 @@
             menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
         }
 
+        // Toggle Page Status
+        function toggleStatus(button) {
+            const row = button.closest('tr');
+            const statusCell = row.querySelector('.status');
+            if (statusCell.textContent === 'Active') {
+                statusCell.textContent = 'Inactive';
+                statusCell.classList.remove('Active');
+                statusCell.classList.add('Inactive');
+                button.textContent = 'Enable';
+            } else {
+                statusCell.textContent = 'Active';
+                statusCell.classList.remove('Inactive');
+                statusCell.classList.add('Active');
+                button.textContent = 'Disable';
+            }
+        }
+
         // Toggle Submenu for Settings (Hover + Click Support)
         function toggleSubmenu(event) {
-            event.stopPropagation(); // Prevent event from bubbling up
+            event.stopPropagation();
             const submenu = event.currentTarget.querySelector('.submenu');
             submenu.style.display = (submenu.style.display === 'block') ? 'none' : 'block';
         }
 
-        // Close any open submenu when clicking outside
+        // Close submenu when clicking outside
         document.addEventListener('click', () => {
             document.querySelectorAll('.submenu').forEach(submenu => {
-                submenu.style.display = 'none';
-            });
-        });
-
-        // Open submenu on hover
-        document.querySelectorAll('.has-submenu').forEach(item => {
-            item.addEventListener('mouseenter', () => {
-                const submenu = item.querySelector('.submenu');
-                submenu.style.display = 'block';
-            });
-
-            item.addEventListener('mouseleave', () => {
-                const submenu = item.querySelector('.submenu');
                 submenu.style.display = 'none';
             });
         });

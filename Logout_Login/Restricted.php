@@ -1,9 +1,10 @@
 <?php
+/*
 session_start();
 
 // Check if the user is logged in as an admin
 if (!isset($_SESSION['admin_email'])) {
-    header("Location: http://localhost/SDBE-CO/Logout_Login/Login.php");
+    header("Location: http://localhost/SBDE-CO/Logout_Login/Login.php");
     exit();
 }
 
@@ -58,4 +59,5 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     ';
     exit(); 
 }
+*/
 ?>

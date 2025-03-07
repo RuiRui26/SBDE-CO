@@ -1,0 +1,75 @@
+/* Page Management Styling */
+
+.main-content {
+    margin-left: 260px;
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-size: 38px;
+    color: #023451;
+    margin-top: 50px;
+}
+
+/* Page Management Table */
+.page-management-table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.page-management-table th,
+.page-management-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.page-management-table th {
+    background-color: #023451;
+    color: white;
+}
+
+/* Status Styling */
+.status {
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.status.Active {
+    color: #4CAF50; /* Green for Active */
+}
+
+.status.Inactive {
+    color: #E53935; /* Red for Inactive */
+}
+
+/* Action Buttons */
+.action-btn {
+    padding: 8px 12px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.toggle-btn {
+    background-color: #FFC107;
+    color: #333;
+}
+
+.toggle-btn:hover {
+    background-color: #FFA000;
+}
+
+.edit-btn {
+    background-color: #2196F3;
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: #1976D2;
+}

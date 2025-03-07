@@ -1,0 +1,151 @@
+/* Main Content Styling */
+.main-content {
+    margin-left: 260px; /* Space for sidebar */
+    padding: 40px 20px;
+    max-width: 900px;
+    box-sizing: border-box;
+}
+
+h1 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Form Styling */
+.insurance-form {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+}
+
+.insurance-form h2 {
+    color: #333;
+    margin-top: 0;
+}
+
+.insurance-form label {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+.insurance-form input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+/* Button Group */
+.button-group {
+    display: flex;
+    gap: 20px;
+}
+
+button {
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.save-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.cancel-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+/* Insurance Table */
+.insurance-table {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.insurance-table h2 {
+    color: #333;
+    margin-top: 0;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+
+/* Action Buttons */
+.edit-btn, .delete-btn {
+    text-decoration: none;
+    padding: 8px 16px;
+    margin-right: 8px;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+}
+
+.edit-btn {
+    background: #0366a1;
+    color: white;
+}
+
+.delete-btn {
+    background: #d9534f;
+    color: white;
+}
+
+.edit-btn:hover {
+    background: #02456e;
+}
+
+.delete-btn:hover {
+    background: #c9302c;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .insurance-form, .insurance-table {
+        padding: 20px;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+} 

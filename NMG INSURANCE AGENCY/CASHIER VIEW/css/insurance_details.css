@@ -1,0 +1,126 @@
+/* Global Styles */
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 270px; 
+    padding: 50px;
+    width: calc(100% - 270px);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Centered Page Title */
+.page-title {
+    font-size: 42px;
+    font-weight: bold;
+    color: #023451;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.details-section {
+    position: absolute;
+    left: 300px; 
+    top: 150px; 
+    font-size: 22px;
+    line-height: 2;
+    color: #023451;
+}
+
+/* Image Container for OR and CR */
+.image-container {
+    display: flex;
+    gap: 40px;
+    margin-top: 20px;
+}
+
+.image-box {
+    text-align: left;
+}
+
+.image-box img {
+    width: 150px;
+    height: auto;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.image-box img:hover {
+    transform: scale(1.1);
+}
+
+.buttons {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    gap: 20px;
+}
+
+.accept-btn, .decline-btn {
+    padding: 15px 40px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 20px;
+    color: white;
+    transition: background 0.3s;
+}
+
+.accept-btn {
+    background: green;
+}
+
+.decline-btn {
+    background: red;
+}
+
+.accept-btn:hover {
+    background: darkgreen;
+}
+
+.decline-btn:hover {
+    background: darkred;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100px;
+    }
+
+    .main-content {
+        margin-left: 120px;
+        padding: 20px;
+    }
+
+    .page-title {
+        font-size: 32px;
+    }
+
+    .details-section {
+        left: 140px; 
+        font-size: 18px;
+    }
+
+    .buttons {
+        flex-direction: column; 
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .accept-btn, .decline-btn {
+        padding: 12px 24px;
+        font-size: 18px;
+    }
+}

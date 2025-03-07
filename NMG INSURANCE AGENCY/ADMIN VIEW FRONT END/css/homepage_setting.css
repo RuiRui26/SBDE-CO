@@ -1,0 +1,120 @@
+/* Main Content */
+.main-content {
+    margin-left: 260px;
+    padding: 40px 20px;
+    max-width: 1000px;
+    box-sizing: border-box;
+}
+
+h1 {
+    font-size: 32px;
+    margin-bottom: 40px;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Form Styling */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    background: #fff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Group */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+label {
+    font-weight: bold;
+    color: #444;
+}
+
+/* Input Styling */
+input[type="text"], input[type="file"] {
+    padding: 14px;
+    font-size: 16px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-sizing: border-box;
+    outline: none;
+    transition: border 0.3s ease;
+}
+
+input:focus {
+    border-color: #4CAF50;
+}
+
+/* Image Upload */
+.image-preview {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 10px;
+}
+
+.image-preview img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 2px solid #ddd;
+    transition: transform 0.3s ease;
+}
+
+.image-preview img:hover {
+    transform: scale(1.05);
+}
+
+/* Buttons */
+.form-buttons {
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+button {
+    padding: 14px 28px;
+    font-size: 18px;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+}
+
+button.cancel-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+button:hover {
+    transform: translateY(-3px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .form-buttons {
+        flex-direction: column;
+    }
+
+    .image-preview img {
+        width: 120px;
+        height: 120px;
+    }
+}

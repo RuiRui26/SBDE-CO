@@ -12,7 +12,6 @@ Updates
 Deletion
 Notification
 Blogs
-Claiming of insurance and benefits
 
 
 

@@ -1,0 +1,282 @@
+/* General Styles */
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    display: flex;
+    background: #f9f9f9;
+    color: #333;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: #023451;
+    color: white;
+    height: 100vh;
+    padding-top: 20px;
+    position: fixed;
+}
+
+.sidebar .logo {
+    display: block;
+    margin: 0 auto 40px;
+    width: 180px;
+}
+
+.sidebar .menu {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar .menu li {
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Ensure consistent gap between icon and text */
+}
+
+.sidebar .menu li img {
+    width: 30px;
+    flex-shrink: 0; /* Prevent icon from shrinking */
+    margin-right: 12px; /* Additional fallback for consistent gap */
+}
+
+.sidebar .menu li a {
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar .menu li:hover {
+    background: #0366a1;
+    border-radius: 8px;
+}
+
+/* Updated Admin Profile Dropdown */
+.profile-dropdown {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+}
+
+.profile-dropdown .avatar {
+    width: 70px;
+    cursor: pointer;
+    border-radius: 50%;
+    border-color: #023451;
+    transition: transform 0.3s ease;
+}
+
+.profile-dropdown .avatar:hover {
+    transform: scale(1.1);
+}
+
+.profile-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 60px;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    width: 180px;
+}
+
+.profile-menu p {
+    margin: 0;
+    padding: 12px 20px;
+    font-weight: bold;
+    background: #f1f1f1;
+    border-bottom: 1px solid #ddd;
+    color: #333;
+}
+
+.profile-menu a {
+    display: block;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: #333;
+    transition: background 0.3s ease;
+}
+
+.profile-menu a:hover {
+    background: #f5f5f5;
+}
+
+/* date and time */
+.datetime-display {
+    position: absolute;
+    top: 20px;
+    right: 100px; /* Adjust as needed */
+    font-size: 16px;
+    color: #333;
+    background-color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .profile-dropdown {
+        top: 10px;
+        right: 10px;
+    }
+
+    .profile-dropdown .avatar {
+        width: 40px;
+    }
+
+    .profile-menu {
+        top: 50px;
+        width: 160px;
+    }
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 250px;
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.welcome-container {
+    margin-bottom: 50px;
+}
+
+.welcome-container h1 {
+    margin: 0;
+    color: #023451;
+    margin-top: 20px;
+    font-size: 60px;
+}
+
+/* Stats Container */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px #023451;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card h3 {
+    margin-top: 0;
+    font-size: 18px;
+    color: #023451;
+}
+
+.transaction-number {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.chart-container {
+    height: 200px;
+    margin-top: 20px;
+}
+
+/* Dropdown Filter */
+.dropdown-container {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+}
+
+.filter {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 200px;
+    }
+
+    .main-content {
+        margin-left: 200px;
+    }
+
+    .stat-card {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        width: 100%;
+        height: auto;
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 20px;
+    }
+
+    .sidebar .menu {
+        display: none;
+    }
+
+    .profile-dropdown {
+        top: 10px;
+        right: 10px;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding-top: 80px;
+    }
+
+    .stat-card {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        flex-direction: column;
+    }
+
+    .sidebar .logo {
+        width: 80px;
+    }
+
+    .main-content {
+        padding: 10px;
+    }
+
+    .stat-card {
+        padding: 8px;
+    }
+
+    .transaction-number {
+        font-size: 24px;
+    }
+
+    .profile-dropdown .avatar {
+        width: 40px;
+    }
+}
