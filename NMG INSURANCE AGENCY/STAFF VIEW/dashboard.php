@@ -11,7 +11,6 @@
 </head>
 
 <body>
-    <!-- Sidebar -->
     <div class="sidebar">
         <img src="img5/logo.png" alt="Logo" class="logo">
         <ul class="menu">
@@ -23,7 +22,6 @@
         </ul>
     </div>
 
-    <!-- Admin Profile Dropdown -->
     <div class="profile-dropdown">
         <img src="img5/samplepic.png" alt="Admin Avatar" class="avatar" onclick="toggleProfileMenu()">
         <div class="profile-menu" id="profileMenu">
@@ -34,16 +32,13 @@
         </div>
     </div>
 
-    <!-- Real-time Date and Time -->
     <div class="datetime-display" id="datetimeDisplay"></div>
 
-    <!-- Main Content -->
     <div class="main-content">
         <div class="welcome-container">
             <h1>Welcome, Staff</h1>
         </div>
 
-        <!-- Stats Container -->
         <div class="stats-container" id="stats-container">
             <?php
             $stats = [
@@ -75,6 +70,48 @@
             }
             ?>
         </div>
+
+        <div class="leaderboard-container">
+            <h2>Staff Leaderboard (Top Sales)</h2>
+            <div class="leaderboard-table-wrapper">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Picture</th>
+                            <th>Staff Name</th>
+                            <th>Total Sales</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $staffSales = [
+                            ["name" => "Robby Patrick Enriquez", "sales" => 350, "picture" => "img5/samplepic.png"],
+                            ["name" => "Andy Rilg Dinampo", "sales" => 300, "picture" => "img5/samplepic.png"],
+                            ["name" => "Alekxiz Solis", "sales" => 275, "picture" => "img5/samplepic.png"],
+                            ["name" => "John Mchales Buenaventura", "sales" => 250, "picture" => "img5/samplepic.png"],
+                            ["name" => "Charlie White", "sales" => 220, "picture" => "img5/samplepic.png"],
+                            ["name" => "Eve Green", "sales" => 200, "picture" => "img5/samplepic.png"],
+                            ["name" => "Frank Black", "sales" => 180, "picture" => "img5/samplepic.png"]
+                        ];
+
+                        usort($staffSales, function ($a, $b) {
+                            return $b['sales'] - $a['sales'];
+                        });
+
+                        foreach ($staffSales as $index => $staff) {
+                            echo "<tr>
+                                    <td>" . ($index + 1) . "</td>
+                                    <td><img src='{$staff['picture']}' alt='{$staff['name']}' class='staff-picture'></td>
+                                    <td>{$staff['name']}</td>
+                                    <td>{$staff['sales']}</td>
+                                </tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -92,9 +129,9 @@
             const transactionNumber = card.querySelector('.transaction-number');
 
             if (select.value === 'default') {
-                transactionNumber.textContent = transactionNumber.dataset.default; // Reset to default value
+                transactionNumber.textContent = transactionNumber.dataset.default;
             } else {
-                transactionNumber.textContent = select.value; // Set selected value
+                transactionNumber.textContent = select.value;
             }
         }
 
