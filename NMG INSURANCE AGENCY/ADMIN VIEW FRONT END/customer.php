@@ -1,9 +1,8 @@
 <?php
 session_start(); 
-$allowed_roles = ['Admin'];
-require '../../Logout_Login/Restricted.php';
-?>
 
+require('../../Logout_Login/Restricted.php');
+?>
 
 
 
@@ -60,10 +59,10 @@ require '../../Logout_Login/Restricted.php';
                 <button class="view-btn" onclick="viewAllInsurance()">View</button>
             </div>
 
-            <!-- LTO Container -->
+            <!-- Archive Container -->
             <div class="info-box">
-                <img src="img2/LTO2.png" alt="LTO" class="box-logo">
-                <h2>LTO Transaction</h2>
+                <img src="img2/logo.png" alt="LTO" class="box-logo">
+                <h2>Lost Documents</h2>
                 <button class="view-btn" onclick="viewAllLto()">View</button>
             </div>
         </div>
@@ -76,7 +75,7 @@ require '../../Logout_Login/Restricted.php';
         }
 
         function viewAllLto() {
-            window.location.href = 'lto_customer.php';
+            window.location.href = 'lost_customer.php';
         }
 
         function handleSearch() {
