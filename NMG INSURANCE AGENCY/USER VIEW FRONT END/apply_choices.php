@@ -18,7 +18,7 @@
     <nav>
         <div class="menu-container nav-wrapper">
             <div class="brand">
-                <a href="index.html">
+                <a href="index.php">
                     <img src="img/NMG22.png" alt="insurancy-logo" border="0">
                 </a>
             </div>
@@ -30,10 +30,10 @@
             </div>
 
             <ul class="nav-list">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="benefits.html">Insurance</a></li>
-                <li><a href="contact.html">Contacts</a></li>
+                <li><a href="index.php">Home</a></li>
+                <li><a href="about.php">About</a></li>
+                <li><a href="benefits.php">Insurance</a></li>
+                <li><a href="contact.php">Contacts</a></li>
                 
             </ul>
         </div>
@@ -50,7 +50,7 @@
                 <img src="img/NMG3.png" alt="Lost Document" class="apply-img">
                 <h2>Appoint for Lost Document</h2>
                 <p>Access and retrieve your personal files securely and conveniently.</p>
-                    <a href="appoint_lost.html" class="apply-btn">Appoint</a>
+                    <a href="appoint_lost.php" class="apply-btn">Appoint</a>
             </div>
 
 
@@ -59,7 +59,7 @@
                 <img src="img/NMG3.png" alt="Apply Insurance" class="apply-img">
                 <h2>Apply Insurance</h2>
                 <p>Get the coverage you need! Apply for insurance with us—quick, easy, and hassle-free.</p>
-                    <a href="register_insurance.html" class="apply-btn">Apply Now</a>
+                    <a href="register_insurance.php" class="apply-btn">Apply Now</a>
             </div>
         </div>
     </section>

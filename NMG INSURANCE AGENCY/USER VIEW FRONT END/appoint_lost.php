@@ -16,7 +16,7 @@
     <div class="container">
         <h2>Retrieve your Lost  Documents</h2>
         
-        <form action="appoint_lost.html" method="POST" enctype="multipart/form-data">
+        <form action="appoint_lost.php" method="POST" enctype="multipart/form-data">
             
             <label for="name">Full Name:</label>
             <input type="text" id="name" name="name" required>
