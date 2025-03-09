@@ -90,8 +90,8 @@
     let currentPath = window.location.pathname.split("/").pop();
 
     
-    if (currentPath === "" || currentPath === "index.html") {
-        currentPath = "index.html";
+    if (currentPath === "" || currentPath === "index.php") {
+        currentPath = "index.php";
     }
 
     $(".nav-list li").removeClass("active");

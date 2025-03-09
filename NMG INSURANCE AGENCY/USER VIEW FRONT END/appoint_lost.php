@@ -14,11 +14,13 @@
 
 <body>
 
-    <!-- Header -->
-    <div class="header">
-        <img src="img/NMG3.png" alt="NMG Insurance Logo" class="logo">
-        <h1 class="header-title">Appoint for Lost Documents</h1>
-    </div>
+    <div class="container">
+        <h2>Retrieve your Lost  Documents</h2>
+        
+        <form action="appoint_lost.php" method="POST" enctype="multipart/form-data">
+            
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" required>
 
     <!-- Main Form Section -->
     <div class="form-section">

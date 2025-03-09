@@ -120,11 +120,11 @@
     <script>
         function logout() {
             // Redirect to the logout page or handle logout logic
-            window.location.href = 'logout.html';
+            window.location.href = 'logout.php';
         }
         function sendmessage() {
             // Redirect to the logout page or handle logout logic
-            window.location.href = 'message.html';
+            window.location.href = 'message.php';
         }
 
     </script>

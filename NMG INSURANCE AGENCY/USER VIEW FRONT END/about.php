@@ -27,7 +27,7 @@
 	<nav>
 		<div class="menu-container nav-wrapper">
 			<div class="brand">
-				<a href="index.html">
+				<a href="index.php">
 					<img src="img/NMG22.png" alt="insurancy-logo" border="0">
 				</a>
 			</div>
@@ -144,8 +144,8 @@
 
     let currentPath = window.location.pathname.split("/").pop();
 
-    if (currentPath === "" || currentPath === "index.html") {
-        currentPath = "index.html";
+    if (currentPath === "" || currentPath === "index.php") {
+        currentPath = "index.php";
     }
 
     $(".nav-list li").removeClass("active");

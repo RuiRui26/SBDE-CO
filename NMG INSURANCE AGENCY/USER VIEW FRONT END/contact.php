@@ -131,9 +131,9 @@
     // Get the current URL path
     let currentPath = window.location.pathname.split("/").pop();
 
-    // If no specific page is detected, default to 'index.html'
-    if (currentPath === "" || currentPath === "index.html") {
-        currentPath = "index.html";
+    // If no specific page is detected, default to 'index.php'
+    if (currentPath === "" || currentPath === "index.php") {
+        currentPath = "index.php";
     }
 
     // Remove 'active' class from all nav items

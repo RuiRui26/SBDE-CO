@@ -80,7 +80,7 @@
             if (message !== "") {
                 const newMessage = document.createElement("div");
                 newMessage.classList.add("chat-message", "agent");
-                newMessage.innerHTML = `<p>${message}</p>`;
+                newMessage.innerphp = `<p>${message}</p>`;
                 chatWindow.appendChild(newMessage);
                 messageInput.value = "";
                 chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll to the latest message
