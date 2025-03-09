@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Dashboard</title>
+    <title>Staff | Dashboard</title>
     <link rel="icon" type="image/png" href="img5/logo.png">
     <link rel="stylesheet" href="css/dashboard.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,7 +15,7 @@
         <img src="img5/logo.png" alt="Logo" class="logo">
         <ul class="menu">
             <li><a href="dashboard.php"><img src="img5/dashboard.png" alt="Dashboard Icon"> Dashboard</a></li>
-            <li><a href="staff_info.php"><img src="img5/adminprofile.png" alt="Admin Icon"> Staff Information</a></li>
+            <li><a href="staff.php"><img src="img5/adminprofile.png" alt="Admin Icon"> Staff Information</a></li>
             <li><a href="customer.php"><img src="img5/customers.png" alt="Customers Icon"> Customers</a></li>
             <li><a href="search.php"><img src="img5/search.png" alt="Search Icon"> Search Policy</a></li>
             <li><a href="../../Logout_Login/Logout.php"><img src="img5/logout.png" alt="Logout Icon"> Logout</a></li>

@@ -11,6 +11,7 @@
     flex-direction: column;
     align-items: flex-start;
     margin-bottom: 20px;
+
 }
 
 .staff-header h2 {
@@ -20,6 +21,7 @@
     margin: 0 0 20px 0; /* Space between title and search bar */
     text-transform: uppercase;
     letter-spacing: 2px;
+    margin-top: 25px;
 }
 
 /* Search and Button Container */

@@ -221,19 +221,21 @@ body {
 
 .view-messages-btn,
 .view-customers-btn {
-    background-color: #4CAF50;
+    background-color: #023451;
     color: white;
 }
 
 .chart-filter-btn {
     background-color: #f0f0f0;
-    color: #333;
+    color: #1a1a1a;
 }
 
 .view-messages-btn:hover,
 .view-customers-btn:hover,
 .chart-filter-btn:hover {
     opacity: 0.8;
+    background-color: #023451;
+    color: #f0f0f0;
 }
 
 .chart-filters {

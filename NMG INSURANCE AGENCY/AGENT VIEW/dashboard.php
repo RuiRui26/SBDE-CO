@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DASHBOARD</title>
+    <title>Agent | Dashboard</title>
     <link rel="icon" type="image/png" href="img4/logo.png">
     <link rel="stylesheet" href="css/dashboard.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -16,7 +16,6 @@
         <ul class="menu">
             <li><a href="dashboard.php"><img src="img4/dashboard.png" alt="Dashboard Icon"> Dashboard</a></li>
             <li><a href="admin.php"><img src="img4/adminprofile.png" alt="Admin Icon"> Agent Profile</a></li>
-            <li><a href="customer.php"><img src="img4/customers.png" alt="Customers Icon"> Customers</a></li>
             <li><a href="../../Logout_Login/Logout.php"><img src="img4/logout.png" alt="Logout Icon"> Logout</a></li>
         </ul>
     </div>
@@ -43,7 +42,7 @@
             $stats = [
                 "Total Messages Received" => 275,
                 "Total Pending Messages" => 185,
-                "New Customers This Month" => 50,
+                "New Customers" => 50,
             ];
             foreach ($stats as $title => $value) {
                 echo "

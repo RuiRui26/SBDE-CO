@@ -30,7 +30,7 @@ require('../../Logout_Login/Restricted.php');
 
             <!-- Settings with Hover & Click Dropdown -->
             <li class="has-submenu" onclick="toggleSubmenu(event)">
-                <a href="setting.php"><img src="img2/setting.png" alt="Setting Icon"> Settings</a>
+                <a href="#"><img src="img2/setting.png" alt="Setting Icon"> Settings</a>
                 <ul class="submenu">
                     <li><a href="page_management.php">Page Management</a></li>
                 </ul>

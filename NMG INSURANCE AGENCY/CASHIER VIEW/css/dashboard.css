@@ -210,6 +210,44 @@ body {
     cursor: pointer;
 }
 
+.payment-history {
+    margin-top: 40px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.payment-history h2 {
+    color: #023451;
+    margin-bottom: 20px;
+}
+
+.payment-history table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.payment-history th, .payment-history td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.payment-history th {
+    background: #0366a1;
+    color: white;
+}
+
+.payment-history tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+.paid-status {
+    color: green;
+    font-weight: bold;
+}
+
+
 
 /* Responsive Design */
 @media (max-width: 1024px) {

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DASHBOARD</title>
+    <title>Admin | Dashboard</title>
     <link rel="icon" type="image/png" href="img2/logo.png">
     <link rel="stylesheet" href="css/dashboard.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -24,7 +24,7 @@
 
             <!-- Settings with Hover & Click Dropdown -->
             <li class="has-submenu" onclick="toggleSubmenu(event)">
-                <a href="setting.php"><img src="img2/setting.png" alt="Setting Icon"> Settings</a>
+                <a href="#"><img src="img2/setting.png" alt="Setting Icon"> Settings</a>
                 <ul class="submenu">
                     <li><a href="page_management.php">Page Management</a></li>
                 </ul>
@@ -64,59 +64,106 @@
             ];
 
             foreach ($stats as $title => $value) {
-                echo "
-                <div class='stat-card'>
-                    <h3>$title</h3>
-                    <div class='transaction-number'>$value</div>
-                </div>";
+                echo "<div class='stat-card' id='".str_replace(' ', '', $title)."'>
+                        <h3>$title</h3>
+                        <div class='transaction-number'>$value</div>";
+
+                if ($title == "Total Insurance Applied" || $title == "Total LTO Transactions") {
+                    echo "<div class='dropdown-container'>
+                            <select class='filter' onchange='updateStats(\"".str_replace(' ', '', $title)."\", this.value)'>
+                                <option value='default'>See All</option>
+                                <option value='15days'>Last 15 Days</option>
+                                <option value='monthly'>Monthly</option>
+                                <option value='yearly'>Yearly</option>
+                            </select>
+                        </div>";
+                }
+                echo "</div>";
             }
             ?>
+
+            <!-- Enhanced Total Sales Table -->
+            <div class="sales-table-container">
+                <h3>Total Sales</h3>
+                <table class="sales-table">
+                    <thead>
+                        <tr>
+                            <th>Insurance Type</th>
+                            <th>Number of Policies</th>
+                            <th>Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $salesData = [
+                            ["TPPD", 120, "₱1,200,000"],
+                            ["TPL", 80, "₱800,000"],
+                            ["UPA", 40, "₱400,000"],
+                            ["TPBI", 35, "₱350,000"]
+                        ];
+
+                        foreach ($salesData as $sale) {
+                            echo "<tr>
+                                    <td>{$sale[0]}</td>
+                                    <td>{$sale[1]}</td>
+                                    <td>{$sale[2]}</td>
+                                  </tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     </div>
 
     <script>
-        // Real-time date and time display
         function updateDateTime() {
             const now = new Date();
-            const dateTimeString = now.toLocaleString();
-            document.getElementById('datetimeDisplay').textContent = dateTimeString;
+            document.getElementById('datetimeDisplay').textContent = now.toLocaleString();
         }
-
         updateDateTime();
         setInterval(updateDateTime, 1000);
 
-        // Toggle Profile Menu
         function toggleProfileMenu() {
             const menu = document.getElementById('profileMenu');
             menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
         }
 
-        // Toggle Submenu for Settings (Hover + Click Support)
         function toggleSubmenu(event) {
-            event.stopPropagation(); // Prevent event from bubbling up
+            event.stopPropagation();
             const submenu = event.currentTarget.querySelector('.submenu');
             submenu.style.display = (submenu.style.display === 'block') ? 'none' : 'block';
         }
-
-        // Close any open submenu when clicking outside
         document.addEventListener('click', () => {
             document.querySelectorAll('.submenu').forEach(submenu => {
                 submenu.style.display = 'none';
             });
         });
 
-        // Open submenu on hover
-        document.querySelectorAll('.has-submenu').forEach(item => {
-            item.addEventListener('mouseenter', () => {
-                const submenu = item.querySelector('.submenu');
-                submenu.style.display = 'block';
-            });
+        function updateStats(cardId, range) {
+            const card = document.getElementById(cardId);
+            const transactionNumber = card.querySelector('.transaction-number');
 
-            item.addEventListener('mouseleave', () => {
-                const submenu = item.querySelector('.submenu');
-                submenu.style.display = 'none';
-            });
-        });
+            const statsData = {
+                "TotalInsuranceApplied": {
+                    "15days": 45,
+                    "monthly": 120,
+                    "yearly": 350
+                },
+                "TotalLTOTransactions": {
+                    "15days": 30,
+                    "monthly": 90,
+                    "yearly": 250
+                }
+            };
+
+            if (statsData[cardId] && statsData[cardId][range]) {
+                transactionNumber.textContent = statsData[cardId][range];
+            } else {
+                transactionNumber.textContent = range === "default" ? (cardId === "TotalInsuranceApplied" ? 275 : 185) : "N/A";
+            }
+        }
     </script>
 
 </body>

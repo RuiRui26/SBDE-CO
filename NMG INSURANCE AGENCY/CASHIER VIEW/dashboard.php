@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DASHBOARD</title>
+    <title>Cashier | Dashboard</title>
     <link rel="icon" type="image/png" href="img3/logo.png">
     <link rel="stylesheet" href="css/dashboard.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -65,19 +65,53 @@
             }
             ?>
         </div>
+
+        <!-- Payment History Section -->
+        <div class="payment-history">
+            <h2>Payment History</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Client Name</th>
+                        <th>Insurance Type</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    // Sample Data - Replace with actual database data
+                    $payments = [
+                        ["2025-03-08 10:30 AM", "John Doe", "TPPD", "Paid"],
+                        ["2025-03-08 11:00 AM", "Jane Smith", "TPL", "Paid"],
+                        ["2025-03-08 12:15 PM", "Mark Johnson", "UPA", "Paid"],
+                        ["2025-03-08 01:45 PM", "Emily Davis", "TPBI", "Paid"]
+                    ];
+
+                    foreach ($payments as $payment) {
+                        echo "<tr>
+                                <td>{$payment[0]}</td>
+                                <td>{$payment[1]}</td>
+                                <td>{$payment[2]}</td>
+                                <td class='paid-status'>{$payment[3]}</td>
+                            </tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
         // Real-time date and time display
         function updateDateTime() {
             const now = new Date();
-            const dateTimeString = now.toLocaleString();
-            document.getElementById('datetimeDisplay').textContent = dateTimeString;
+            document.getElementById('datetimeDisplay').textContent = now.toLocaleString();
         }
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
 
-        updateDateTime(); // Initial update
-        setInterval(updateDateTime, 1000); // Update every second
-
+        // Chart Data
         const sampleData = {
             "15days": [20, 30, 40, 50, 45, 35, 55, 65, 60, 70, 80, 75, 85, 90, 95],
             "monthly": [400, 500, 450, 600, 700, 800],
@@ -101,15 +135,9 @@
                     maintainAspectRatio: false,
                     scales: {
                         x: { grid: { display: false } },
-                        y: {
-                            ticks: { color: '#023451' },
-                            grid: { color: '#ccc' }
-                        }
+                        y: { grid: { color: '#ccc' } }
                     },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { callbacks: { label: (tooltipItem) => `Value: ${tooltipItem.raw}` } }
-                    }
+                    plugins: { legend: { display: false } }
                 }
             });
         }
@@ -137,26 +165,16 @@
             });
         }
 
-        document.addEventListener('click', (e) => {
-            if (!document.getElementById('stats-container').contains(e.target)) {
-                document.querySelectorAll('.stat-card').forEach(card => {
-                    card.querySelector('.chart-container').style.display = 'none';
-                    card.querySelector('.transaction-number').style.display = 'block';
-                });
-            }
-        });
-
         // Toggle Profile Menu
         function toggleProfileMenu() {
             const menu = document.getElementById('profileMenu');
             menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
         }
 
-        // Close dropdown if clicked outside
         document.addEventListener('click', (e) => {
-            const menu = document.getElementById('profileMenu');
-            if (!e.target.closest('.profile-dropdown')) {
-                menu.style.display = 'none';
+            if (!document.getElementById('stats-container').contains(e.target)) {
+                document.querySelectorAll('.chart-container').forEach(chart => chart.style.display = 'none');
+                document.querySelectorAll('.transaction-number').forEach(num => num.style.display = 'block');
             }
         });
     </script>

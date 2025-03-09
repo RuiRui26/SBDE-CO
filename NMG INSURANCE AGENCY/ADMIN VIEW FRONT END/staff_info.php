@@ -23,7 +23,7 @@
             <li><a href="activitylog.php"><img src="img2/activitylog.png" alt="Activity Icon"> Activity Log</a></li>
             <!-- Settings with Hover & Click Dropdown -->
             <li class="has-submenu" onclick="toggleSubmenu(event)">
-                <a href="setting.php"><img src="img2/setting.png" alt="Setting Icon"> Settings</a>
+                <a href="#"><img src="img2/setting.png" alt="Setting Icon"> Settings</a>
                 <ul class="submenu">
                     <li><a href="page_management.php">Page Management</a></li>
                 </ul>
@@ -32,16 +32,6 @@
         </ul>
     </div>
 
-    <!-- Profile Dropdown -->
-    <div class="profile-dropdown">
-        <img src="img2/samplepic.png" alt="Admin Avatar" class="avatar" onclick="toggleProfileMenu()">
-        <div class="profile-menu" id="profileMenu">
-            <p>Admin</p>
-            <a href="admin.php">Manage Account</a>
-            <a href="#">Change Account</a>
-            <a href="../../Logout_Login/Logout.php">Logout</a>
-        </div>
-    </div>
 
     <!-- Main Content -->
     <div class="main-content">
