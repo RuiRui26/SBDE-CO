@@ -2,7 +2,7 @@
 require_once '../DB_connection/db.php';
 session_start();
 
-header("Content-Type: application/json");
+header("Content-Type: application/json"); // Ensure correct JSON response
 
 $database = new Database();
 $db = $database->getConnection();
@@ -14,6 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $contact_number = trim($_POST["contact_number"]);
     $role = isset($_POST["role"]) ? trim($_POST["role"]) : "";
 
+    // Allowed roles (No Client)
     $valid_roles = ["Agent", "Staff", "Secretary", "Cashier", "Admin"];
     if (!in_array($role, $valid_roles)) {
         echo json_encode(["success" => false, "message" => "Invalid role selected."]);
