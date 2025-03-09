@@ -9,14 +9,14 @@
     <link rel="stylesheet" href="css/appoint_loss.css">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="img/NMG3.png">
+    <link rel="icon" type="image2/png" href="img/NMG3.png">
 </head>
 
 <body>
 
     <!-- Header -->
     <div class="header">
-        <img src="img/NMG3.png" alt="NMG Insurance Logo" class="logo">
+        <img src="img2/logo.png" alt="NMG Insurance Logo" class="logo">
         <h1 class="header-title">Appoint for Lost Documents</h1>
     </div>
 

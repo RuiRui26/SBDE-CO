@@ -20,7 +20,7 @@
     <nav>
         <div class="menu-container nav-wrapper">
             <div class="brand">
-                <a href="index.html">
+                <a href="index.php">
                     <img src="img/NMG22.png" alt="Insurancy Logo">
                 </a>
             </div>
@@ -30,11 +30,11 @@
                 <span></span>
             </div>
             <ul class="nav-list">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li class="active"><a href="benefits.html">Insurance</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <li><button class="btn btn-apply-here"><a href="apply_choices.html">Apply</a></button></li>
+                <li><a href="index.php">Home</a></li>
+                <li><a href="about.php">About</a></li>
+                <li class="active"><a href="benefits.php">Insurance</a></li>
+                <li><a href="contact.php">Contact</a></li>
+                <li><button class="btn btn-apply-here"><a href="apply_choices.php">Apply</a></button></li>
             </ul>
         </div>
     </nav>

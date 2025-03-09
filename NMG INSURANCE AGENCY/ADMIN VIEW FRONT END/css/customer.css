@@ -60,7 +60,7 @@
     padding: 40px;
     border-radius: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background-color: #023451dc;
+    background: linear-gradient(135deg, #386693, #052340);
     text-align: center;
     box-sizing: border-box;
 }

@@ -8,14 +8,14 @@
     <link rel="stylesheet" href="css/register_insurance.css">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="img/NMG3.png">
+    <link rel="icon" type="image/png" href="img2/NMG3.png">
 </head>
 
 <body>
 
     <!-- Header with Logo -->
     <header class="header">
-        <img src="img/NMG3.png" alt="NMG Insurance Logo" class="logo">
+        <img src="img2/logo.png" alt="NMG Insurance Logo" class="logo">
         <h1 class="header-title">Apply for Insurance</h1>
     </header>
 

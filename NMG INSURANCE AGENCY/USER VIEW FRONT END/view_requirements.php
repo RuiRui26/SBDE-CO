@@ -21,16 +21,16 @@
     <nav>
         <div class="menu-container nav-wrapper">
             <div class="brand">
-                <a href="index.html">
+                <a href="index.php">
                     <img src="img/NMG22.png" alt="insurancy-logo">
                 </a>
             </div>
 
             <ul class="nav-list">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="benefits.html">Insurance</a></li>
-                <li><a href="contact.html">Contacts</a></li>
+                <li><a href="index.php">Home</a></li>
+                <li><a href="about.php">About</a></li>
+                <li><a href="benefits.php">Insurance</a></li>
+                <li><a href="contact.php">Contacts</a></li>
             </ul>
         </div>
     </nav>
