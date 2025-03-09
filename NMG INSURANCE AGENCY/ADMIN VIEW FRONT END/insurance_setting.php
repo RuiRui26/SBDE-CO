@@ -1,3 +1,13 @@
+<?php
+session_start(); 
+$allowed_roles = ['Admin'];
+require '../../Logout_Login/Restricted.php';
+?>
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 

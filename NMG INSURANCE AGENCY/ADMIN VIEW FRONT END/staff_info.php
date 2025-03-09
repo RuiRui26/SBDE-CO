@@ -1,5 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
+session_start(); 
+$allowed_roles = ['Admin'];
+require '../../Logout_Login/Restricted.php';
+?>
 
 <head>
     <meta charset="UTF-8">

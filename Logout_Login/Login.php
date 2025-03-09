@@ -2,7 +2,7 @@
 session_start();
 require_once "../DB_connection/db.php";
 
-// If already logged in, redirect to their respective dashboard
+// If already logged in, redirect
 if (isset($_SESSION['username']) && isset($_SESSION['user_role'])) {
     header("Location: redirect.php");
     exit();
@@ -12,34 +12,36 @@ $database = new Database();
 $db = $database->getConnection();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST['email'] ?? '';  // Use null coalescing to avoid errors
+    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
     if (empty($email) || empty($password)) {
         $error = "Both email and password are required.";
     } else {
-        // Allow all roles except Client
-        $sql = "SELECT * FROM users WHERE email = ? AND role != 'Client'";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$email]);
+        // Secure query to prevent SQL injection
+        $stmt = $db->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
+        $stmt->bindParam(1, $email, PDO::PARAM_STR);
+        $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && password_verify($password, $user['password'])) {
+        // Verify password and restrict Clients
+        if ($user && $user['role'] !== 'Client' && password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['user_role'] = $user['role'];
             $_SESSION['username'] = $user['email'];
+            $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
+            $_SESSION['last_activity'] = time();
+            $_SESSION['timeout_duration'] = 1800;
 
-            // Redirect to role-based dashboard
+            // Redirect based on role
             header("Location: redirect.php");
             exit();
         } else {
             $error = "Invalid email or password.";
         }
     }
-
     $db = null; // Close DB connection
 }
-
 ?>
 
 

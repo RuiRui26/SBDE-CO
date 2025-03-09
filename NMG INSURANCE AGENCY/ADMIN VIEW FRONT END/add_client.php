@@ -1,8 +1,9 @@
 <?php
 session_start(); 
-
-//require('../../Logout_Login/Restricted.php');
+$allowed_roles = ['Admin'];
+require '../../Logout_Login/Restricted.php';
 ?>
+
 
 
 
