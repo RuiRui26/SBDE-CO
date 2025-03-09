@@ -1,13 +1,13 @@
 <?php
-/*
 session_start();
 
-// Check if the user is logged in as an admin
 if (!isset($_SESSION['admin_email'])) {
-    header("Location: http://localhost/SBDE-CO/Logout_Login/Login.php");
+    header("Location: /SBDE-CO/Logout_Login/Login.php");
     exit();
 }
 
+
+// Prevent session hijacking
 if (!isset($_SESSION['user_agent'])) {
     $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
 } elseif ($_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT']) {
@@ -17,7 +17,7 @@ if (!isset($_SESSION['user_agent'])) {
     exit();
 }
 
-// Security: Session timeout (default: 30 minutes)
+// Session timeout (default: 30 minutes)
 $_SESSION['timeout_duration'] = $_SESSION['timeout_duration'] ?? 1800;
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $_SESSION['timeout_duration'])) {
     session_unset();
@@ -28,36 +28,48 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
 
 $_SESSION['last_activity'] = time();
 
+// Role check
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     echo '
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <div class="modal fade show" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="false" style="display: block; position: relative;">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="errorModalLabel">Access Denied</h5>
-                </div>
-                <div class="modal-body">
-                    You do not have permission to access this page.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="redirectBtn">OK</button>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Access Denied</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="errorModalLabel">Access Denied</h5>
+                    </div>
+                    <div class="modal-body">
+                        You do not have permission to access this page.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="redirectBtn">OK</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="modal-backdrop fade show" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1040;"></div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var myModal = new bootstrap.Modal(document.getElementById("errorModal"));
+                myModal.show();
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.getElementById("redirectBtn").addEventListener("click", function () {
-            window.location.href = "../../index.php"; // Redirect to home page
-        });
-    </script>
+                document.getElementById("redirectBtn").addEventListener("click", function () {
+                    window.location.href = "../../index.php"; // Redirect to home page
+                });
+            });
+        </script>
+    </body>
+    </html>
     ';
-    exit(); 
+    exit();
 }
-*/
 ?>

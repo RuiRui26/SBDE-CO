@@ -1,0 +1,118 @@
+.admin-container {
+    flex-grow: 1;
+    margin-left: 280px;
+    overflow-y: auto;
+}
+
+.cover-photo {
+    width: 100%;
+    height: 150px;
+    position: relative;
+}
+
+.admin-profile {
+    display: flex;
+    align-items: center;
+    padding: 55px;
+    background: #023451b8;
+    margin: -80px 30px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.admin-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #fff;
+    margin-right: 30px;
+}
+
+.admin-info h1 {
+    margin: 5;
+    font-size: 37px;
+    color: #f8f8f8;
+}
+
+.admin-info p {
+    margin: 10px 0;
+    color: #ffffff;
+    font-size: 18px;
+}
+
+.admin-actions {
+    margin-top: 20px;
+}
+
+.admin-actions button {
+    padding: 20px 25px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #024ea4;
+    color: white;
+    font-size: 18px;
+}
+
+.admin-actions button:hover {
+    background: #165bca;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+}
+
+.modal-content label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modal-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #024ea4;
+    color: white;
+}
+
+.modal-buttons button:hover {
+    background: #165bca;
+}
