@@ -1,47 +1,44 @@
 <?php
 session_start();
-require_once "../DB_connection/db.php";
 
-// If already logged in, redirect to their respective dashboard
-if (isset($_SESSION['username']) && isset($_SESSION['user_role'])) {
-    header("Location: redirect.php");
+require_once "../DB_connection/db.php";
+// If already logged in, redirect to dashboard
+if (isset($_SESSION['username'])) {
+    header("Location: ../../NMG Insurance Agency/ADMIN VIEW FRONT END/index.php");
     exit();
 }
 
-$database = new Database();
-$db = $database->getConnection();
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST['email'] ?? '';  // Use null coalescing to avoid errors
-    $password = $_POST['password'] ?? '';
+    $email = $_POST['email'];
+    $password = $_POST['password'];
 
-    if (empty($email) || empty($password)) {
-        $error = "Both email and password are required.";
-    } else {
-        // Allow all roles except Client
-        $sql = "SELECT * FROM users WHERE email = ? AND role != 'Client'";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['user_id'];
-            $_SESSION['user_role'] = $user['role'];
-            $_SESSION['username'] = $user['email'];
-
-            // Redirect to role-based dashboard
-            header("Location: redirect.php");
+     // Prepare SQL query to check admin credentials
+     $sql = "SELECT * FROM admin WHERE email = ?";
+     $stmt = $conn->prepare($sql);
+     $stmt->bind_param("s", $email);
+     $stmt->execute();
+     $result = $stmt->get_result();
+     
+     if ($result->num_rows === 1) {
+        $admin = $result->fetch_assoc();
+        
+        // Verify password
+        if (password_verify($password, $admin['password'])) {
+            $_SESSION['admin_email'] = $admin['email']; // Store session
+            header("Location: ../../NMG Insurance Agency/ADMIN VIEW FRONT END/index.php");
             exit();
         } else {
             $error = "Invalid email or password.";
         }
+    } else {
+        $error = "Invalid email or password.";
     }
 
-    $db = null; // Close DB connection
+    $stmt->close();
+    $conn->close();
 }
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">

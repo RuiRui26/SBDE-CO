@@ -17,6 +17,7 @@ require('../../Logout_Login/Restricted.php');
     <link rel="stylesheet" href="css/search.css">
 </head>
 <body>
+    <!-- Sidebar -->
     <div class="sidebar">
         <img src="img5/logo.png" alt="Logo" class="logo">
         <ul class="menu">
