@@ -3,13 +3,14 @@ session_start();
 require_once "../DB_connection/db.php";
 
 // If already logged in, redirect
-if (isset($_SESSION['username']) && isset($_SESSION['user_role'])) {
+if (isset($_SESSION['user_role'])) {
     header("Location: redirect.php");
     exit();
 }
 
 $database = new Database();
 $db = $database->getConnection();
+$error = ""; // Initialize error message
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST['email'] ?? '');
@@ -24,26 +25,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Verify password and restrict Clients
-        if ($user && $user['role'] !== 'Client' && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['user_id'];
-            $_SESSION['user_role'] = $user['role'];
-            $_SESSION['username'] = $user['email'];
-            $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
-            $_SESSION['last_activity'] = time();
-            $_SESSION['timeout_duration'] = 1800;
+        if ($user) {
+            if ($user['role'] === 'Client') {
+                $error = "Clients cannot log in.";
+            } elseif (password_verify($password, $user['password'])) {
+                // Set session variables
+                $_SESSION['user_id'] = $user['user_id'];
+                $_SESSION['user_role'] = $user['role'];
+                $_SESSION['email'] = $user['email'];
+                $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
+                $_SESSION['last_activity'] = time();
+                $_SESSION['timeout_duration'] = 1800;
 
-            // Redirect based on role
-            header("Location: redirect.php");
-            exit();
+                header("Location: redirect.php");
+                exit();
+            } else {
+                $error = "Invalid email or password.";
+            }
         } else {
             $error = "Invalid email or password.";
         }
     }
-    $db = null; // Close DB connection
+    $db = null;
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -57,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="container">
         <img src="/SDBE-CO/img2/logo.png" alt="Logo" class="logo">
         <h2>Login</h2>
-        <?php if (isset($error)) { echo "<p style='color: red;'>$error</p>"; } ?>
+        <?php if (!empty($error)) { echo "<p style='color: red;'>$error</p>"; } ?>
         
         <form action="Login.php" method="POST">
             <div class="input-group">
@@ -72,4 +77,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </form>
     </div>
 </body>
-</html>
+</html>  

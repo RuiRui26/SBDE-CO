@@ -6,25 +6,21 @@ if (!isset($_SESSION['user_role'])) {
     exit();
 }
 
-switch ($_SESSION['user_role']) {
-    case 'Admin':
-        header("Location: ../NMG Insurance Agency/ADMIN VIEW FRONT END/index.php");
-        break;
-    case 'Secretary':
-        header("Location: ../NMG Insurance Agency/USER VIEW FRONT END/index.php");
-        break;
-    case 'Staff':
-        header("Location: ../NMG Insurance Agency/STAFF VIEW FRONT END/index.php");
-        break;
-    case 'Agent':
-        header("Location: ../NMG Insurance Agency/AGENT VIEW FRONT END/index.php");
-        break;
-    case 'Cashier':
-        header("Location: ../NMG Insurance Agency/CASHIER VIEW FRONT END/index.php");
-        break;
-    default:
-        header("Location: Login.php");
-}
+$current_page = basename($_SERVER['PHP_SELF']);
 
-exit();
+$redirects = [
+    'Admin' => "ADMIN VIEW FRONT END/index.php",
+    'Secretary' => "USER VIEW FRONT END/index.php",
+    'Staff' => "STAFF VIEW FRONT END/index.php",
+    'Agent' => "AGENT VIEW FRONT END/index.php",
+    'Cashier' => "CASHIER VIEW FRONT END/index.php"
+];
+
+$role = $_SESSION['user_role'];
+$target_page = $redirects[$role] ?? "Login.php";
+
+if ($current_page !== basename($target_page)) {
+    header("Location: ../NMG Insurance Agency/$target_page");
+    exit();
+}
 ?>
