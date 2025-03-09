@@ -20,8 +20,7 @@ require('../../Logout_Login/Restricted.php');
 </head>
 
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
+   <div class="sidebar">
         <img src="img5/logo.png" alt="Logo" class="logo">
         <ul class="menu">
             <li><a href="dashboard.php"><img src="img5/dashboard.png" alt="Dashboard Icon"> Dashboard</a></li>
