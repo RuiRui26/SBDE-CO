@@ -59,14 +59,6 @@ require '../../Logout_Login/Restricted.php';
 
             <!-- Box 2 -->
             <div class="apply-box">
-                <img src="img2/LTO2.png" alt="LTO Transaction" class="apply-img">
-                <h2>LTO Transaction</h2>
-                <a href="register_lto.php" class="apply-btn">Add Client</a>
-            </div>
-
-
-            <!-- Box 3 -->
-            <div class="apply-box">
                 <img src="img2/logo.png" alt="Apply Insurance" class="apply-img">
                 <h2>Insurance</h2>
                     <a href="register_insurance.php" class="apply-btn">Add Client</a>
