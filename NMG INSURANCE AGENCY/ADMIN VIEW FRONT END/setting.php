@@ -1,7 +1,7 @@
 <?php
 session_start(); 
 
-require('../../Logout_Login/Restricted.php');
+//require('../../Logout_Login/Restricted.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
