@@ -1,0 +1,262 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    margin: 0;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: #023451;
+    color: white;
+    height: 100vh;
+    padding-top: 20px;
+    position: fixed;
+}
+
+.sidebar .logo {
+    display: block;
+    margin: 0 auto 40px;
+    width: 180px;
+}
+
+.sidebar .menu {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar .menu li {
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar .menu li img {
+    width: 30px;
+    flex-shrink: 0;
+    margin-right: 12px;
+}
+
+.sidebar .menu li a {
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar .menu li:hover {
+    background: #0366a1;
+    border-radius: 8px;
+}
+
+/* Title and Action */
+.title-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.client-title {
+    font-size: 42px;
+    font-weight: bold;
+    color: #023451;
+    margin: 0;
+}
+
+.add-client-btn {
+    padding: 15px 30px;
+    background-color: #023451;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.3s;
+}
+
+.add-client-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Info Box */
+.info-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin-top: 40px;
+    box-sizing: border-box;
+}
+
+.info-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 500px;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #023451dc;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.box-logo {
+    width: 120px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.info-box h2 {
+    font-size: 32px;
+    color: #fefefe;
+    margin-bottom: 20px;
+}
+
+.view-btn {
+    padding: 15px 30px;
+    background-color: #ffffff;
+    color: rgb(11, 45, 100);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.3s;
+}
+
+.view-btn:hover {
+    background-color: #476ae8;
+    color: #fefefe;
+}
+
+/* Conversations */
+.main-container {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.conversations-list {
+    width: 250px;
+    background: #f1f1f1;
+    padding: 10px;
+    border-radius: 12px;
+}
+
+.conversation-item {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.conversation-item .status {
+    font-weight: bold;
+    color: red;
+}
+
+.resolved .status {
+    color: green;
+}
+
+.cancelled .status {
+    color: gray;
+}
+
+.conversation-details {
+    flex-grow: 2;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chat-window {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 12px;
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.chat-message {
+    padding: 10px 15px;
+    border-radius: 20px;
+    margin: 5px 0;
+    max-width: 70%;
+    clear: both;
+}
+
+.chat-message.user {
+    background: #e1f5fe;
+    align-self: flex-start;
+    float: left;
+}
+
+.chat-message.agent {
+    background: #dcedc8;
+    align-self: flex-end;
+    float: right;
+}
+
+.chat-input-area {
+    display: flex;
+    margin-top: 10px;
+}
+
+.chat-input-area input {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-right: 5px;
+}
+
+.chat-input-area button {
+    padding: 8px 15px;
+    background: #1d3557;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.resolve-btn {
+    margin-top: 10px;
+    padding: 10px;
+    background: #1d3557;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    /* ... (your responsive CSS) ... */
+}
+
+/* Content Area Adjustment */
+.content {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    box-sizing: border-box;
+    padding: 20px;
+    background-color: #f8f8f8;
+    min-height: 100vh;
+}
+
+.header {
+    margin-bottom: 20px;
+    font-size: 25px;
+    color: #023451;
+}
+
+.search-bar {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}

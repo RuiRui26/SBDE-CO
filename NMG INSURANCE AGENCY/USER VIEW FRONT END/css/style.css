@@ -108,6 +108,30 @@ nav {
 .hamberger {
   display: none;
 }
+
+.user-profile img {
+    width: 50px; /* Profile image size */
+    height: 50px;
+    border-radius: 80%; /* Circular shape */
+    cursor: pointer; /* Hover effect */
+    object-fit: cover; /* Ensures image fits within circle */
+    transition: transform 0.3s ease;
+	display: block;
+}
+
+.user-profile img:hover {
+    transform: scale(1.1); /* Slight zoom effect on hover */
+}
+.profile-link {
+    display: inline-block; /* Make the link behave like a block */
+    width: 60px; /* Set the image width */
+    height: 60px; /* Set the image height */
+    border-radius: 50%;
+    background: url('../img/userprofile.png') no-repeat center/cover;
+    cursor: pointer; /* Ensure pointer on hover */
+}
+
+
 /* Apply button styles */
 .btn-apply-here {
     background: var(--fourth-color);
