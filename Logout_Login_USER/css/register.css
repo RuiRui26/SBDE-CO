@@ -1,0 +1,127 @@
+/* General Styling */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #152545, #4f6681);
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Form Container */
+.container {
+    background: rgba(219, 234, 245, 0.868);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(18px);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    animation: slideIn 0.8s ease-in-out;
+}
+
+/* Title and Description */
+h2 {
+    color: #0e2f59;
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+p {
+    color: #0e2f59;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* Input Fields */
+label {
+    display: block;
+    text-align: left;
+    margin: 10px 0 5px;
+    font-weight: 500;
+    color: #0e2f59;
+}
+
+input {
+    width: calc(100% - 20px);
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.6);
+    transition: box-shadow 0.3s ease;
+}
+
+input:focus {
+    box-shadow: 0 0 12px rgba(0, 123, 255, 0.7);
+}
+
+/* Checkbox Group */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    margin-top: 10px;
+}
+
+.checkbox-group input {
+    width: auto;
+    margin-right: 10px;
+}
+
+/* Submit Button */
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    background: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+}
+
+button:hover {
+    background: #0056b3;
+    transform: translateY(-3px);
+}
+
+/* Error Message */
+.error {
+    color: #FF4D4F;
+    font-size: 14px;
+}
+
+/* Fade In and Slide Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(40px);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .container {
+        padding: 30px 20px;
+    }
+}
