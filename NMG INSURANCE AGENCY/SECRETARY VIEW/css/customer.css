@@ -1,0 +1,106 @@
+.main-content {
+    margin-left: 270px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Align content to the top */
+    width: calc(100% - 270px);
+    padding: 10px 40px; /* Reduced top padding */
+    box-sizing: border-box;
+}
+
+/* Page Title and Action Container */
+.title-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px; /* Reduced bottom margin */
+    height: 150px; /* Remove fixed height */
+}
+
+.client-title {
+    font-size: 42px;
+    font-weight: bold;
+    color: #023451;
+    margin: 10; /* Remove extra margin */
+}
+
+.add-client-btn {
+    padding: 15px 30px;
+    background-color: #023451;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.3s;
+}
+
+.add-client-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Info Box Layout */
+.info-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin-top: 60px; /* Reduced margin */
+    box-sizing: border-box;
+}
+
+.info-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 500px;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #386693, #052340);
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.box-logo {
+    width: 120px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.info-box h2 {
+    font-size: 32px;
+    color: #fefefe;
+    margin-bottom: 20px;
+}
+
+.view-btn {
+    padding: 15px 30px;
+    background-color: #ffffff;
+    color: rgb(11, 45, 100);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.3s;
+}
+
+.view-btn:hover {
+    background-color: #476ae8;
+    color: #fefefe;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .info-container {
+        flex-direction: column;
+    }
+
+    .info-box {
+        width: 100%;
+        max-width: 500px;
+    }
+}

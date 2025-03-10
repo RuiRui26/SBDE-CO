@@ -1,0 +1,123 @@
+/* Main Content */
+.main-content {
+    margin-left: 250px; 
+    flex-grow: 1;
+    padding: 20px;
+}
+
+/* Staff Header */
+.staff-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 20px;
+
+}
+
+.staff-header h2 {
+    color: #023451;
+    font-size: 40px;
+    font-weight: 700;
+    margin: 0 0 20px 0; /* Space between title and search bar */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 25px;
+}
+
+/* Search and Button Container */
+.search-add-container {
+    display: flex;
+    justify-content: space-between; /* Space between search and button */
+    width: 100%;
+}
+
+/* Search Bar */
+.search-bar {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 250px;
+    outline: none;
+}
+
+/* Staff Container */
+.staff-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Staff Card */
+.staff-card {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(145deg, #eff3f3, #eff3f3);
+    padding: 35px;
+    border-radius: 20px;
+    box-shadow: 0 8px 16px #023451b3;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #e0e0e0;
+}
+
+.staff-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Staff Photo */
+.staff-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #4CAF50;
+}
+
+/* Staff Details */
+.staff-details {
+    margin-top: 10px;
+}
+
+.staff-details p {
+    margin: 8px 0;
+    font-size: 18px;
+}
+
+/* Add Staff Button */
+.add-staff-btn {
+    padding: 10px 24px;
+    background-color: #023451;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 10px;
+}
+
+.add-staff-btn:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .search-add-container {
+        flex-direction: column;
+        gap: 15px; /* Add gap between search bar and button */
+    }
+
+    .search-bar, .add-staff-btn {
+        width: 100%;
+    }
+
+    .add-staff-btn {
+        text-align: center;
+    }
+}
