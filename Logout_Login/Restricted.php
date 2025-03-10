@@ -14,14 +14,10 @@ if (!isset($_SESSION['email'])) {
     exit();
 }
 
-if (!isset($_SESSION['session_token'])) {
-    $_SESSION['session_token'] = bin2hex(random_bytes(32)); // Strong session token
-}
-
 // Prevent session hijacking
 if (!isset($_SESSION['user_agent'])) {
     $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
-} elseif ($_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT'] || $_SESSION['ip_address'] !== $_SERVER['REMOTE_ADDR']){
+} elseif ($_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT']) {
     session_unset();
     session_destroy();
     header("Location: /SBDE-CO/Logout_Login/Login.php?error=security");
