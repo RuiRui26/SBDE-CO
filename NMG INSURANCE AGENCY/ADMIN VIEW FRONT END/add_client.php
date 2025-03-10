@@ -1,23 +1,21 @@
 <?php
-session_start(); 
+session_start();
 $allowed_roles = ['Admin'];
 require '../../Logout_Login/Restricted.php';
 ?>
 
-
-
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Client</title>
-    <!-- Favicon -->
-    <link rel="icon" type="imag2/png" href="img2/logo.png">
+    <link rel="icon" type="image/png" href="img2/logo.png">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/add_client.css">
 </head>
+
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
@@ -29,7 +27,6 @@ require '../../Logout_Login/Restricted.php';
             <li><a href="staff_info.php"><img src="img2/adminprofile.png" alt="Admin Icon"> Staff Information</a></li>
             <li><a href="search.php"><img src="img2/search.png" alt="Search Icon"> Search Policy</a></li>
             <li><a href="activitylog.php"><img src="img2/activitylog.png" alt="Activity Icon"> Activity Log</a></li>
-           
 
             <!-- Settings with Hover & Click Dropdown -->
             <li class="has-submenu" onclick="toggleSubmenu(event)">
@@ -42,37 +39,37 @@ require '../../Logout_Login/Restricted.php';
             <li><a href="../../Logout_Login/Logout.php"><img src="img2/logout.png" alt="Logout Icon"> Logout</a></li>
         </ul>
     </div>
-    
 
-    <!-- Apply Choices Section -->
-    <section class="apply-section">
-        <div class="apply-container">
-        
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="page-title">Add Client</h1>
 
-            <!-- Box 1 -->
-            <div class="apply-box">
-                <img src="img2/logo.png" alt="Lost Document" class="apply-img">
+        <div class="client-options">
+            <div class="client-card">
+                <img src="img2/logo.png" alt="Lost Document" class="client-icon">
                 <h2>Lost Document</h2>
-                    <a href="appoint_lost.php" class="apply-btn">Add Client</a>
+                <p>Manage lost document appointments efficiently.</p>
+                <a href="appoint_lost.php" class="action-btn">Proceed</a>
             </div>
 
-
-            <!-- Box 2 -->
-            <div class="apply-box">
-                <img src="img2/logo.png" alt="Apply Insurance" class="apply-img">
+            <div class="client-card">
+                <img src="img2/logo.png" alt="Apply Insurance" class="client-icon">
                 <h2>Insurance</h2>
-                    <a href="register_insurance.php" class="apply-btn">Add Client</a>
+                <p>Register a new insurance application quickly.</p>
+                <a href="register_insurance.php" class="action-btn">Proceed</a>
             </div>
         </div>
-    </section>
+    </div>
 
     <script>
         // Toggle Submenu for Settings (Hover + Click Support)
         function toggleSubmenu(event) {
-            event.stopPropagation(); // Prevent event from bubbling up
+            event.stopPropagation();
             const submenu = event.currentTarget.querySelector('.submenu');
             submenu.style.display = (submenu.style.display === 'block') ? 'none' : 'block';
         }
     </script>
+
 </body>
+
 </html>

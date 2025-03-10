@@ -1,79 +1,117 @@
-/* Apply Section */
-.apply-section {
-    display: flex;
-    justify-content: center; 
-    align-items: center; 
-    height: 100vh;
-    padding-top: 6rem;
-    margin-left: 500px; 
-    box-sizing: border-box;
+/* Main Content */
+.main-content {
+  margin-left: 250px; /* Keeps content aligned to the sidebar */
+  padding: 40px;
+  box-sizing: border-box;
 }
 
-/* Apply Container */
-.apply-container {
+/* Page Title */
+.page-title {
+  font-size: 48px;
+  color: #2c3e50;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+
+/* Client Options */
+.client-options {
   display: flex;
-  gap: 2rem;
-  justify-content: center;
-  align-items: center; 
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+/* Client Card */
+.client-card {
+  flex: 1;
+  min-width: 350px;
+  max-width: 500px;
+  background: linear-gradient(135deg, #386693, #052340);
+  border-radius: 16px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  padding: 40px;
   text-align: center;
-  max-width: 100%; 
-  width: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-left: 20px;
+  margin-top: 20px;
 }
 
-.apply-box {
-  background: #092a4bd8;
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  width: 370px;
-  min-height: 400px; 
-  display: flex;
-  flex-direction: column;
-  justify-content: center; 
-  align-items: center; 
+/* Hover Effect */
+.client-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
-.apply-box h2 {
-  font-size: 1.8rem;
-  margin: 1rem 0; 
-  color: #f8f8f8;
+/* Client Card Title */
+.client-card h2 {
+  font-size: 32px;
+  color: #ffffff;
+  margin: 20px 0;
 }
 
-.apply-box .apply-btn {
-  background: #f5f5f5;
-  color: #092a4b;
-  padding: 13px 15px;
-  font-size: 1.3rem;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  margin-top: 1rem; 
+/* Client Card Description */
+.client-card p {
+  font-size: 18px;
+  color: #e0e0e0;
+  margin-bottom: 40px;
 }
 
-.apply-box .apply-btn:hover {
-    background: #2486e8;
+/* Client Icon */
+.client-icon {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
 }
 
-.apply-img {
-  width: 80px; 
-  height: 80px; 
-  object-fit: contain; 
-  display: block;
-  margin: 0 auto; /
+/* Action Button */
+.action-btn {
+  display: inline-block;
+  background: #ffffff;
+  color: #2c3e50;
+  padding: 15px 30px;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Button Hover Effect */
+.action-btn:hover {
+  background: #2486e8;
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .main-content {
+      margin-left: 200px;
+      padding: 20px;
+  }
+
+  .page-title {
+      font-size: 36px;
+  }
+
+  .client-card {
+      min-width: 100%;
+  }
 }
 
 @media (max-width: 768px) {
-  .apply-section {
-      margin-left: 0; 
+  .main-content {
+      margin-left: 0;
+      padding: 20px;
   }
 
-  .apply-container {
+  .client-options {
       flex-direction: column;
-      align-items: center;
   }
 
-  .apply-box {
-      width: 90%;
+  .page-title {
+      font-size: 32px;
+  }
+
+  .client-card {
+      width: 100%;
   }
 }

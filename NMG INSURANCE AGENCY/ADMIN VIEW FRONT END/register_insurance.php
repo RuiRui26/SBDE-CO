@@ -8,14 +8,14 @@
     <link rel="stylesheet" href="css/register_insurance.css">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="img/NMG3.png">
+    <link rel="icon" type="image/png" href="img2/NMG3.png">
 </head>
 
 <body>
 
     <!-- Header with Logo -->
     <header class="header">
-        <img src="img/NMG3.png" alt="NMG Insurance Logo" class="logo">
+        <img src="img2/logo.png" alt="NMG Insurance Logo" class="logo">
         <h1 class="header-title">Apply for Insurance</h1>
     </header>
 
@@ -77,29 +77,4 @@
 
 </body>
 
-<<<<<<< HEAD
 </html>
-=======
-
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const plateInput = document.getElementById("plate_number");
-    const mvInput = document.getElementById("mv_file_number");
-
-    function validateFields() {
-        if (plateInput.value.trim() === "" && mvInput.value.trim() === "") {
-            plateInput.setCustomValidity("Please enter either Plate Number or MV File Number.");
-            mvInput.setCustomValidity("Please enter either Plate Number or MV File Number.");
-        } else {
-            plateInput.setCustomValidity("");
-            mvInput.setCustomValidity("");
-        }
-    }
-
-    plateInput.addEventListener("input", validateFields);
-    mvInput.addEventListener("input", validateFields);
-});
-</script>
-</html>
->>>>>>> b702d06172db8c044065d55c2b6d1b2a104c2717
