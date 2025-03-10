@@ -1,3 +1,10 @@
+<?php 
+session_start();
+$allowed_roles = ['Client']; // Only clients can access
+require '../../Logout_Login_USER/Restricted.php';
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -120,7 +127,7 @@
     <script>
         function logout() {
             // Redirect to the logout page or handle logout logic
-            window.location.href = 'logout.php';
+            window.location.href = '../../Logout_Login_USER/Logout.php';
         }
         function sendmessage() {
             // Redirect to the logout page or handle logout logic

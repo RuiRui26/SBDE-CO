@@ -1,3 +1,10 @@
+<?php 
+session_start(); 
+$allowed_roles = ['Admin'];
+require '../../Logout_Login_USER/Restricted.php';
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,7 +28,7 @@
     <!-- Main Form Section -->
     <div class="form-section">
    
-        <form action="appoint_lost.html" method="POST" enctype="multipart/form-data" class="insurance-form">
+        <form action="../PHP_Files/User_View/appoint_lost.php" method="POST" enctype="multipart/form-data" class="insurance-form">
 
             <!-- Left Column -->
             <div class="form-column">
