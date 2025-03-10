@@ -6,6 +6,9 @@ $conn = $database->getConnection();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
+        // Start output buffering to prevent header issues
+        ob_start();
+
         // Sanitize input to prevent SQL injection & XSS
         $name = htmlspecialchars(trim($_POST["name"]));
 
@@ -21,13 +24,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit;
         }
 
-        // Step 2: Insert lost document request into `lost_documents`
-        $stmt = $conn->prepare("INSERT INTO lost_documents (Client_ID, document_type, Status) 
-                                VALUES (:client_id, 'COC', 'Pending')");
+        // Step 2: Generate an appointment date (e.g., 3 days from today)
+        $appointment_date = date('Y-m-d', strtotime('+3 days'));
+
+        // Step 3: Insert lost document request into `lost_documents`
+        $stmt = $conn->prepare("INSERT INTO lost_documents (Client_ID, document_type, Status, appointment_date) 
+                                VALUES (:client_id, 'COC', 'Pending', :appointment_date)");
         $stmt->bindParam(":client_id", $client_id, PDO::PARAM_INT);
+        $stmt->bindParam(":appointment_date", $appointment_date);
 
         if ($stmt->execute()) {
-            echo json_encode(["success" => true, "message" => "Lost COC document request submitted successfully!"]);
+            // Ensure the buffer is clean before redirecting
+            ob_clean();
+            
+            // Redirect to success page
+            header("Location: success_page.php");
+            exit;
         } else {
             throw new Exception("Database insertion failed.");
         }
