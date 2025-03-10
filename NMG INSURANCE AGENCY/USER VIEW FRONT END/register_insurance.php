@@ -77,9 +77,6 @@
 
 </body>
 
-<<<<<<< HEAD
-</html>
-=======
 
 
 <script>
@@ -102,4 +99,3 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 </html>
->>>>>>> b702d06172db8c044065d55c2b6d1b2a104c2717
