@@ -16,7 +16,7 @@
     <div class="container">
         <h2>Register Your LTO Transaction</h2>
         
-        <form action="register_lto.php" method="POST" enctype="multipart/form-data">
+        <form action="register_lto.html" method="POST" enctype="multipart/form-data">
             
             <label for="name">Full Name:</label>
             <input type="text" id="name" name="name" required>

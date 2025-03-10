@@ -1,135 +1,83 @@
-/* Global Styling */
+/* General Styles */
 body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #f8f8f8, #376985);
     margin: 0;
     padding: 0;
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #f8f9fa, #2c3e50);
-    color: #333;
-}
-
-/* Header */
-.header {
-    display: flex;
-    align-items: center;
-    padding: 20px 5%;
-    background: #0a2f54e1;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.logo {
-    height: 80px;
-    margin-right: 20px;
-}
-
-.header-title {
-    font-size: 40px;
-    font-weight: bold;
-    color: #f8f8f8;
-}
-
-/* Main Section */
-.form-section {
-    display: flex;
-    justify-content: center;
-    padding: 40px 5%;
-}
-
-/* Form Layout */
-.insurance-form {
-    display: flex;
-    gap: 60px; /* Increased spacing between columns */
-    width: 100%;
-    max-width: 1300px; /* Wider form */
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    padding: 50px;
-}
-
-/* Form Columns */
-.form-column {
-    flex: 1;
     display: flex;
     flex-direction: column;
-}
-
-/* Form Labels */
-label {
-    font-weight: bold;
-    font-size: 18px; /* Larger label */
-    margin-bottom: 12px;
-}
-
-/* Form Inputs */
-input {
-    padding: 16px; /* Larger input fields */
-    margin-bottom: 24px; /* More space between inputs */
-    border: 1px solid #ccc;
-    border-radius: 10px; /* Smoother edges */
-    font-size: 16px; /* Larger font */
-    transition: border 0.3s ease;
-}
-
-/* Input Focus Effect */
-input:focus {
-    outline: none;
-    border-color: #2c3e50;
-    box-shadow: 0 0 8px rgba(44, 62, 80, 0.5);
-}
-
-/* Submit Button (Right Aligned) */
-.submit-container {
-    display: flex;
-    justify-content: flex-end; /* Aligns button to the right */
-    margin-top: 40px;
-    width: 100%;
-}
-
-/* Submit Button Style */
-.submit-btn {
-    background: #2c3e50;
-    color: white;
-    padding: 20px;
-    border: none;
-    border-radius: 12px;
-    font-size: 22px;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    height: 50px;
-    display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: auto;
+    height: 100vh;
 }
 
-.submit-btn:hover {
-    background: #1a252f;
-}
-
-/* Footer */
-footer {
+/* Page Title */
+/* Page Title */
+.page-title {
+    font-size: 46px; /* Adjust size */
+    color: #092a4b;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-top: 90px; /* Add space above the title */
+    margin-bottom: 30px; /* Adjust space between title and form */
     text-align: center;
-    padding: 20px;
-    background: #2c3e50;
-    color: white;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .insurance-form {
-        flex-direction: column;
-        padding: 20px;
-    }
 
-    .header-title {
-        font-size: 28px;
-    }
+/* Form Container */
+.container {
+    background: white;
+    padding: 50px;
+    border-radius: 25px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    width: 600px;
+    text-align: center;
+}
 
-    .logo {
-        height: 60px;
-    }
+/* Form Heading */
+h2 {
+    font-size: 29px;
+    color: #333;
+    margin-bottom: 15px;
+}
 
-    .submit-container {
-        justify-content: center; /* Center the button on small screens */
-    }
+/* Form Elements */
+label {
+    display: block;
+    font-weight: bold;
+    text-align: left;
+    margin-top: 20px;
+}
+
+input[type="text"],
+input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers the form elements */
+}
+
+/* Submit Button */
+button {
+    background-color: #092a4b;
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px; /* Adjust spacing */
+    width: 103%; /* Adjust width as needed */
+    text-align: center;
+}
+
+button:hover {
+    background-color: #33cd94;
 }
