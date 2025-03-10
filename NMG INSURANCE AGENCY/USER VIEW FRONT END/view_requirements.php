@@ -85,7 +85,6 @@
 
             </div>
 
-            <button id="download-btn">📄 Download Requirements (PDF)</button>
 
         </div>
     </section>
