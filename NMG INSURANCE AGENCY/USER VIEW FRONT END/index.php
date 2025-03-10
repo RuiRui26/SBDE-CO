@@ -37,11 +37,7 @@
 			</div>
 
 			<ul class="nav-list">
-<<<<<<< HEAD
-				<li class="active"><a href="index.html">Home</a></li>
-=======
 				<li class="active"><a href="index.php">Home</a></li>
->>>>>>> b702d06172db8c044065d55c2b6d1b2a104c2717
 				<li><a href="about.php">About</a></li>
 				<li><a href="benefits.php">Insurance</a></li>
 				<li><a href="contact.php">Contacts</a></li>

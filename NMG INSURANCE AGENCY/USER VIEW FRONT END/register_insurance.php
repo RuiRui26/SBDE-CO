@@ -19,7 +19,6 @@
         <h1 class="header-title">Apply for Insurance</h1>
     </header>
 
-<<<<<<< HEAD
     <!-- Insurance Registration Form -->
     <main class="form-section">
         <form action="register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
@@ -46,21 +45,6 @@
             <div class="form-column">
                 <label for="chassis_number">Chassis Number:</label>
                 <input type="text" id="chassis_number" name="chassis_number" placeholder="Enter chassis number" required>
-=======
-    <div class="container">
-        <h2>Register Your Insurance</h2>
-        
-        <form action="/PHP Files/CRUD Functions/insurance.php" method="POST" enctype="multipart/form-data">
-            
-            <label for="plate_number">Plate Number:</label>
-            <input type="text" id="plate_number" name="plate_number" required>
-
-            <label for="mv_file_number">MV/File Number:</label>
-            <input type="text" id="mv_file_number" name="mv_file_number" required>
-
-            <label for="chassis_number">Chassis Number:</label>
-            <input type="text" id="chassis_number" name="chassis_number" required>
->>>>>>> b702d06172db8c044065d55c2b6d1b2a104c2717
 
                 <label for="insurance_type">Type of Insurance:</label>
                 <select id="insurance_type" name="insurance_type" required>
