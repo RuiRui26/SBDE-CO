@@ -1,4 +1,6 @@
 <?php
+
+
 require '../../DB_connection/db.php';
 
 $database = new Database();
@@ -40,6 +42,10 @@ $or_filename = $clean_name . "_OR." . pathinfo($or_picture['name'], PATHINFO_EXT
 $cr_filename = $clean_name . "_CR." . pathinfo($cr_picture['name'], PATHINFO_EXTENSION);
 $uploadDir = '../../secured_uploads/';
 
+// Ensure the upload directory exists
+if (!is_dir($uploadDir)) {
+    mkdir($uploadDir, 0777, true);
+}
 
 // Validate and move uploaded files
 if (!move_uploaded_file($or_picture['tmp_name'], $uploadDir . $or_filename) ||
@@ -51,35 +57,84 @@ if (!move_uploaded_file($or_picture['tmp_name'], $uploadDir . $or_filename) ||
 try {
     $conn->beginTransaction();
 
-    // Insert client data
-    $stmt = $conn->prepare("INSERT INTO clients (User_ID, Full_Name, Contact_Number)
-                            VALUES (:user_id, :name, :mobile)
-                            ON DUPLICATE KEY UPDATE Full_Name = VALUES(Full_Name), Contact_Number = VALUES(Contact_Number)");
+    // Insert client data (Ensuring the client exists)
+    $stmt = $conn->prepare("INSERT INTO clients (user_id, full_name, contact_number)
+                        VALUES (:user_id, :name, :mobile)
+                        ON DUPLICATE KEY UPDATE full_name = VALUES(full_name), contact_number = VALUES(contact_number)");
+
     $stmt->execute([
         'user_id' => $user_id,
         'name' => $user_name,
         'mobile' => $mobile
     ]);
 
-    // Insert into vehicles
-    $stmt = $conn->prepare("INSERT INTO vehicles (Plate_Number, MV_File_Number, User_ID)
-                            VALUES (:plate_number, :mv_file_number, :user_id)");
+    // Retrieve the client_id
+    $stmt = $conn->prepare("SELECT client_id FROM clients WHERE user_id = :user_id");
+    $stmt->execute(['user_id' => $user_id]);
+    $client = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$client) {
+        throw new Exception("Client ID not found.");
+    }
+    $client_id = $client['client_id'];
+
+    // Insert into vehicles (Ensuring the vehicle exists)
+    $stmt = $conn->prepare("
+        INSERT INTO vehicles (client_id, plate_number, mv_file_number)
+        VALUES (:client_id, :plate_number, :mv_file_number)
+        ON DUPLICATE KEY UPDATE client_id = VALUES(client_id), mv_file_number = VALUES(mv_file_number)
+    ");
     $stmt->execute([
+        'client_id' => $client_id,
         'plate_number' => !empty($plate_number) ? $plate_number : NULL,
-        'mv_file_number' => !empty($mv_file_number) ? $mv_file_number : NULL,
-        'user_id' => $user_id
+        'mv_file_number' => !empty($mv_file_number) ? $mv_file_number : NULL
     ]);
 
-    // Insert into insurance_registration
-    $stmt = $conn->prepare("INSERT INTO insurance_registration (User_ID, Plate_Number, MV_File_Number, Insurance_Type, OR_Picture, CR_Picture)
-                            VALUES (:user_id, :plate_number, :mv_file_number, :insurance_type, :or_picture, :cr_picture)");
+    // Retrieve the vehicle_id (Always fetch the existing or new vehicle)
+    $stmt = $conn->prepare("
+        SELECT vehicle_id FROM vehicles 
+        WHERE plate_number = :plate_number OR mv_file_number = :mv_file_number
+    ");
     $stmt->execute([
-        'user_id' => $user_id,
-        'plate_number' => !empty($plate_number) ? $plate_number : NULL,
-        'mv_file_number' => !empty($mv_file_number) ? $mv_file_number : NULL,
-        'insurance_type' => $insurance_type,
-        'or_picture' => $or_filename,
-        'cr_picture' => $cr_filename
+        'plate_number' => $plate_number,
+        'mv_file_number' => $mv_file_number
+    ]);
+    $vehicle = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$vehicle) {
+        throw new Exception("Vehicle ID not found.");
+    }
+    $vehicle_id = $vehicle['vehicle_id'];
+
+    // Insert into documents table for OR
+    $stmt = $conn->prepare("
+        INSERT INTO documents (client_id, vehicle_id, document_type, file_path)
+        VALUES (:client_id, :vehicle_id, 'OR', :file_path)
+    ");
+    $stmt->execute([
+        'client_id' => $client_id,
+        'vehicle_id' => $vehicle_id,
+        'file_path' => $or_filename
+    ]);
+
+    // Insert into documents table for CR
+    $stmt = $conn->prepare("
+        INSERT INTO documents (client_id, vehicle_id, document_type, file_path)
+        VALUES (:client_id, :vehicle_id, 'CR', :file_path)
+    ");
+    $stmt->execute([
+        'client_id' => $client_id,
+        'vehicle_id' => $vehicle_id,
+        'file_path' => $cr_filename
+    ]);
+
+    // Insert into insurance_registration (No OR/CR fields here)
+    $stmt = $conn->prepare("
+        INSERT INTO insurance_registration (client_id, vehicle_id, type_of_insurance)
+        VALUES (:client_id, :vehicle_id, :insurance_type)
+    ");
+    $stmt->execute([
+        'client_id' => $client_id,
+        'vehicle_id' => $vehicle_id,
+        'insurance_type' => $insurance_type
     ]);
 
     $conn->commit();
