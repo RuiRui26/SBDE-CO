@@ -74,7 +74,7 @@
 			</h2>
 
 			<p class="para-line">
-				"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, 
+			Whether you're looking for the best coverage, need assistance with your policy, or have questions about claims, our team is ready to provide you with expert guidance. Contact us today to learn more about our comprehensive car insurance plans and find the right protection for your vehicle.
 			</p>
 
 			<p class="para-line map-location">
