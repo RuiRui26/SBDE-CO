@@ -13,8 +13,11 @@
 </head>
 
 <body>
-        <h2>Retrieve your Lost  Documents</h2>
-        
+       <!-- Header with Logo -->
+    <header class="header">
+        <img src="img/NMG3.png" alt="NMG Insurance Logo" class="logo">
+        <h1 class="header-title">Retrieve Your Lost Documents</h1>
+    </header>
     <!-- Main Form Section -->
     <div class="form-section">
    
