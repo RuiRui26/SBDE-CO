@@ -98,6 +98,10 @@ tbody tr:hover {
     background-color: #ffc107;
     color: #6c5100;
 }
+.status.rejected {
+    background-color: #cb3131;
+    color: #f6f6f6;
+}
 
 .status.approved {
     background-color: #4caf50;
@@ -117,6 +121,139 @@ tbody tr:hover {
 
 .view-btn:hover {
     background-color: #0056b3;
+}
+
+/* Search Button */
+.search-container button {
+    padding: 15px 30px;
+    font-size: 18px;
+    background: #023451f3; 
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    margin-left: 10px; 
+}
+
+/* Hover Effect */
+.search-container button:hover {
+    background: #196ece;
+    transform: translateY(-2px); 
+}
+
+/* Active/Click Effect */
+.search-container button:active {
+    transform: translateY(1px); /* Subtle press effect */
+}
+
+
+/* Modal Overlay */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+/* Modal Box */
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 350px;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Smooth fade-in effect */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -55%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Dropdown Styling */
+#statusSelect {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #023451f3;
+    border-radius: 6px;
+    margin-top: 10px;
+    outline: none;
+}
+
+/* Buttons */
+.modal button {
+    width: 100%;
+    margin-top: 15px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+/* Confirm Button */
+.modal button:first-of-type {
+    background-color: #023451f3;
+    color: white;
+}
+
+.modal button:first-of-type:hover {
+    background-color: #074282;
+}
+
+/* Cancel Button */
+.modal button:last-of-type {
+    background: #ccc;
+}
+
+.modal button:last-of-type:hover {
+    background: #bbb;
+}
+
+/* Update Status Button */
+.update-status-btn {
+    padding: 12px 24px;
+    font-size: 16px;
+    background: #646464; /* Orange for visibility */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    margin-left: 8px;
+}
+
+/* Hover Effect */
+.update-status-btn:hover {
+    background: #008ee6; /* Darker orange */
+    transform: translateY(-2px); /* Slight lift effect */
+}
+
+/* Active/Click Effect */
+.update-status-btn:active {
+    transform: translateY(1px); /* Subtle press effect */
 }
 
 /* Responsive Design */

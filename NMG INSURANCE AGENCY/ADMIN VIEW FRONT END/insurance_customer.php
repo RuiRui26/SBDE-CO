@@ -23,32 +23,7 @@ $transactions = $insuranceTransactions->getTransactions($search, $limit, $offset
     <link rel="icon" type="image/png" href="img2/logo.png">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/customer_table.css">
-    <style>
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            z-index: 1000;
-        }
-        .modal button {
-            margin: 10px;
-            padding: 5px 10px;
-            border: none;
-            cursor: pointer;
-        }
-        .modal button:hover {
-            background: #ddd;
-        }
-    </style>
+ 
 </head>
 
 <body>

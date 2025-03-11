@@ -69,7 +69,6 @@ require '../../Logout_Login/Restricted.php';
             <?php
             $stats = [
                 "Total Insurance Applied" => 275,
-                "Total LTO Transactions" => 185,
                 "Pending Insurance" => 60,
                 "Approved Insurance" => 215
             ];
