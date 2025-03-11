@@ -29,30 +29,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // First, get the current status of the transaction
-    $stmt = $conn->prepare("SELECT status FROM insurance_registration WHERE insurance_id = ?");
+    $stmt = $conn->prepare("SELECT status, created_at FROM insurance_registration WHERE insurance_id = ?");
     $stmt->bind_param("i", $insurance_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    $current_status = $result->fetch_assoc()['status'];
+    $current_status_data = $result->fetch_assoc();
     
-    // Debugging: Log current status
-    file_put_contents("debug_log.txt", "Current Status for ID: $insurance_id is $current_status\n", FILE_APPEND);
+    // Debugging: Log current status and applied date
+    file_put_contents("debug_log.txt", "Current Status for ID: $insurance_id is " . $current_status_data['status'] . ", Applied Date: " . $current_status_data['created_at'] . "\n", FILE_APPEND);
 
     // Check if the current status is different from the new status
-    if ($current_status === $new_status) {
+    if ($current_status_data['status'] === $new_status) {
         file_put_contents("debug_log.txt", "No status change needed. Current status is already $new_status.\n", FILE_APPEND);
         echo "no_change";
         exit;
     }
 
-    // Prepare and execute the SQL statement
+    // Prepare and execute the SQL statement to update status (without modifying created_at)
     $stmt = $conn->prepare("UPDATE insurance_registration SET status = ? WHERE insurance_id = ?");
     if ($stmt === false) {
         file_put_contents("debug_log.txt", "Prepare statement failed: " . $conn->error . "\n", FILE_APPEND);
         echo "db_error";
         exit;
     }
-    
+
     $stmt->bind_param("si", $new_status, $insurance_id);
     $stmt->execute();
 
