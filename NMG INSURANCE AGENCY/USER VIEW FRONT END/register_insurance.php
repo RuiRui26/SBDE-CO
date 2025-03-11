@@ -1,7 +1,4 @@
 
-
-
-
 <?php
 session_start();
 require_once '../../DB_connection/db.php';
