@@ -1,55 +1,47 @@
 <?php
-session_start();
-$allowed_roles = ['Admin'];
-require '../../Logout_Login/Restricted.php';
 
-// Database connection using PDO
-require '../../DB_connection/db.php'; // Your database connection file
+require_once "../../DB_connection/db.php";
 
-// Ensure the user is logged in
-if (!isset($_SESSION['user_id'])) {
-    die("User is not logged in.");
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    die("Invalid Request: No insurance ID provided.");
 }
 
-// Get the insurance_id from the URL parameter
-$insurance_id = isset($_GET['insurance_id']) ? $_GET['insurance_id'] : null;
-if (!$insurance_id) {
-    die("Insurance ID is missing.");
-}
+$insurance_id = (int)$_GET['id']; // Convert to integer for security
 
-// Initialize database connection
-$database = new Database();
-$pdo = $database->getConnection(); // Get the PDO connection
+try {
+    $database = new Database();
+    $conn = $database->getConnection();
 
-// SQL query to fetch client and insurance details
-$query = "
-    SELECT 
-        c.full_name, c.email, c.contact_number, 
-        ir.type_of_insurance, ir.status, ir.or_picture, ir.cr_picture, ir.created_at 
-    FROM 
-        insurance_registration ir
-    INNER JOIN 
-        clients c ON ir.client_id = c.client_id
-    WHERE 
-        ir.insurance_id = :insurance_id
-";
+    // Fetch the insurance details
+    $query = "
+    SELECT ir.insurance_id, c.full_name, c.email, c.contact_number, 
+       v.plate_number, v.chassis_number, v.mv_file_number,
+       ir.type_of_insurance, ir.created_at, ir.status, 
+       d_or.file_path AS or_picture, 
+       d_cr.file_path AS cr_picture
+FROM nmg_insurance.insurance_registration ir
+JOIN nmg_insurance.clients c ON ir.client_id = c.client_id
+JOIN nmg_insurance.vehicles v ON ir.vehicle_id = v.vehicle_id
+LEFT JOIN nmg_insurance.documents d_or ON d_or.client_id = ir.client_id 
+    AND d_or.vehicle_id = ir.vehicle_id 
+    AND d_or.document_type = 'OR'
+LEFT JOIN nmg_insurance.documents d_cr ON d_cr.client_id = ir.client_id 
+    AND d_cr.vehicle_id = ir.vehicle_id 
+    AND d_cr.document_type = 'CR'
+WHERE ir.insurance_id = :insurance_id";
 
-// Prepare the query using PDO
-$stmt = $pdo->prepare($query);
-$stmt->bindParam(':insurance_id', $insurance_id, PDO::PARAM_INT);
-$stmt->execute();
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':insurance_id', $insurance_id, PDO::PARAM_INT);
+    $stmt->execute();
 
-// Fetch data
-$insurance_details = $stmt->fetch(PDO::FETCH_ASSOC);
+    $insurance_data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$insurance_details) {
-    die("No record found.");
-}
+    if (!$insurance_data) {
+        die("No insurance record found for this ID.");
+    }
 
-if (!isset($_GET['insurance_id'])) {
-    die("Insurance ID is missing from the URL.");
-} else {
-    echo "Insurance ID: " . $_GET['insurance_id']; // Debugging line to check if it's passed
+} catch (PDOException $e) {
+    die("Database error: " . $e->getMessage());
 }
 ?>
 
@@ -73,7 +65,7 @@ if (!isset($_GET['insurance_id'])) {
         <li><a href="admin.php"><img src="img2/adminprofile.png" alt="Admin Icon"> Admin Profile</a></li>
         <li><a href="customer.php"><img src="img2/customers.png" alt="Customers Icon"> Customers</a></li>
         <li><a href="staff_info.php"><img src="img2/adminprofile.png" alt="Admin Icon"> Staff Information</a></li>
-        <li><a href="search_main.php"><img src="img2/search.png" alt="Search Icon"> Search Policy</a></li>
+        <li><a href="search.php"><img src="img2/search.png" alt="Search Icon"> Search Policy</a></li>
         <li><a href="activitylog.php"><img src="img2/activitylog.png" alt="Activity Icon"> Activity Log</a></li>
         <li class="has-submenu" onclick="toggleSubmenu(event)">
             <a href="#"><img src="img2/setting.png" alt="Setting Icon"> Settings</a>
@@ -89,20 +81,22 @@ if (!isset($_GET['insurance_id'])) {
 <div class="main-content">
     <h1 class="page-title">Customer Details</h1>
     <div class="details-section">
-        <p><strong>Name:</strong> <span id="customer-name"><?php echo htmlspecialchars($insurance_details['full_name']); ?></span></p>
-        <p><strong>Email:</strong> <?php echo htmlspecialchars($insurance_details['email']); ?></p>
-        <p><strong>Phone:</strong> <?php echo htmlspecialchars($insurance_details['contact_number']); ?></p>
-        <p><strong>Transaction Type:</strong> <?php echo htmlspecialchars($insurance_details['type_of_insurance']); ?></p>
-        <p><strong>Applied Date:</strong> <?php echo htmlspecialchars($insurance_details['created_at']); ?></p>
-        <p><strong>Status:</strong> <span id="current-status"><?php echo htmlspecialchars($insurance_details['status']); ?></span></p>
+        <p><strong>Name:</strong> <?php echo htmlspecialchars($insurance_data['full_name']); ?></p>
+        <p><strong>Email:</strong> <?php echo htmlspecialchars($insurance_data['email']); ?></p>
+        <p><strong>Phone:</strong> <?php echo htmlspecialchars($insurance_data['contact_number']); ?></p>
+        <p><strong>MV File Number:</strong> <?php echo !empty($insurance_data['mv_file_number']) ? htmlspecialchars($insurance_data['mv_file_number']) : 'N/A'; ?></p>
+        <p><strong>Plate Number:</strong> <?php echo htmlspecialchars($insurance_data['plate_number']); ?></p>
+        <p><strong>Chassis Number:</strong> <?php echo htmlspecialchars($insurance_data['chassis_number']); ?></p>
+        <p><strong>Transaction Type:</strong> <?php echo htmlspecialchars($insurance_data['type_of_insurance']); ?></p>
+        <p><strong>Applied Date:</strong> <?php echo htmlspecialchars($insurance_data['created_at']); ?></p>
+        <p><strong>Status:</strong> <span id="current-status"><?php echo htmlspecialchars($insurance_data['status']); ?></span></p>
 
-        <!-- OR and CR Images -->
         <div class="image-container">
             <div class="image-box">
                 <p><strong>OR Image:</strong></p>
-                <?php if (!empty($insurance_details['or_picture'])): ?>
-                    <a href="img2/<?php echo htmlspecialchars($insurance_details['or_picture']); ?>" target="_blank">
-                        <img src="img2/<?php echo htmlspecialchars($insurance_details['or_picture']); ?>" alt="OR Image">
+                <?php if (!empty($insurance_data['or_picture'])): ?>
+                    <a href="../../secured_uploads/<?php echo htmlspecialchars($insurance_data['or_picture']); ?>" target="_blank">
+                        <img src="../../secured_uploads/<?php echo htmlspecialchars($insurance_data['or_picture']); ?>" alt="OR Image">
                     </a>
                 <?php else: ?>
                     <p>No OR image available</p>
@@ -110,30 +104,71 @@ if (!isset($_GET['insurance_id'])) {
             </div>
             <div class="image-box">
                 <p><strong>CR Image:</strong></p>
-                <?php if (!empty($insurance_details['cr_picture'])): ?>
-                    <a href="img2/<?php echo htmlspecialchars($insurance_details['cr_picture']); ?>" target="_blank">
-                        <img src="img2/<?php echo htmlspecialchars($insurance_details['cr_picture']); ?>" alt="CR Image">
+                <?php if (!empty($insurance_data['cr_picture'])): ?>
+                    <a href="../../secured_uploads/<?php echo htmlspecialchars($insurance_data['cr_picture']); ?>" target="_blank">
+                        <img src="../../secured_uploads/<?php echo htmlspecialchars($insurance_data['cr_picture']); ?>" alt="CR Image">
                     </a>
                 <?php else: ?>
                     <p>No CR image available</p>
                 <?php endif; ?>
             </div>
         </div>
-    </div>
 
-    <div class="buttons">
-        <button class="accept-btn" onclick="handleDecision('Approved')">Accept</button>
-        <button class="decline-btn" onclick="handleDecision('Rejected')">Decline</button>
+        <div class="buttons">
+
+        <label for="status-select"><strong>Update Status:</strong></label>
+        <select id="status-select">
+        <option value="Pending" <?php echo ($insurance_data['status'] == 'Pending') ? 'selected' : ''; ?>>Pending</option>
+        <option value="Approved" <?php echo ($insurance_data['status'] == 'Approved') ? 'selected' : ''; ?>>Approved</option>
+        <option value="Rejected" <?php echo ($insurance_data['status'] == 'Rejected') ? 'selected' : ''; ?>>Rejected</option>
+    </select>
+    <button class="update-btn" onclick="updateStatus()">Update</button>
+            <button class="print-or-btn" onclick="printImage('OR')">Print OR</button>
+            <button class="print-cr-btn" onclick="printImage('CR')">Print CR</button>
+        </div>
     </div>
 </div>
 
 <!-- JavaScript -->
 <script>
+
+function updateStatus() {
+    const status = document.getElementById('status-select').value;  // Corrected ID
+    const insurance_id = <?php echo $insurance_id; ?>; // Get ID from PHP
+
+    if (!insurance_id) {
+        alert("Invalid transaction ID.");
+        return;
+    }
+
+    console.log("Updating insurance_id:", insurance_id, "with status:", status); // Debugging
+
+    fetch('../../PHP_FILES/CRUD_Functions/update_status.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `id=${encodeURIComponent(insurance_id)}&status=${encodeURIComponent(status)}`
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log("Server Response:", data); // Debug response
+
+        if (data.trim() === "success") {
+            alert('Status updated successfully!');
+            location.reload();
+        } else if (data.trim() === "invalid") {
+            alert("Invalid request.");
+        } else {
+            alert("Failed to update status. Please try again.");
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+
+
     function handleDecision(status) {
-        // Send the status update via AJAX to the backend
         const insurance_id = <?php echo $insurance_id; ?>;
-        
-        // Creating the request
+
         const xhr = new XMLHttpRequest();
         xhr.open("POST", "update_status.php", true);
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -141,29 +176,50 @@ if (!isset($_GET['insurance_id'])) {
             if (xhr.status === 200) {
                 if (xhr.responseText === "success") {
                     alert(`Transaction has been ${status}`);
-                    window.location.reload(); // Reload the page to update the status
+                    window.location.reload();
                 } else {
                     alert("Failed to update status.");
                 }
             }
         };
 
-        // Sending the request with insurance_id and new status
         xhr.send("id=" + insurance_id + "&status=" + status);
     }
 
-    // Toggle Submenu for Settings (Hover + Click Support)
     function toggleSubmenu(event) {
-        event.stopPropagation(); // Prevent event from bubbling up
+        event.stopPropagation();
         const submenu = event.currentTarget.querySelector('.submenu');
         submenu.style.display = (submenu.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function printImage(type) {
+        var imageElement = document.querySelector(`.image-box a img[src*='${type}']`);
+
+        if (!imageElement) {
+            alert(`No ${type} image available to print.`);
+            return;
+        }
+
+        var printWindow = window.open("", "_blank");
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Print ${type}</title>
+                <style>
+                    body { text-align: center; font-family: Arial, sans-serif; }
+                    img { width: 80%; max-width: 600px; margin: 10px; border: 1px solid black; }
+                </style>
+            </head>
+            <body>
+                <h2>${type} Image</h2>
+                <img src="${imageElement.src}" alt="${type} Image">
+                <br><button onclick="window.print();">Print</button>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
     }
 </script>
 
 </body>
 </html>
-
-<?php
-// Close the PDO connection
-$pdo = null;
-?>
