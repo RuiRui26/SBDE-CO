@@ -1,7 +1,7 @@
 <?php
 session_start();
+$appointment_date = isset($_SESSION['appointment_date']) ? $_SESSION['appointment_date'] : 'Unavailable';
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,7 +42,7 @@ session_start();
     <div class="container">
         <h2>Request Submitted Successfully!</h2>
         <p>Your lost COC document request has been recorded.</p>
-        <p>Your appointment is scheduled. Please check your account for details.</p>
+        <p>Your appointment is scheduled for <strong><?php echo $appointment_date; ?></strong>.</p>
         <a href="dashboard.php" class="btn">Go to Dashboard</a>
     </div>
 </body>
