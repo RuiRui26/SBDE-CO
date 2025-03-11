@@ -2,8 +2,16 @@
 session_start(); 
 $allowed_roles = ['Admin'];
 require '../../Logout_Login/Restricted.php';
-?>
+require_once "../../PHP_Files/CRUD_Functions/insurance_queries.php";
 
+$insuranceTransactions = new InsuranceTransactions();
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$limit = 10;
+$offset = ($page - 1) * $limit;
+
+$transactions = $insuranceTransactions->getTransactions($search, $limit, $offset);
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -11,14 +19,39 @@ require '../../Logout_Login/Restricted.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insurance Transaction List</title>
+    <title>Insurance Customers</title>
     <link rel="icon" type="image/png" href="img2/logo.png">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/customer_table.css">
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            z-index: 1000;
+        }
+        .modal button {
+            margin: 10px;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .modal button:hover {
+            background: #ddd;
+        }
+    </style>
 </head>
 
 <body>
-
     <!-- Sidebar -->
     <div class="sidebar">
         <img src="img2/logo.png" alt="Logo" class="logo">
@@ -29,37 +62,36 @@ require '../../Logout_Login/Restricted.php';
             <li><a href="staff_info.php"><img src="img2/adminprofile.png" alt="Admin Icon"> Staff Information</a></li>
             <li><a href="search.php"><img src="img2/search.png" alt="Search Icon"> Search Policy</a></li>
             <li><a href="activitylog.php"><img src="img2/activitylog.png" alt="Activity Icon"> Activity Log</a></li>
-
-            <!-- Settings with Hover & Click Dropdown -->
             <li class="has-submenu" onclick="toggleSubmenu(event)">
                 <a href="#"><img src="img2/setting.png" alt="Setting Icon"> Settings</a>
                 <ul class="submenu">
                     <li><a href="page_management.php">Page Management</a></li>
                 </ul>
             </li>
-
             <li><a href="../../Logout_Login/Logout.php"><img src="img2/logout.png" alt="Logout Icon"> Logout</a></li>
         </ul>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
+        <h1 class="activity-title">Insurance Customers</h1>
 
-        <!-- Page Title -->
-        <h1 class="activity-title">Insurance Transactions</h1>
-
-        <!-- Search and Add Client Section -->
+        <!-- Search Section -->
         <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search by name or status..." onkeyup="searchTable()">
-            <button class="add-client-btn" onclick="addNewClient()">Add Client</button>
+            <form method="GET">
+                <input type="text" name="search" placeholder="Search by name or status..." value="<?= htmlspecialchars($search) ?>">
+                <button type="submit">Search</button>
+            </form>
+            <a href="add_client.php" class="add-client-btn">+ Add Client</a>
         </div>
 
         <!-- Table Section -->
         <div class="table-container">
-            <table id="insuranceTable">
+            <table>
                 <thead>
                     <tr>
                         <th>Name</th>
+                        <th>Plate Number</th>
                         <th>Transaction</th>
                         <th>Applied Date</th>
                         <th>Status</th>
@@ -67,61 +99,89 @@ require '../../Logout_Login/Restricted.php';
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>John Doe</td>
-                        <td>Third Party Liability Insurance (TPL)</td>
-                        <td>2024-02-15</td>
-                        <td><span class="status pending">Pending</span></td>
-                        <td>
-                            <button class="view-btn" onclick="viewCustomer('John Doe')">View</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Jane Smith</td>
-                        <td>Comprehensive Car Insurance</td>
-                        <td>2024-01-25</td>
-                        <td><span class="status approved">Approved</span></td>
-                        <td>
-                            <button class="view-btn" onclick="viewCustomer('Jane Smith')">View</button>
-                        </td>
-                    </tr>
+                    <?php if (!empty($transactions)) : ?>
+                        <?php foreach ($transactions as $transaction) : ?>
+                            <tr>
+                                <td><?= htmlspecialchars($transaction['full_name']); ?></td>
+                                <td><?= htmlspecialchars($transaction['plate_number']); ?></td>
+                                <td><?= htmlspecialchars($transaction['type_of_insurance']); ?></td>
+                                <td><?= htmlspecialchars($transaction['created_at']); ?></td>
+                                <td><span class="status <?= strtolower($transaction['status']); ?>"><?= htmlspecialchars($transaction['status']); ?></span></td>
+                                <td>
+                                    <a href="insurance_details.php?id=<?= $transaction['insurance_id']; ?>" class="view-btn">View</a>
+                                    <button class="update-status-btn" data-id="<?= $transaction['insurance_id']; ?>">Update Status</button>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                        <tr><td colspan="6">No transactions found.</td></tr>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
-
     </div>
 
-    <!-- Scripts -->
+     <!-- Modal for Status Update -->
+<div id="statusModal" class="modal">
+    <h3>Update Status</h3>
+    <p>Change transaction status:</p>
+    <select id="statusSelect">
+        <option value="Pending">Pending</option>
+        <option value="Approved">Approved</option>
+        <option value="Rejected">Rejected</option>
+    </select>
+    <button onclick="updateStatus()">Confirm</button>
+    <button onclick="closeModal()">Cancel</button>
+</div>
+
+
     <script>
-       
-        function viewCustomer(name) {
-            alert("Viewing details for " + name);
-            window.location.href = 'insurance_details.php';
-        }
+        let selectedTransactionId = null;
 
-        
-        function addNewClient() {
-            alert("Redirecting to add new client...");
-            window.location.href = 'add_client.php';
-        }
-        // Toggle Submenu for Settings (Hover + Click Support)
-        function toggleSubmenu(event) {
-            event.stopPropagation(); // Prevent event from bubbling up
-            const submenu = event.currentTarget.querySelector('.submenu');
-            submenu.style.display = (submenu.style.display === 'block') ? 'none' : 'block';
-        }
-
-        function searchTable() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.querySelectorAll("#insuranceTable tbody tr");
-
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(input) ? "" : "none";
+        // Open modal and set selected ID
+        document.querySelectorAll('.update-status-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                selectedTransactionId = this.getAttribute('data-id');
+                document.getElementById('statusModal').style.display = 'block';
             });
+        });
+
+        function updateStatus() {
+    const status = document.getElementById('statusSelect').value;
+
+    if (!selectedTransactionId) {
+        alert("Invalid transaction ID.");
+        return;
+    }
+
+    // Debugging: Log the sent data
+    console.log("Updating insurance_id:", selectedTransactionId, "with status:", status);
+
+    fetch('../../PHP_FILES/CRUD_Functions/update_status.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `id=${encodeURIComponent(selectedTransactionId)}&status=${encodeURIComponent(status)}`
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log("Server Response:", data); // Debug response
+
+        if (data.trim() === "success") {
+            alert('Status updated successfully!');
+            location.reload();
+        } else if (data.trim() === "invalid") {
+            alert("Invalid request.");
+        } else {
+            alert("Failed to update status. Please try again.");
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('statusModal').style.display = 'none';
         }
     </script>
-
 </body>
-
 </html>
