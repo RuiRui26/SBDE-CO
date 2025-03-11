@@ -1,6 +1,6 @@
 <?php
 session_start(); 
-
+$allowed_roles = ['Staff'];
 require('../../Logout_Login/Restricted.php');
 ?>
 
@@ -47,13 +47,6 @@ require('../../Logout_Login/Restricted.php');
                 <button class="view-btn" onclick="viewAllInsurance()">View</button>
             </div>
 
-            <!-- LTO Container -->
-            <div class="info-box">
-                <img src="img5/LTO2.png" alt="LTO" class="box-logo">
-                <h2>LTO Transaction</h2>
-                <button class="view-btn" onclick="viewAllLto()">View</button>
-            </div>
-        </div>
 
     </div>
 

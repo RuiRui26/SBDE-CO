@@ -1,6 +1,6 @@
 <?php
 session_start(); 
-
+$allowed_roles = ['Staff'];
 require('../../Logout_Login/Restricted.php');
 ?>
 
