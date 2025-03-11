@@ -15,7 +15,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'] ?? null;
 
-// ✅ Verify that the user is a Client
+// Verify that the user is a Client
 $stmt = $conn->prepare("SELECT role FROM users WHERE user_id = :user_id");
 $stmt->execute(['user_id' => $user_id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -39,7 +39,6 @@ $client_id = $client['client_id'];
 $user_name = $client['full_name'];
 $mobile = $client['contact_number'];
 
-// ✅ Prevent overwriting data with NULL values
 if (!$user_name || !$mobile) {
     echo json_encode(["success" => false, "message" => "Client data is incomplete. Please update your profile."]);
     exit;
@@ -49,6 +48,7 @@ if (!$user_name || !$mobile) {
 $plate_number = $_POST['plate_number'] ?? null;
 $mv_file_number = $_POST['mv_file_number'] ?? null;
 $insurance_type = $_POST['insurance_type'] ?? null;
+$chassis_number = $_POST['chassis_number'] ?? null;
 $or_picture = $_FILES['or_picture'] ?? null;
 $cr_picture = $_FILES['cr_picture'] ?? null;
 
@@ -64,14 +64,27 @@ if ($mv_file_number && !preg_match("/^\d{15}$/", $mv_file_number)) {
     exit;
 }
 
+// ✅ Check if client has already submitted an insurance application
+$stmt = $conn->prepare("
+    SELECT 1 FROM insurance_registration 
+    WHERE client_id = :client_id
+");
+$stmt->execute(['client_id' => $client_id]);
+$existingApplication = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($existingApplication) {
+    echo json_encode(["success" => false, "message" => "You have already submitted an insurance application."]);
+    exit;
+}
+
 // File upload directory
 $uploadDir = '../../secured_uploads/';
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0777, true);
 }
 
-// File Upload Function
-function processFileUpload($file, $prefix, $uploadDir) {
+// File Upload Function (Now includes client's full name)
+function processFileUpload($file, $prefix, $uploadDir, $client_name) {
     if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
         return null;
     }
@@ -83,7 +96,11 @@ function processFileUpload($file, $prefix, $uploadDir) {
         throw new Exception("Invalid file type for $prefix. Only JPG, JPEG, PNG, and PDF are allowed.");
     }
 
-    $filename = $prefix . "_" . time() . "." . $fileExtension;
+    // Sanitize client name for file naming
+    $safe_name = preg_replace('/[^a-zA-Z0-9-_]/', '_', $client_name);
+
+    // Construct the new filename: [ClientName]_[Prefix]_[Timestamp].[Extension]
+    $filename = "{$safe_name}_{$prefix}_" . time() . "." . $fileExtension;
     $destination = $uploadDir . $filename;
 
     if (!move_uploaded_file($file['tmp_name'], $destination)) {
@@ -93,31 +110,36 @@ function processFileUpload($file, $prefix, $uploadDir) {
     return $filename;
 }
 
-// Process file uploads (return NULL if no file)
+// Process file uploads (now includes the client name)
 try {
-    $or_filename = processFileUpload($or_picture, "OR", $uploadDir);
-    $cr_filename = processFileUpload($cr_picture, "CR", $uploadDir);
+    $or_filename = processFileUpload($or_picture, "OR", $uploadDir, $user_name);
+    $cr_filename = processFileUpload($cr_picture, "CR", $uploadDir, $user_name);
 } catch (Exception $e) {
     echo json_encode(["success" => false, "message" => $e->getMessage()]);
     exit;
 }
+
 
 try {
     $conn->beginTransaction();
 
     // ✅ Ensure vehicle entry exists
     $stmt = $conn->prepare("
-        INSERT INTO vehicles (client_id, plate_number, mv_file_number)
-        VALUES (:client_id, :plate_number, :mv_file_number)
-        ON DUPLICATE KEY UPDATE 
-            plate_number = IF(VALUES(plate_number) IS NOT NULL, VALUES(plate_number), plate_number),
-            mv_file_number = IF(VALUES(mv_file_number) IS NOT NULL, VALUES(mv_file_number), mv_file_number)
-    ");
-    $stmt->execute([
-        'client_id' => $client_id,
-        'plate_number' => !empty($plate_number) ? $plate_number : null,
-        'mv_file_number' => !empty($mv_file_number) ? $mv_file_number : null
-    ]);
+    INSERT INTO vehicles (client_id, plate_number, mv_file_number, chassis_number)
+    VALUES (:client_id, :plate_number, :mv_file_number, :chassis_number)
+    ON DUPLICATE KEY UPDATE 
+        plate_number = IF(VALUES(plate_number) IS NOT NULL, VALUES(plate_number), plate_number),
+        mv_file_number = IF(VALUES(mv_file_number) IS NOT NULL, VALUES(mv_file_number), mv_file_number),
+        chassis_number = IF(VALUES(chassis_number) IS NOT NULL, VALUES(chassis_number), chassis_number)
+");
+
+$stmt->execute([
+    'client_id' => $client_id,
+    'plate_number' => !empty($plate_number) ? $plate_number : null,
+    'mv_file_number' => !empty($mv_file_number) ? $mv_file_number : null,
+    'chassis_number' => !empty($chassis_number) ? $chassis_number : null
+]);
+
 
     // ✅ Retrieve the latest vehicle_id
     $stmt = $conn->prepare("
