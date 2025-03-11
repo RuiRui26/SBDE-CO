@@ -1,6 +1,5 @@
 <?php
 
-
 require '../../DB_connection/db.php';
 
 $database = new Database();
@@ -15,118 +14,153 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'] ?? null;
-$user_name = $_SESSION['user_name'] ?? '';
-$mobile = $_SESSION['contact_number'] ?? '';
 
+// ✅ Verify that the user is a Client
+$stmt = $conn->prepare("SELECT role FROM users WHERE user_id = :user_id");
+$stmt->execute(['user_id' => $user_id]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$user || $user['role'] !== 'Client') {
+    echo json_encode(["success" => false, "message" => "Only clients can apply for insurance."]);
+    exit;
+}
+
+// Retrieve client details
+$stmt = $conn->prepare("SELECT client_id, full_name, contact_number FROM clients WHERE user_id = :user_id");
+$stmt->execute(['user_id' => $user_id]);
+$client = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$client) {
+    echo json_encode(["success" => false, "message" => "Client record not found."]);
+    exit;
+}
+
+$client_id = $client['client_id'];
+$user_name = $client['full_name'];
+$mobile = $client['contact_number'];
+
+// ✅ Prevent overwriting data with NULL values
+if (!$user_name || !$mobile) {
+    echo json_encode(["success" => false, "message" => "Client data is incomplete. Please update your profile."]);
+    exit;
+}
+
+// Retrieve form data
 $plate_number = $_POST['plate_number'] ?? null;
 $mv_file_number = $_POST['mv_file_number'] ?? null;
 $insurance_type = $_POST['insurance_type'] ?? null;
 $or_picture = $_FILES['or_picture'] ?? null;
 $cr_picture = $_FILES['cr_picture'] ?? null;
 
-// Validation: At least one identifier must be provided
+// Ensure at least one identifier (Plate Number or MV File Number) is given
 if (!$plate_number && !$mv_file_number) {
     echo json_encode(["success" => false, "message" => "Either MV File Number or Plate Number is required."]);
     exit;
 }
 
-// Validation: MV File Number must be 15 digits
+// Validate MV File Number format
 if ($mv_file_number && !preg_match("/^\d{15}$/", $mv_file_number)) {
     echo json_encode(["success" => false, "message" => "MV File Number must be exactly 15 digits."]);
     exit;
 }
 
-// Sanitize file names using Full Name
-$clean_name = preg_replace("/[^a-zA-Z0-9]/", "_", strtolower($user_name));
-$or_filename = $clean_name . "_OR." . pathinfo($or_picture['name'], PATHINFO_EXTENSION);
-$cr_filename = $clean_name . "_CR." . pathinfo($cr_picture['name'], PATHINFO_EXTENSION);
+// File upload directory
 $uploadDir = '../../secured_uploads/';
-
-// Ensure the upload directory exists
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0777, true);
 }
 
-// Validate and move uploaded files
-if (!move_uploaded_file($or_picture['tmp_name'], $uploadDir . $or_filename) ||
-    !move_uploaded_file($cr_picture['tmp_name'], $uploadDir . $cr_filename)) {
-    echo json_encode(["success" => false, "message" => "Failed to upload OR/CR pictures."]);
+// File Upload Function
+function processFileUpload($file, $prefix, $uploadDir) {
+    if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
+        return null;
+    }
+
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
+    $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+    if (!in_array($fileExtension, $allowedExtensions)) {
+        throw new Exception("Invalid file type for $prefix. Only JPG, JPEG, PNG, and PDF are allowed.");
+    }
+
+    $filename = $prefix . "_" . time() . "." . $fileExtension;
+    $destination = $uploadDir . $filename;
+
+    if (!move_uploaded_file($file['tmp_name'], $destination)) {
+        throw new Exception("Failed to upload $prefix picture.");
+    }
+
+    return $filename;
+}
+
+// Process file uploads (return NULL if no file)
+try {
+    $or_filename = processFileUpload($or_picture, "OR", $uploadDir);
+    $cr_filename = processFileUpload($cr_picture, "CR", $uploadDir);
+} catch (Exception $e) {
+    echo json_encode(["success" => false, "message" => $e->getMessage()]);
     exit;
 }
 
 try {
     $conn->beginTransaction();
 
-    // Insert client data (Ensuring the client exists)
-    $stmt = $conn->prepare("INSERT INTO clients (user_id, full_name, contact_number)
-                        VALUES (:user_id, :name, :mobile)
-                        ON DUPLICATE KEY UPDATE full_name = VALUES(full_name), contact_number = VALUES(contact_number)");
-
-    $stmt->execute([
-        'user_id' => $user_id,
-        'name' => $user_name,
-        'mobile' => $mobile
-    ]);
-
-    // Retrieve the client_id
-    $stmt = $conn->prepare("SELECT client_id FROM clients WHERE user_id = :user_id");
-    $stmt->execute(['user_id' => $user_id]);
-    $client = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$client) {
-        throw new Exception("Client ID not found.");
-    }
-    $client_id = $client['client_id'];
-
-    // Insert into vehicles (Ensuring the vehicle exists)
+    // ✅ Ensure vehicle entry exists
     $stmt = $conn->prepare("
         INSERT INTO vehicles (client_id, plate_number, mv_file_number)
         VALUES (:client_id, :plate_number, :mv_file_number)
-        ON DUPLICATE KEY UPDATE client_id = VALUES(client_id), mv_file_number = VALUES(mv_file_number)
+        ON DUPLICATE KEY UPDATE 
+            plate_number = IF(VALUES(plate_number) IS NOT NULL, VALUES(plate_number), plate_number),
+            mv_file_number = IF(VALUES(mv_file_number) IS NOT NULL, VALUES(mv_file_number), mv_file_number)
     ");
     $stmt->execute([
         'client_id' => $client_id,
-        'plate_number' => !empty($plate_number) ? $plate_number : NULL,
-        'mv_file_number' => !empty($mv_file_number) ? $mv_file_number : NULL
+        'plate_number' => !empty($plate_number) ? $plate_number : null,
+        'mv_file_number' => !empty($mv_file_number) ? $mv_file_number : null
     ]);
 
-    // Retrieve the vehicle_id (Always fetch the existing or new vehicle)
+    // ✅ Retrieve the latest vehicle_id
     $stmt = $conn->prepare("
         SELECT vehicle_id FROM vehicles 
-        WHERE plate_number = :plate_number OR mv_file_number = :mv_file_number
+        WHERE client_id = :client_id 
+        ORDER BY vehicle_id DESC LIMIT 1
     ");
-    $stmt->execute([
-        'plate_number' => $plate_number,
-        'mv_file_number' => $mv_file_number
-    ]);
+    $stmt->execute(['client_id' => $client_id]);
     $vehicle = $stmt->fetch(PDO::FETCH_ASSOC);
+
     if (!$vehicle) {
         throw new Exception("Vehicle ID not found.");
     }
+
     $vehicle_id = $vehicle['vehicle_id'];
 
-    // Insert into documents table for OR
-    $stmt = $conn->prepare("
-        INSERT INTO documents (client_id, vehicle_id, document_type, file_path)
-        VALUES (:client_id, :vehicle_id, 'OR', :file_path)
-    ");
-    $stmt->execute([
-        'client_id' => $client_id,
-        'vehicle_id' => $vehicle_id,
-        'file_path' => $or_filename
-    ]);
+    // ✅ Insert OR document if uploaded
+    if ($or_filename) {
+        $stmt = $conn->prepare("
+            INSERT INTO documents (client_id, vehicle_id, document_type, file_path)
+            VALUES (:client_id, :vehicle_id, 'OR', :file_path)
+        ");
+        $stmt->execute([
+            'client_id' => $client_id,
+            'vehicle_id' => $vehicle_id,
+            'file_path' => $or_filename
+        ]);
+    }
 
-    // Insert into documents table for CR
-    $stmt = $conn->prepare("
-        INSERT INTO documents (client_id, vehicle_id, document_type, file_path)
-        VALUES (:client_id, :vehicle_id, 'CR', :file_path)
-    ");
-    $stmt->execute([
-        'client_id' => $client_id,
-        'vehicle_id' => $vehicle_id,
-        'file_path' => $cr_filename
-    ]);
+    // ✅ Insert CR document if uploaded
+    if ($cr_filename) {
+        $stmt = $conn->prepare("
+            INSERT INTO documents (client_id, vehicle_id, document_type, file_path)
+            VALUES (:client_id, :vehicle_id, 'CR', :file_path)
+        ");
+        $stmt->execute([
+            'client_id' => $client_id,
+            'vehicle_id' => $vehicle_id,
+            'file_path' => $cr_filename
+        ]);
+    }
 
-    // Insert into insurance_registration (No OR/CR fields here)
+    // ✅ Insert insurance registration
     $stmt = $conn->prepare("
         INSERT INTO insurance_registration (client_id, vehicle_id, type_of_insurance)
         VALUES (:client_id, :vehicle_id, :insurance_type)
@@ -143,4 +177,5 @@ try {
     $conn->rollBack();
     echo json_encode(["success" => false, "message" => "Transaction failed: " . $e->getMessage()]);
 }
+
 ?>

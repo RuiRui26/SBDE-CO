@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 require_once '../../DB_connection/db.php';
@@ -10,24 +9,24 @@ $pdo = $database->getConnection();
 
 // Ensure the user is logged in
 if (!isset($_SESSION['user_id'])) {
+    var_dump($_SESSION['user_id']);
+exit;
+
     die("User is not logged in.");
 }
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch user details from clients table
-$stmt = $pdo->prepare("SELECT Full_Name, Contact_Number FROM clients WHERE user_id = :user_id");
+$stmt = $pdo->prepare("SELECT full_name, contact_number FROM clients WHERE user_id = :user_id");
 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 $stmt->execute();
 $client = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$user_name = $client ? $client['Full_Name'] : '';
-$user_mobile = $client ? $client['Contact_Number'] : '';
 
-// Handle potential errors
-$mobileError = "";
+$user_name = $client['Full_Name'] ?? '';
+$user_mobile = $client['Contact_Number'] ?? '';
+
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -43,18 +42,19 @@ $mobileError = "";
         let mvFileError = document.getElementById("mvFileError");
         let plateError = document.getElementById("plateError");
 
+        // Clear previous errors
         mvFileError.textContent = "";
         plateError.textContent = "";
 
         // Ensure at least one of the fields is filled
-        if (mvFileNumber === "" && plateNumber === "") {
+        if (!mvFileNumber && !plateNumber) {
             mvFileError.textContent = "Either MV File Number or Plate Number is required.";
             plateError.textContent = "Either MV File Number or Plate Number is required.";
             return false;
         }
 
         // Validate MV File Number (must be exactly 15 digits)
-        if (mvFileNumber !== "" && !/^\d{15}$/.test(mvFileNumber)) {
+        if (mvFileNumber && !/^\d{15}$/.test(mvFileNumber)) {
             mvFileError.textContent = "MV File Number must be exactly 15 digits (numbers only).";
             return false;
         }
@@ -76,10 +76,11 @@ $mobileError = "";
 
         <div class="form-column">
             <label for="name">Full Name:</label>
-            <input type="text" id="name" name="name" value="<?= htmlspecialchars($user_name) ?>" readonly>
+            <input type="hidden" name="name" value="<?= htmlspecialchars($user_name) ?>">
+
 
             <label for="mobile">Mobile Number:</label>
-            <input type="tel" id="mobile" name="mobile" value="<?= htmlspecialchars($user_mobile) ?>" readonly>
+            <input type="hidden" name="mobile" value="<?= htmlspecialchars($user_mobile) ?>">
 
             <label for="plate_number">Plate Number:</label>
             <input type="text" id="plate_number" name="plate_number" placeholder="Enter your plate number">
@@ -127,4 +128,28 @@ $mobileError = "";
 </footer>
 
 </body>
+
+<script>
+    document.getElementById('insuranceForm').addEventListener('submit', function(event) {
+        let existingNameInput = document.querySelector('input[name="name"][type="hidden"]');
+        let existingMobileInput = document.querySelector('input[name="mobile"][type="hidden"]');
+
+        if (!existingNameInput) {
+            let nameInput = document.createElement('input');
+            nameInput.type = 'hidden';
+            nameInput.name = 'name';
+            nameInput.value = document.getElementById('name').value;
+            this.appendChild(nameInput);
+        }
+
+        if (!existingMobileInput) {
+            let mobileInput = document.createElement('input');
+            mobileInput.type = 'hidden';
+            mobileInput.name = 'mobile';
+            mobileInput.value = document.getElementById('mobile').value;
+            this.appendChild(mobileInput);
+        }
+    });
+</script>
+
 </html>
