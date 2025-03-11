@@ -22,7 +22,8 @@
 
     <!-- Main Form Section -->
     <div class="form-section">
-        <form action="appoint_lost.html" method="POST" enctype="multipart/form-data" class="insurance-form">
+          <form action="success_page.php" method="POST" enctype="multipart/form-data" class="insurance-form">
+
 
             <!-- Left Column -->
             <div class="form-column">
