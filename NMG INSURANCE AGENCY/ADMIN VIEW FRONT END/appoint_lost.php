@@ -1,10 +1,3 @@
-<?php 
-session_start();
-$allowed_roles = ['Client']; // Only clients can access
-require '../../Logout_Login_USER/Restricted.php';
-?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,19 +9,20 @@ require '../../Logout_Login_USER/Restricted.php';
     <link rel="stylesheet" href="css/appoint_loss.css">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="img/NMG3.png">
+    <link rel="icon" type="image2/png" href="img/NMG3.png">
 </head>
 
 <body>
-       <!-- Header with Logo -->
-    <header class="header">
-        <img src="img/NMG3.png" alt="NMG Insurance Logo" class="logo">
-        <h1 class="header-title">Retrieve Your Lost Documents</h1>
-    </header>
+
+    <!-- Header -->
+    <div class="header">
+        <img src="img2/logo.png" alt="NMG Insurance Logo" class="logo">
+        <h1 class="header-title">Appoint for Lost Documents</h1>
+    </div>
+
     <!-- Main Form Section -->
     <div class="form-section">
-   
-        <form action="../PHP_Files/User_View/appoint_lost.php" method="POST" enctype="multipart/form-data" class="insurance-form">
+        <form action="appoint_lost.html" method="POST" enctype="multipart/form-data" class="insurance-form">
 
             <!-- Left Column -->
             <div class="form-column">

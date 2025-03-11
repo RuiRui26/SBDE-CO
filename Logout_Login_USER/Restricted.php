@@ -1,11 +1,15 @@
 <?php
-session_start();
-require_once "../DB_connection/db.php";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../DB_connection/db.php';
 
 // Initialize database connection
 $database = new Database();
 $pdo = $database->getConnection();
 
+// Redirect to login if not logged in
 if (!isset($_SESSION['user_email'])) {
     header("Location: /SBDE-CO/Logout_Login_USER/Login.php");
     exit();
@@ -17,16 +21,18 @@ if (!isset($_SESSION['user_agent'])) {
 } elseif ($_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT']) {
     session_unset();
     session_destroy();
-    header("Location: ../../Logout_Login_USER/Login.php?error=security");
+    header("Location: /SBDE-CO/Logout_Login_USER/Login.php?error=security");
     exit();
 }
 
-// Session timeout (30 min)
-$_SESSION['timeout_duration'] = $_SESSION['timeout_duration'] ?? 1800;
-if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $_SESSION['timeout_duration'])) {
+// Set session timeout (30 minutes)
+$timeout_duration = 1800;
+if (!isset($_SESSION['last_activity'])) {
+    $_SESSION['last_activity'] = time();
+} elseif (time() - $_SESSION['last_activity'] > $timeout_duration) {
     session_unset();
     session_destroy();
-    header("Location: ../../Logout_Login_USER/Login.php?error=timeout");
+    header("Location: /SBDE-CO/Logout_Login_USER/Login.php?error=timeout");
     exit();
 }
 $_SESSION['last_activity'] = time();
@@ -37,6 +43,7 @@ try {
     $stmt->execute(['email' => $_SESSION['user_email']]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    // Check if the user is a Client
     if (!$user || $user['role'] !== 'Client') {
         echo '
         <!DOCTYPE html>
@@ -71,8 +78,13 @@ try {
                     myModal.show();
 
                     document.getElementById("redirectBtn").addEventListener("click", function () {
-                        window.location.href = "../../index.php"; // Redirect to home page
+                        window.location.href = "/SBDE-CO/index.php"; // Redirect to home page
                     });
+
+                    // Auto redirect after 5 seconds
+                    setTimeout(function() {
+                        window.location.href = "/SBDE-CO/index.php";
+                    }, 5000);
                 });
             </script>
         </body>

@@ -26,7 +26,7 @@
 	<nav>
 		<div class="menu-container nav-wrapper">
 			<div class="brand">
-				<a href="index.html">
+				<a href="index.php">
 					<img src="img/NMG22.png" alt="insurancy-logo" border="0">
 				</a>
 			</div>
@@ -37,14 +37,14 @@
 			</div>
 
 			<ul class="nav-list">
-				<li class="active"><a href="index.html">Home</a></li>
-				<li><a href="about.html">About</a></li>
-				<li><a href="benefits.html">Insurance</a></li>
-				<li><a href="contact.html">Contacts</a></li>
+				<li class="active"><a href="index.php">Home</a></li>
+				<li><a href="about.php">About</a></li>
+				<li><a href="benefits.php">Insurance</a></li>
+				<li><a href="contact.php">Contacts</a></li>
 			
 				<!-- User Profile -->
 				<li class="user-profile">
-					<a href="client.html" class="profile-link"></a>
+					<a href="client.php" class="profile-link"></a>
 				</li>															
 			</ul>
 			
@@ -62,17 +62,21 @@
 						Drive with Confidence, Ensure with Trust.
 					</h2>
 					<p class="para-line white">
-						Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus perspiciatis vero libero, aliquam necessitatibus soluta neque, alias repudiandae.
+<<<<<<< HEAD
+							
+=======
+					A trusted non-life insurance to ensure the safety coverage of vehicle accidents. To give a bright future ahead within the road
+>>>>>>> bec8b8d091ac36109081a8dee107a2d75bf1ae58
 					</p>
 					<div class="inner-row">
 						<div class="inner-col">
 							<button class="btn btn-full-w view-requirement">
-								<a href="view_requirements.html">View Requirements</a>
+								<a href="view_requirements.php">View Requirements</a>
 							</button>
 						</div>
 						<div class="inner-col">
 							<button class="btn btn-full-w apply-here">
-								<a href="apply_choices.html">Apply Here</a>
+								<a href="apply_choices.php">Apply Here</a>
 							</button>
 						</div>
 					</div>
@@ -106,8 +110,8 @@
     
     let currentPath = window.location.pathname.split("/").pop();
 
-    if (currentPath === "" || currentPath === "index.html") {
-        currentPath = "index.html";
+    if (currentPath === "" || currentPath === "index.php") {
+        currentPath = "index.php";
     }
 
     $(".nav-list li").removeClass("active");

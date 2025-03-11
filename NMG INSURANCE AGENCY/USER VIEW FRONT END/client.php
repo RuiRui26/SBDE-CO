@@ -1,3 +1,10 @@
+<?php 
+session_start();
+$allowed_roles = ['Client']; // Only clients can access
+require '../../Logout_Login_USER/Restricted.php';
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,20 +25,20 @@
     <nav>
         <div class="menu-container nav-wrapper">
             <div class="brand">
-                <a href="index.html">
+                <a href="index.php">
                     <img src="img/NMG22.png" alt="insurancy-logo" border="0">
                 </a>
             </div>
 
             <ul class="nav-list">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="benefits.html">Insurance</a></li>
-                <li><a href="contact.html">Contacts</a></li>
+                <li><a href="index.php">Home</a></li>
+                <li><a href="about.php">About</a></li>
+                <li><a href="benefits.php">Insurance</a></li>
+                <li><a href="contact.php">Contacts</a></li>
 
                 <!-- User Profile -->
                 <li class="user-profile">
-                    <a href="client.html">
+                    <a href="client.php">
                         <img src="img/userprofile.png" alt="User Profile">
                     </a>
                 </li>
@@ -120,11 +127,11 @@
     <script>
         function logout() {
             // Redirect to the logout page or handle logout logic
-            window.location.href = 'logout.html';
+            window.location.href = '../../Logout_Login_USER/Logout.php';
         }
         function sendmessage() {
             // Redirect to the logout page or handle logout logic
-            window.location.href = 'message.html';
+            window.location.href = 'message.php';
         }
 
     </script>

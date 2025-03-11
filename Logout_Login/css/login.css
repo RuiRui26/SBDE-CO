@@ -98,6 +98,59 @@ input:focus {
     background: #0056b3;
     transform: scale(1.05);
 }
+/* Improved Select Role Styling */
+.styled-select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #007BFF;
+    border-radius: 8px;
+    font-size: 16px;
+    background: white;
+    cursor: pointer;
+    appearance: none; /* Removes default arrow */
+    transition: border 0.3s ease;
+}
+
+.styled-select:focus {
+    border-color: #0056b3;
+    outline: none;
+}
+
+/* Password Visibility Toggle */
+.password-container {
+    position: relative;
+}
+
+.password-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 40px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    color: #555;
+    transition: color 0.3s ease;
+}
+
+.toggle-password:hover {
+    color: #007BFF;
+}
+
+/* Button Hover */
+.btn:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
 
 /* Animations */
 @keyframes fadeIn {
