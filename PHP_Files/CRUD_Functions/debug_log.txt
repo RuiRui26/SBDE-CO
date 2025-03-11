@@ -34,3 +34,6 @@ Update successful for ID: 2
 Received ID: 2, Status: Approved
 Current Status for ID: 2 is Rejected, Applied Date: 2025-03-11 18:45:58
 Update successful for ID: 2
+Received ID: 2, Status: Pending
+Current Status for ID: 2 is Approved, Applied Date: 2025-03-11 18:46:05
+Update successful for ID: 2

@@ -2,6 +2,21 @@
 session_start(); 
 $allowed_roles = ['Admin'];
 require '../../Logout_Login/Restricted.php';
+require_once '../../DB_connection/db.php';
+
+// Fetching updated stats
+try {
+    $database = new Database();
+    $conn = $database->getConnection();
+
+    $totalInsuranceApplied = $conn->query("SELECT COUNT(*) FROM insurance_registration")->fetchColumn();
+    $pendingInsurance = $conn->query("SELECT COUNT(*) FROM insurance_registration WHERE status = 'Pending'")->fetchColumn();
+    $approvedInsurance = $conn->query("SELECT COUNT(*) FROM insurance_registration WHERE status = 'Approved'")->fetchColumn();
+
+} catch (PDOException $e) {
+    die("Database error: " . $e->getMessage());
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -27,15 +42,12 @@ require '../../Logout_Login/Restricted.php';
             <li><a href="staff_info.php"><img src="img2/adminprofile.png" alt="Admin Icon"> Staff Information</a></li>
             <li><a href="search.php"><img src="img2/search.png" alt="Search Icon"> Search Policy</a></li>
             <li><a href="activitylog.php"><img src="img2/activitylog.png" alt="Activity Icon"> Activity Log</a></li>
-
-            <!-- Settings with Hover & Click Dropdown -->
             <li class="has-submenu" onclick="toggleSubmenu(event)">
                 <a href="#"><img src="img2/setting.png" alt="Setting Icon"> Settings</a>
                 <ul class="submenu">
                     <li><a href="page_management.php">Page Management</a></li>
                 </ul>
             </li>
-
             <li><a href="../../Logout_Login/Logout.php"><img src="img2/logout.png" alt="Logout Icon"> Logout</a></li>
         </ul>
     </div>
@@ -63,10 +75,9 @@ require '../../Logout_Login/Restricted.php';
         <div class="stats-container">
             <?php
             $stats = [
-                "Total Insurance Applied" => 275,
-                "Total LTO Transactions" => 185,
-                "Pending Insurance" => 60,
-                "Approved Insurance" => 215
+                "Total Insurance Applied" => $totalInsuranceApplied,
+                "Pending Insurance" => $pendingInsurance,
+                "Approved Insurance" => $approvedInsurance,
             ];
 
             foreach ($stats as $title => $value) {
@@ -141,35 +152,12 @@ require '../../Logout_Login/Restricted.php';
             const submenu = event.currentTarget.querySelector('.submenu');
             submenu.style.display = (submenu.style.display === 'block') ? 'none' : 'block';
         }
+
         document.addEventListener('click', () => {
             document.querySelectorAll('.submenu').forEach(submenu => {
                 submenu.style.display = 'none';
             });
         });
-
-        function updateStats(cardId, range) {
-            const card = document.getElementById(cardId);
-            const transactionNumber = card.querySelector('.transaction-number');
-
-            const statsData = {
-                "TotalInsuranceApplied": {
-                    "15days": 45,
-                    "monthly": 120,
-                    "yearly": 350
-                },
-                "TotalLTOTransactions": {
-                    "15days": 30,
-                    "monthly": 90,
-                    "yearly": 250
-                }
-            };
-
-            if (statsData[cardId] && statsData[cardId][range]) {
-                transactionNumber.textContent = statsData[cardId][range];
-            } else {
-                transactionNumber.textContent = range === "default" ? (cardId === "TotalInsuranceApplied" ? 275 : 185) : "N/A";
-            }
-        }
     </script>
 
 </body>
