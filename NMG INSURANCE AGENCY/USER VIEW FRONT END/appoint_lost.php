@@ -1,6 +1,6 @@
 <?php 
-session_start(); 
-$allowed_roles = ['Admin'];
+session_start();
+$allowed_roles = ['Client']; // Only clients can access
 require '../../Logout_Login_USER/Restricted.php';
 ?>
 

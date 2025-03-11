@@ -2,7 +2,7 @@
 <?php
 session_start();
 require_once '../../DB_connection/db.php';
-$allowed_roles = ['Admin'];
+$allowed_roles = ['Client'];
 require '../../Logout_Login_USER/Restricted.php';
 
 $database = new Database();
