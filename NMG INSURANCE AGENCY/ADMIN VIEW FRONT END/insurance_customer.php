@@ -35,7 +35,7 @@ $transactions = $insuranceTransactions->getTransactions($search, $limit, $offset
             <li><a href="admin.php"><img src="img2/adminprofile.png" alt="Admin Icon"> Admin Profile</a></li>
             <li><a href="customer.php"><img src="img2/customers.png" alt="Customers Icon"> Customers</a></li>
             <li><a href="staff_info.php"><img src="img2/adminprofile.png" alt="Admin Icon"> Staff Information</a></li>
-            <li><a href="search.php"><img src="img2/search.png" alt="Search Icon"> Search Policy</a></li>
+            <li><a href="search_main.php"><img src="img2/search.png" alt="Search Icon"> Search Policy</a></li>
             <li><a href="activitylog.php"><img src="img2/activitylog.png" alt="Activity Icon"> Activity Log</a></li>
             <li class="has-submenu" onclick="toggleSubmenu(event)">
                 <a href="#"><img src="img2/setting.png" alt="Setting Icon"> Settings</a>
