@@ -11,27 +11,8 @@
 </head>
 
 <body>
-    <!-- Navigation -->
-    <nav>
-        <div class="menu-container nav-wrapper">
-            <div class="brand">
-                <a href="index.php">
-                    <img src="img/NMG22.png" alt="Insurancy Logo">
-                </a>
-            </div>
-            <div class="hamberger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <ul class="nav-list">
-                <li><a href="index.php">Home</a></li>
-                <li><a href="about.php">About</a></li>
-                <li><a href="benefits.php">Insurance</a></li>
-                <li><a href="contact.php">Contact</a></li>
-            </ul>
-        </div>
-    </nav>
+     <!-- Navigation -->
+     <?php include 'nav.php'; ?>
 
     <!-- Main Content -->
     <div class="content">

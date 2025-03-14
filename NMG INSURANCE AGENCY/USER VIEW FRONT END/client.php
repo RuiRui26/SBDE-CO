@@ -21,31 +21,8 @@ require '../../Logout_Login_USER/Restricted.php';
 </head>
 
 <body>
-    <!-- Navigation starts -->
-    <nav>
-        <div class="menu-container nav-wrapper">
-            <div class="brand">
-                <a href="index.php">
-                    <img src="img/NMG22.png" alt="insurancy-logo" border="0">
-                </a>
-            </div>
-
-            <ul class="nav-list">
-                <li><a href="index.php">Home</a></li>
-                <li><a href="about.php">About</a></li>
-                <li><a href="benefits.php">Insurance</a></li>
-                <li><a href="contact.php">Contacts</a></li>
-
-                <!-- User Profile -->
-                <li class="user-profile">
-                    <a href="client.php">
-                        <img src="img/userprofile.png" alt="User Profile">
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <!-- Navigation ends -->
+     <!-- Navigation -->
+     <?php include 'nav.php'; ?>
 
     <div class="container">
         <!-- Profile Header -->

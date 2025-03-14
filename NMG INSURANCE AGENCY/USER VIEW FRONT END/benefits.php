@@ -17,27 +17,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
-    <nav>
-        <div class="menu-container nav-wrapper">
-            <div class="brand">
-                <a href="index.php">
-                    <img src="img/NMG22.png" alt="Insurancy Logo">
-                </a>
-            </div>
-            <div class="hamberger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <ul class="nav-list">
-                <li><a href="index.php">Home</a></li>
-                <li><a href="about.php">About</a></li>
-                <li class="active"><a href="benefits.php">Insurance</a></li>
-                <li><a href="contact.php">Contact</a></li>
-                <li><button class="btn btn-apply-here"><a href="apply_choices.php">Apply</a></button></li>
-            </ul>
-        </div>
-    </nav>
+     <!-- Navigation -->
+     <?php include 'nav.php'; ?>
 
     <section class="benefits">
         <div class="container">

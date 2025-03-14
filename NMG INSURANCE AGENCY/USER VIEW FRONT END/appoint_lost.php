@@ -28,12 +28,7 @@ require '../../Logout_Login_USER/Restricted.php';
     <!-- Main Form Section -->
     <div class="form-section">
    
-<<<<<<< Updated upstream
         <form action="../PHP_Files/User_View/appoint_lost.php" method="POST" enctype="multipart/form-data" class="insurance-form">
-=======
-            <form action="success_page.php" method="POST" enctype="multipart/form-data" class="insurance-form">
-
->>>>>>> Stashed changes
 
             <!-- Left Column -->
             <div class="form-column">
