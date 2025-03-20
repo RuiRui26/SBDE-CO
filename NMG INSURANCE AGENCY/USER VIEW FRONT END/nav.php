@@ -26,10 +26,10 @@
             <li><a href="benefits.php">Insurance</a></li>
             <li><a href="contact.php">Contacts</a></li>
 
-            <!-- User Profile -->
+            <!-- User Profile
             <li class="user-profile">
                 <a href="client.php" class="profile-link"></a>
-            </li>
+            </li>-->
         </ul>
     </div>
 </nav>
