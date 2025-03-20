@@ -176,38 +176,34 @@ nav {
 	color: #fff;
 }
 
-/*-------- View Requirement button ---------*/
+/* View Requirement button */
 .view-requirement {
     background: var(--fourth-color);
     color: var(--third-color);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
 .view-requirement:hover {
     background: var(--fifth-color);
-    color: var(--fifth-color);
-}
-.view-requirement > a {
-	color: #000000;
-}
-.view-requirement:hover > a {
-	color: var(--fourth-color);
+    color: var(--fourth-color);
 }
 
-/*---------- Apply Here button ----------*/
+/* Apply Here button */
 .apply-here {
-	background: var(--apply-here);
-	transition: 0.3s ease-in-out;
+    background: var(--apply-here);
+    color: var(--fourth-color);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
 .apply-here:hover {
-	background: var(--fifth-color);
-}
-.apply-here > a {
-	color: #f8f4f4;
-}
-
-.apply-here:hover > a {
-	color: var(--fourth-color);
+    background: var(--fifth-color);
+    color: var(--fourth-color);
 }
 
 /*------------ Full width button ------------*/

@@ -44,16 +44,16 @@
                     </p>
                     <div class="inner-row">
                         <div class="inner-col">
-                            <button class="btn btn-full-w view-requirement">
-                                <a href="view_requirements.php">View Requirements</a>
+                            <button class="btn btn-full-w view-requirement" onclick="location.href='view_requirements.php'">
+                                View Requirements
                             </button>
-                        </div>
-                        <div class="inner-col">
-                            <button class="btn btn-full-w apply-here">
-                                <a href="apply_choices.php">Apply Here</a>
-                            </button>
-                        </div>
                     </div>
+                    <div class="inner-col">
+                            <button class="btn btn-full-w apply-here" onclick="location.href='apply_choices.php'">
+                                 Apply Here
+                            </button>
+                    </div>
+                </div>
                 </div>
                 <div class="col landing-blank-col"></div>
             </div>
