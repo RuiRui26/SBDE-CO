@@ -31,6 +31,8 @@
                 <a href="client.php" class="profile-link"></a>
             </li>-->
         </ul>
+        <!-- Register Button -->
+        <a href="register.php" class="register-btn">Register</a>
     </div>
 </nav>
 
