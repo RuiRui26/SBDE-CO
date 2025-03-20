@@ -15,19 +15,20 @@
                 <img src="img/NMG3.png" alt="Company Logo"> 
             </div>
             <nav class="menu">
-                <button class="menu-item" data-tooltip="Dashboard">
-                    <img src="img/dashboardd.png" alt="Dashboard">
-                </button>
-                <button class="menu-item" data-tooltip="Transactions">
-                    <img src="img/transaction.png" alt="Transactions">
-                </button>
-                <button class="menu-item" data-tooltip="Apply Insurance">
-                    <img src="img/apply.png" alt="Apply Insurance">
-                </button>
-                <button class="menu-item" data-tooltip="Lost Documents">
-                    <img src="img/lost.png" alt="Lost Documents">
-                </button>
+            <button class="menu-item" data-tooltip="Dashboard" onclick="window.location.href='profile.php'">
+            <img src="img/dashboardd.png" alt="Dashboard">
+            </button>
+            <button class="menu-item" data-tooltip="Transactions" onclick="window.location.href='transactions.php'">
+            <img src="img/transaction.png" alt="Transactions">
+            </button>
+            <button class="menu-item" data-tooltip="Apply Insurance" onclick="window.location.href='apply_insurance.php'">
+            <img src="img/apply.png" alt="Apply Insurance">
+            </button>
+            <button class="menu-item" data-tooltip="Lost Documents" onclick="window.location.href='lost_documents.php'">
+            <img src="img/lost.png" alt="Lost Documents">
+            </button>
             </nav>
+
         </aside>
 
         <!-- Main Content -->
