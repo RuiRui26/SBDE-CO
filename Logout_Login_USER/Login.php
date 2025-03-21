@@ -11,30 +11,34 @@
 </head>
 
 <body>
-    <div class="container">
-        <!-- Logo -->
-        <img src="img/logo.png" alt="Company Logo" class="logo">
+    <div class="login-container">
+        <!-- Left Side (Background Image) -->
+        <div class="login-image"></div>
 
-        <h2>Log In</h2>
+        <!-- Right Side (Login Form) -->
+        <div class="login-form">
+            <img src="img/logo.png" alt="Company Logo" class="logo">
+            <h2>Log In</h2>
 
-        <!-- Login Form -->
-        <form id="loginForm">
-            <label for="password">Email</label>
-            <input type="email" id="email" name="email" placeholder="Email">
-            <span id="email-error" class="error"></span>
+            <!-- Login Form -->
+            <form id="loginForm">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                <span id="email-error" class="error"></span>
 
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="Password">
-            <span id="password-error" class="error"></span>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <span id="password-error" class="error"></span>
 
-            <button type="submit">Login</button>
-        </form>
+                <button type="submit">Login</button>
+            </form>
 
-        <!-- Error Display -->
-        <p id="login-error" class="error"></p>
+            <!-- Error Display -->
+            <p id="login-error" class="error"></p>
 
-        <!-- Register Link -->
-        <p>Don't have an account? <a href="register.php">Register</a></p>
+            <!-- Register Link -->
+            <p>Don't have an account? <a href="register.php">Register</a></p>
+        </div>
     </div>
 
     <script>

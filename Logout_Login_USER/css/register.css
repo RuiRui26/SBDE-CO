@@ -4,7 +4,7 @@ body {
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #152545, #4f6681);
+    background: linear-gradient(135deg, #f6f7f9, #dfe9f5);
     display: flex;
     justify-content: center;
     align-items: center;

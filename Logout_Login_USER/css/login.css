@@ -1,135 +1,114 @@
-/* General Styling */
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
 body {
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-    background: linear-gradient(135deg, #152545, #4f6681);
-    font-family: 'Poppins', sans-serif;
-    box-sizing: border-box;
+    background: #f4f4f4;
 }
 
-/* Title Styling */
-h2 {
-    color: #0e2f59;
-    font-size: 32px;
-    font-weight: 600;
-    margin: 0; 
-    text-align: center; 
+/* Container */
+.login-container {
     display: flex;
-    justify-content: center; 
-    align-items: center; 
-    height: 100px; 
+    width: 80%;
+    max-width: 900px;
+    height: 500px;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-
-/* Container Styling */
-.container {
-    text-align: left; 
-    background: rgba(219, 234, 245, 0.868);
-    padding: 40px 35px;
-    border-radius: 16px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-    width: 90%;
-    max-width: 400px;
-    backdrop-filter: blur(15px);
+/* Left Side - Background Image */
+.login-image {
+    flex: 1;
+    background: url('../img/login.png') center/cover no-repeat;
 }
 
-/* Logo Styling */
+/* Right Side - Login Form */
+.login-form {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 .logo {
-    display: block;
-    width: 120px; 
-    margin: 0 auto 30px; /* Center logo with bottom spacing */
-    animation: popUp 0.8s ease-in-out;
-    filter: drop-shadow(0 0 12px rgba(2, 46, 73, 0.927));
-    transition: transform 0.4s ease, filter 0.4s ease;
-}
-.logo:hover {
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 20px rgb(11, 34, 75));
-}
-
-/* Label Styling */
-label {
-    display: block; /* Make labels appear above inputs */
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 8px; /* Space between label and input */
-    color:#0e2f59; /* White color for labels */
-}
-
-/* Input Field Styling */
-input {
-    display: block;
-    width: calc(100% - 20px);
-    margin-bottom: 20px;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    outline: none;
-    transition: box-shadow 0.3s ease;
-    
-}
-
-/* Input Focus Effect */
-input:focus {
-    box-shadow: 0 0 12px rgba(0, 123, 255, 0.8);
-}
-
-/* Button Styling */
-button {
-    width: 100%;
-    background: linear-gradient(90deg, #007BFF, #0056b3);
-    color: white;
-    border: none;
-    padding: 14px;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-/* Hover Effect on Button */
-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 25px rgba(0, 123, 255, 0.6);
-}
-
-/* Error Message Styling */
-.error {
-    color: #FF4D4F;
-    font-size: 12px;
-    margin-top: -10px; /* Adjusts error message position */
+    width: 100px;
     margin-bottom: 15px;
 }
 
-/* Link Styling */
+h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+form {
+    width: 100%;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    margin-top: 10px;
+    color: #555;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
 p {
-    text-align: center;
-    color: #0e2f59;
+    margin-top: 10px;
 }
 
 a {
-    color: #0e2f59;
-    text-decoration: underline;
-    transition: color 0.3s ease;
+    color: #007BFF;
+    text-decoration: none;
 }
 
-a:hover {
-    color: #3172ff;
+.error {
+    color: red;
+    font-size: 12px;
 }
 
 /* Responsive Design */
-@media (max-width: 480px) {
-    .container {
-        padding: 30px 20px;
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+        height: auto;
     }
-    input {
-        font-size: 14px;
-    }
-    button {
-        font-size: 16px;
+
+    .login-image {
+        height: 250px;
     }
 }
