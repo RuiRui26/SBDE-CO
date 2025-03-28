@@ -14,7 +14,8 @@
                 <img src="img/NMG22.png" alt="insurancy-logo" border="0">
             </a>
         </div>
-        <div class="hamberger">
+
+        <div class="hamburger" onclick="toggleMenu()">
             <span></span>
             <span></span>
             <span></span>
@@ -25,16 +26,18 @@
             <li><a href="about.php">About</a></li>
             <li><a href="benefits.php">Insurance</a></li>
             <li><a href="contact.php">Contacts</a></li>
-
-            <!-- User Profile
-            <li class="user-profile">
-                <a href="client.php" class="profile-link"></a>
-            </li>-->
         </ul>
+
         <!-- Register Button -->
-        <a href="profile.php" class="register-btn">Register</a>
+        <button onclick="window.location.href='USER_PROFILE/profile.php'" class="register-btn">Register</button>
     </div>
 </nav>
+
+<script>
+    function toggleMenu() {
+        document.querySelector('.nav-list').classList.toggle('active');
+    }
+</script>
 
 </body>
 </html>
