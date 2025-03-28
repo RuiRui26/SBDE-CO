@@ -4,7 +4,7 @@ PHP/CSS/HTML/JS
 NMG INSURANCE
 ERD - 
 
-Main Changes in ReadME
+This is the changes in Main
 
 Functions:
 Apply insurance
