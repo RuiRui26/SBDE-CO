@@ -128,6 +128,13 @@ $user_mobile = $client['Contact_Number'] ?? '';
                 <label for="mobile">Mobile Number:</label>
                 <input type="hidden" name="mobile" value="<?= htmlspecialchars($user_mobile) ?>">
 
+                <label for="insurance_type">Type of Insurance:</label>
+                <select id="insurance_type" name="insurance_type" required onchange="showInsuranceInfo()">
+                <option value="">Select Insurance Type</option>
+                <option value="TPL">Third Party Liability (TPL) Insurance</option>
+                <option value="TPPD">Third Party Property Damage (TPPD) Insurance</option>
+                </select>
+
                 <label for="plate_number">Plate Number:</label>
                 <input type="text" id="plate_number" name="plate_number" placeholder="Enter your plate number">
                 <span class="error-message" id="plateError"></span>
@@ -140,13 +147,6 @@ $user_mobile = $client['Contact_Number'] ?? '';
             <div class="form-column">
                 <label for="chassis_number">Chassis Number:</label>
                 <input type="text" id="chassis_number" name="chassis_number" required placeholder="Enter chassis number">
-
-                <label for="insurance_type">Type of Insurance:</label>
-                <select id="insurance_type" name="insurance_type" required onchange="showInsuranceInfo()">
-                    <option value="">Select Insurance Type</option>
-                    <option value="TPL">Third Party Liability (TPL) Insurance</option>
-                    <option value="TPPD">Third Party Property Damage (TPPD) Insurance</option>
-                </select>
 
                 <label for="vehicle_type">Vehicle Type:</label>
                 <select id="vehicle_type" name="vehicle_type" required>
@@ -164,7 +164,7 @@ $user_mobile = $client['Contact_Number'] ?? '';
             </div>
 
             <div class="submit-container">
-                <button type="submit" class="submit-btn">Submit Application</button>
+                <button type="button" class="submit-btn" onclick="proceedToNextPage()">Proceed</button>
             </div>
         </form>
     </main>
@@ -180,6 +180,15 @@ $user_mobile = $client['Contact_Number'] ?? '';
             <div id="modalContent"></div>
         </div>
     </div>
+
+    <script>
+    function proceedToNextPage() {
+        if (validateForm()) {
+            window.location.href = "register_insurance2.php"; // Change to your actual next page
+        }
+    }
+    </script>
+
 
 </body>
 
