@@ -76,6 +76,12 @@ $user_mobile = $client['Contact_Number'] ?? '';
                     <li>Legal protection against claims arising from third-party injuries or fatalities.</li>
                     <li>Mandatory coverage in many regions to legally drive a vehicle.</li>
                  </ul>
+                    <p><strong>Requirements:</strong></p>
+                    <ul style="text-align: left;">
+                    <li>Official Receipt (OR)</li>
+                    <li>Certificate of Registration (CR)</li>
+                    <li>Smoke Emission</li>
+                </ul>
                 `;
             } else if (type === "TPPD") {
                 modalContent.innerHTML = `
@@ -88,6 +94,12 @@ $user_mobile = $client['Contact_Number'] ?? '';
                     <li>Legal coverage if the third party takes legal action for property damage.</li>
                     <li>Peace of mind knowing accidental damage to others’ property is covered.</li>
                  </ul>
+                 <p><strong>Requirements:</strong></p>
+                    <ul style="text-align: left;">
+                    <li>Official Receipt (OR)</li>
+                    <li>Certificate of Registration (CR)</li>
+                    <li>Smoke Emission</li>
+                </ul>
                 `;
             } else {
                 modal.style.display = "none";
