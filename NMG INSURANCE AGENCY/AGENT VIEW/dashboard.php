@@ -11,15 +11,10 @@
 </head>
 
 <body>
-    <div class="sidebar">
-        <img src="img4/logo.png" alt="Logo" class="logo">
-        <ul class="menu">
-            <li><a href="dashboard.php"><img src="img4/dashboard.png" alt="Dashboard Icon"> Dashboard</a></li>
-            <li><a href="admin.php"><img src="img4/adminprofile.png" alt="Admin Icon"> Agent Profile</a></li>
-            <li><a href="../../Logout_Login/Logout.php"><img src="img4/logout.png" alt="Logout Icon"> Logout</a></li>
-        </ul>
-    </div>
 
+     <!-- Sidebar -->
+   <?php include 'sidebar.php'; ?>
+   
     <div class="profile-dropdown">
         <img src="img4/samplepic.png" alt="Admin Avatar" class="avatar" onclick="toggleProfileMenu()">
         <div class="profile-menu" id="profileMenu">
