@@ -21,17 +21,10 @@ require('../../Logout_Login/Restricted.php');
 </head>
 
 <body>
-<div class="sidebar">
-        <img src="img3/logo.png" alt="Logo" class="logo">
-        <ul class="menu">
-            <li><a href="dashboard.php"><img src="img3/dashboard.png" alt="Dashboard Icon"> Dashboard</a></li>
-            <li><a href="admin.php"><img src="img3/adminprofile.png" alt="Admin Icon"> Admin Profile</a></li>
-            <li><a href="cashier.php"><img src="img3/customers.png" alt="Cashier Icon"> Cashier</a></li>
-            <li><a href="search.php"><img src="img3/search.png" alt="Search Icon"> Search Policy</a></li>
-            <li><a href="../../Logout_Login/Logout.php"><img src="img3/logout.png" alt="Logout Icon"> Logout</a></li>
-        </ul>
-    </div>
 
+  <!-- Sidebar -->
+  <?php include 'sidebar.php'; ?>
+  
     <div class="main-content">
 
         <h1 class="page-title">Customer Details</h1>
