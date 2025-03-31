@@ -17,16 +17,10 @@ require('../../Logout_Login/Restricted.php');
     <link rel="stylesheet" href="css/search.css">
 </head>
 <body>
-    <div class="sidebar">
-        <img src="img5/logo.png" alt="Logo" class="logo">
-        <ul class="menu">
-            <li><a href="dashboard.php"><img src="img5/dashboard.png" alt="Dashboard Icon"> Dashboard</a></li>
-            <li><a href="staff.php"><img src="img5/adminprofile.png" alt="Admin Icon"> Staff Information</a></li>
-            <li><a href="customer.php"><img src="img5/customers.png" alt="Customers Icon"> Customers</a></li>
-            <li><a href="search.php"><img src="img5/search.png" alt="Search Icon"> Search Policy</a></li>
-            <li><a href="../../Logout_Login/Logout.php"><img src="img5/logout.png" alt="Logout Icon"> Logout</a></li>
-        </ul>
-    </div>
+    
+     <!-- Sidebar -->
+   <?php include 'sidebar.php'; ?>
+
     <!-- Main Content -->
     <div class="main-content">
         <!-- Title in the middle -->
