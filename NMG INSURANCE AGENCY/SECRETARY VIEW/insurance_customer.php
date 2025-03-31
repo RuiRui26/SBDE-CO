@@ -20,16 +20,7 @@ require '../../Logout_Login/Restricted.php';
 <body>
 
     <!-- Sidebar -->
-    <div class="sidebar">
-        <img src="img6/logo.png" alt="Logo" class="logo">
-        <ul class="menu">
-            <li><a href="dashboard.php"><img src="img6/dashboard.png" alt="Dashboard Icon"> Dashboard</a></li>
-            <li><a href="admin.php"><img src="img6/adminprofile.png" alt="Admin Icon"> Secretary Profile</a></li>
-            <li><a href="customer.php"><img src="img6/customers.png" alt="Customers Icon"> Customers</a></li>
-            <li><a href="staff_info.php"><img src="img6/adminprofile.png" alt="Admin Icon"> Staff Information</a></li>
-            <li><a href="../../Logout_Login/Logout.php"><img src="img6/logout.png" alt="Logout Icon"> Logout</a></li>
-        </ul>
-    </div>
+   <?php include 'sidebar.php'; ?>
 
     <!-- Main Content -->
     <div class="main-content">

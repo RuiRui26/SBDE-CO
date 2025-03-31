@@ -1,0 +1,82 @@
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: #023451;
+    color: white;
+    height: 100vh;
+    padding-top: 20px;
+    position: fixed;
+}
+
+.sidebar .logo {
+    display: block;
+    margin: 0 auto 40px;
+    width: 180px;
+}
+
+.sidebar .menu {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar .menu li {
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar .menu li img {
+    width: 30px;
+    flex-shrink: 0;
+    margin-right: 12px;
+}
+
+.sidebar .menu li a {
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar .menu li:hover {
+    background: #0366a1;
+    border-radius: 8px;
+}
+
+/* Sidebar Dropdown for Settings */
+.has-submenu {
+    position: relative;
+    cursor: pointer;
+}
+
+.submenu {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background: #023451;
+    border-radius: 8px;
+    list-style: none;
+    padding: 0;
+    z-index: 10;
+}
+
+.has-submenu:hover .submenu {
+    display: block;
+}
+
+.submenu li {
+    padding: 10px 20px;
+}
+
+.submenu li a {
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+}
+
+.submenu li:hover {
+    background: #0366a1;
+}
