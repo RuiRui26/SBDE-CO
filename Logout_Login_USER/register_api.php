@@ -1,5 +1,5 @@
 <?php
-require_once '../DB_connection/db.php'; // Adjust path as needed
+require_once '../DB_connection/db.php'; 
 header("Content-Type: application/json");
 session_start();
 
@@ -10,15 +10,21 @@ try {
     $db = $database->getConnection();
 
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        // Sanitize and retrieve user inputs
-        $name = trim($_POST["name"] ?? "");
+        // Get form data (adjusting for the updated field names in your form)
+        $first_name = trim($_POST["first_name"] ?? "");
+        $last_name = trim($_POST["last_name"] ?? "");
         $email = trim($_POST["email"] ?? "");
         $contact_number = trim($_POST["contact_number"] ?? "");
-        $address = trim($_POST["address"] ?? "");
+        $street_address = trim($_POST["street_address"] ?? "");
+        $zip_code = trim($_POST["zip_code"] ?? "");
+        $city = trim($_POST["city"] ?? "");
+        $barangay = trim($_POST["barangay"] ?? "");
         $password = $_POST["password"] ?? "";
 
-        // Input validation
-        if (empty($name) || empty($email) || empty($contact_number) || empty($address) || empty($password)) {
+        // Combine address fields into a single address string
+        $address = $street_address . ", " . $barangay . ", " . $city . " " . $zip_code;
+
+        if (empty($first_name) || empty($last_name) || empty($email) || empty($contact_number) || empty($address) || empty($password)) {
             $response["message"] = "All fields are required.";
             echo json_encode($response);
             exit;
@@ -55,14 +61,16 @@ try {
             exit;
         }
 
-        // Hash password
+        // Start transaction
+        $db->beginTransaction();
+
         $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-        // Insert into `users` (Assign role as 'Client')
+        // Insert into `users`
         $stmtUser = $db->prepare("INSERT INTO users (name, email, contact_number, password, role) 
                                   VALUES (:name, :email, :contact_number, :password, 'Client')");
         $stmtUser->execute([
-            ":name" => $name,
+            ":name" => $first_name . " " . $last_name,
             ":email" => $email,
             ":contact_number" => $contact_number,
             ":password" => $hashed_password
@@ -73,27 +81,32 @@ try {
 
         if ($user_id) {
             // Insert into `clients`
-            $stmtClient = $db->prepare("INSERT INTO clients (full_name, email, password_hash, contact_number, address, user_id) 
-                                        VALUES (:full_name, :email, :password_hash, :contact_number, :address, :user_id)");
+            $stmtClient = $db->prepare("INSERT INTO clients (full_name, email, contact_number, address, user_id) 
+                                        VALUES (:full_name, :email, :contact_number, :address, :user_id)");
             $stmtClient->execute([
-                ":full_name" => $name,
+                ":full_name" => $first_name . " " . $last_name,
                 ":email" => $email,
-                ":password_hash" => $hashed_password,
                 ":contact_number" => $contact_number,
                 ":address" => $address,
                 ":user_id" => $user_id
             ]);
 
+            // Commit transaction
+            $db->commit();
+
             $response["success"] = true;
             $response["message"] = "Registration successful!";
         } else {
+            $db->rollback();
             $response["message"] = "Failed to register user.";
         }
     } else {
         $response["message"] = "Invalid request method.";
     }
 } catch (PDOException $e) {
-    $response["message"] = "Database error: " . $e->getMessage();
+    $db->rollback();
+    error_log("Database error: " . $e->getMessage());
+    $response["message"] = "An unexpected error occurred. Please try again later.";
 }
 
 echo json_encode($response);

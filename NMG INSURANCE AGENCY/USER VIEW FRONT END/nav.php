@@ -1,3 +1,8 @@
+<?php
+session_start(); // Ensure session is started
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +16,7 @@
     <div class="menu-container nav-wrapper">
         <div class="brand">
             <a href="index.php">
-                <img src="img/NMG22.png" alt="insurancy-logo" border="0">
+                <img src="img/NMG22.png" alt="insurance-logo" border="0">
             </a>
         </div>
 
@@ -28,8 +33,29 @@
             <li><a href="contact.php">Contacts</a></li>
         </ul>
 
-        <!-- Register Button -->
-        <button onclick="window.location.href='USER_PROFILE/profile.php'" class="register-btn">Register</button>
+        <!-- Debugging Output: Check session variables -->
+        <?php
+        if (isset($_SESSION['user_id'])) {
+            echo "<p>Session User ID: " . $_SESSION['user_id'] . "</p>";
+        } else {
+            echo "<p>No user ID in session.</p>";
+        }
+
+        if (isset($_SESSION['role'])) {
+            echo "<p>Session User Role: " . $_SESSION['role'] . "</p>";
+        } else {
+            echo "<p>No user role in session.</p>";
+        }
+        ?>
+
+        <!-- Check if the user is logged in and their role -->
+        <?php if (isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'Client'): ?>
+            <!-- If logged in as Client, show "Go to Dashboard" -->
+            <button onclick="window.location.href='USER_PROFILE/index.php'" class="register-btn">Go to Dashboard</button>
+        <?php else: ?>
+            <!-- If not logged in or not a Client, show "Register" -->
+            <button onclick="window.location.href='../../Logout_Login_USER/register.php'" class="register-btn">Register</button>
+        <?php endif; ?>
     </div>
 </nav>
 

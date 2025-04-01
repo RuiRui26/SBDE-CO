@@ -25,11 +25,13 @@
             <div class="input-group">
                 <label for="first_name">First Name</label>
                 <input type="text" id="first_name" name="first_name" placeholder="Enter First Name" required>
+                <span class="error" id="first-name-error"></span>
             </div>
-
+            
             <div class="input-group">
                 <label for="last_name">Last Name</label>
                 <input type="text" id="last_name" name="last_name" placeholder="Enter Last Name" required>
+                <span class="error" id="last-name-error"></span>
             </div>
 
             <div class="input-group small">
@@ -38,11 +40,19 @@
             </div>
         </div>
 
+        <!-- Contact Number Field -->
+        <div class="input-group">
+            <label for="contact_number">Contact Number</label>
+            <input type="text" id="contact_number" name="contact_number" placeholder="09XXXXXXXXX" required>
+            <span class="error" id="contact-error"></span>
+        </div>
+
         <!-- Second Row -->
         <div class="form-row">
             <div class="input-group small">
                 <label for="age">Age</label>
                 <input type="number" id="age" name="age" min="18" placeholder="18+" required>
+                <span class="error" id="age-error"></span>
             </div>
 
             <div class="input-group medium">
@@ -58,6 +68,7 @@
             <div class="input-group small">
                 <label for="zip_code">Zip Code</label>
                 <input type="text" id="zip_code" name="zip_code" placeholder="Enter Zip" required>
+                <span class="error" id="zip-code-error"></span>
             </div>
 
             <div class="input-group">
@@ -180,6 +191,7 @@
             <div class="input-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="Create a Password" required>
+                <span class="error" id="password-error"></span>
 
                 <!-- Show Password Checkbox -->
                 <label class="show-password">
@@ -189,8 +201,8 @@
 
             <div class="input-group">
                 <label for="confirm_password">Confirm Password</label>
-                <input type="password" id="confirm_password" name="confirm_password"
-                       placeholder="Re-enter Password" required>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter Password" required>
+                <span class="error" id="confirm-password-error"></span>
             </div>
         </div>
 
@@ -235,6 +247,22 @@
             }
             if (!nameRegex.test(firstName)) {
                 document.getElementById("first-name-error").textContent = "First name must be 2-50 letters.";
+                isValid = false;
+            }
+
+            // Add validation for Contact Number
+            const contactNumber = document.getElementById("contact_number").value.trim();
+            const contactRegex = /^09\d{9}$/; // Must start with "09" and be 11 digits
+            if (!contactRegex.test(contactNumber)) {
+                document.getElementById("contact-error").textContent = "Enter a valid 11-digit PH number (09XXXXXXXXX).";
+                isValid = false;
+            }
+
+            // Zip Code Validation
+            const zipCode = document.getElementById("zip_code").value.trim();
+            const zipCodeRegex = /^[0-9]{4}$/;
+            if (!zipCodeRegex.test(zipCode)) {
+                document.getElementById("zip-code-error").textContent = "Enter a valid 4-digit zip code.";
                 isValid = false;
             }
 

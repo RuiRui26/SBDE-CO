@@ -47,18 +47,27 @@
                             <button class="btn btn-full-w view-requirement" onclick="location.href='view_requirements.php'">
                                 View Requirements
                             </button>
-                    </div>
-                    <div class="inner-col">
-                            <button class="btn btn-full-w apply-here" onclick="location.href='apply_choices.php'">
-                                 Apply Here
+                        </div>
+                        <div class="inner-col">
+                            <button class="btn btn-full-w apply-here" onclick="checkLoginStatus()">
+                                Apply Here
                             </button>
+                        </div>
                     </div>
-                </div>
                 </div>
                 <div class="col landing-blank-col"></div>
             </div>
         </div>
     </section>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p>You need to be logged in to apply.</p>
+            <a href="../../Logout_Login_USER/Login.php" class="btn btn-primary">Login</a>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer>
@@ -67,11 +76,50 @@
         </div>
     </footer>
 
-    <!-- JS Files -->
-    <script src="js/script.js"></script>
+    <!-- CSS for Modal -->
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .close {
+            cursor: pointer;
+            float: right;
+            font-size: 20px;
+        }
+    </style>
 
-    <!-- Active Link Script -->
+    <!-- JavaScript -->
     <script>
+        function checkLoginStatus() {
+            // Check if the user is logged in by checking the session
+            var isLoggedIn = <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>;
+            
+            if (isLoggedIn) {
+                window.location.href = 'apply_choices.php';  // Redirect to the registration page
+            } else {
+                document.getElementById('loginModal').style.display = 'flex';  // Show the login modal
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
         $(document).ready(function () {
             let currentPath = window.location.pathname.split("/").pop();
             if (currentPath === "" || currentPath === "index.php") {
