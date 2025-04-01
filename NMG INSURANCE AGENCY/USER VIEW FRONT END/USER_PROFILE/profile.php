@@ -1,6 +1,6 @@
 <?php 
 include 'sidebar.php';
-require '../../../Logout_Login_USER/Restricted.php'
+
 ?>
 
 
@@ -32,7 +32,7 @@ require '../../../Logout_Login_USER/Restricted.php'
                     <ul class="dropdown-menu" id="dropdownMenu">
                         <li><a href="profile_view.php">View Profile</a></li>
                         <li><a href="#">Settings</a></li>
-                        <li><a href="../../../Logout_Login_USER/Logout.php">Logout</a></li>
+                        <li><a href="#">Logout</a></li>
                     </ul>
                 </div>
             </header>

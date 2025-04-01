@@ -1,6 +1,5 @@
 <?php 
 include 'sidebar.php';
-require '../../../Logout_Login_USER/Restricted.php'
 ?>
 
 
