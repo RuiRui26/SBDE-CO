@@ -39,12 +39,11 @@ body {
     display: flex;
     gap: 60px; /* Increased spacing between columns */
     width: 100%;
-    max-width: 1300px;
+    max-width: 1300px; /* Wider form */
     background: #ffffff;
     border-radius: 16px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     padding: 50px;
-    flex-wrap: wrap; /* Ensures columns stack properly on small screens */
 }
 
 /* Form Columns */
@@ -52,7 +51,6 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Adds consistent spacing between inputs */
 }
 
 /* Form Labels */
@@ -60,22 +58,17 @@ label {
     font-weight: bold;
     font-size: 18px; /* Larger label */
     margin-bottom: 12px;
-    margin-bottom: 8px; /* Space below each label */
-    display: block;
 }
 
 /* Form Inputs */
 input,
 select {
-    padding: 14px;
-    margin-bottom: 20px; /* Space below each input field */
+    padding: 16px; /* Larger input fields */
+    margin-bottom: 24px; /* More space between inputs */
     border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 16px;
+    border-radius: 10px; /* Smoother edges */
+    font-size: 16px; /* Larger font */
     transition: border 0.3s ease;
-}
-label[for="insurance_type"] {
-    margin-top: 20px; /* Adjust top margin for insurance type */
 }
 
 /* Input Focus Effect */
@@ -92,21 +85,14 @@ input[type="file"] {
     padding: 8px;
 }
 
-/* Ensure input group and submit button stack properly */
-.input-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px; /* Space between input and submit button */
-}
-
-/* Submit Button (Now Below Date Input) */
+/* Submit Button (Right Aligned) */
 .submit-container {
     display: flex;
     justify-content: flex-end; /* Aligns button to the right */
-    width: 100%; /* Makes it span the form width */
-    margin-top: 10px; /* Small spacing */
-}
+    margin-top: 40px;
+    width: 0%;
 
+}
 
 /* Submit Button Style */
 .submit-btn {
@@ -166,7 +152,6 @@ footer {
     font-weight: bold;
     cursor: pointer;
 }
-
 
 
 
