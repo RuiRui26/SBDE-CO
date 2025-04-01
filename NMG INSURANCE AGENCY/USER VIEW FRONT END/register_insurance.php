@@ -36,7 +36,99 @@ $user_mobile = $client['Contact_Number'] ?? '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apply for Insurance | NMG Insurance Agency</title>
     <link rel="stylesheet" href="css/register_insurance.css">
+    <style>
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        /* Date modal specific styles */
+        #dateModal .modal-content,
+        #confirmModal .modal-content {
+            text-align: center;
+        }
+
+        #dateModal .input-group {
+            margin: 20px 0;
+        }
+
+        #dateModal label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        #dateModal input[type="date"] {
+            padding: 8px;
+            width: 100%;
+            max-width: 250px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .modal-buttons {
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .confirm-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        /* Confirmation modal styles */
+        #confirmModal .confirmation-text {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+    </style>
     <script>
+        // Store selected date for confirmation
+        let selectedDate = '';
+        
         function validateForm() {
             let plateNumber = document.getElementById("plate_number").value.trim();
             let mvFileNumber = document.getElementById("mv_file_number").value.trim();
@@ -89,10 +181,10 @@ $user_mobile = $client['Contact_Number'] ?? '';
                     <p>TPPD insurance specifically covers the cost of repairing or replacing third-party property damaged by your vehicle during an accident.</p>
                     <p><strong>Benefits:</strong></p>
                     <ul style="text-align: left;">
-                    <li>Pays for property damage caused to other people’s cars, buildings, or infrastructure.</li>
+                    <li>Pays for property damage caused to other people's cars, buildings, or infrastructure.</li>
                     <li>Reduces financial burden by covering expensive repair costs.</li>
                     <li>Legal coverage if the third party takes legal action for property damage.</li>
-                    <li>Peace of mind knowing accidental damage to others’ property is covered.</li>
+                    <li>Peace of mind knowing accidental damage to others' property is covered.</li>
                  </ul>
                  <p><strong>Requirements:</strong></p>
                     <ul style="text-align: left;">
@@ -114,10 +206,81 @@ $user_mobile = $client['Contact_Number'] ?? '';
             document.getElementById('insuranceModal').style.display = "none";
         }
 
+        // Show date selection modal
+        function showDateModal() {
+            if (validateForm()) {
+                document.getElementById('dateModal').style.display = "block";
+            }
+        }
+
+        // Close date modal
+        function closeDateModal() {
+            document.getElementById('dateModal').style.display = "none";
+        }
+
+        // Show confirmation modal
+        function showConfirmationModal() {
+            const dateInput = document.getElementById('insurance_date');
+            if (!dateInput.value) {
+                alert("Please select an insurance start date.");
+                return;
+            }
+            
+            // Store the selected date
+            selectedDate = dateInput.value;
+            
+            // Format date for display
+            const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            // Set confirmation message
+            document.getElementById('confirmationMessage').textContent = 
+                `Are you sure you want to submit your insurance application with a start date of ${formattedDate}?`;
+            
+            // Close date modal and show confirmation modal
+            closeDateModal();
+            document.getElementById('confirmModal').style.display = "block";
+        }
+
+        // Close confirmation modal
+        function closeConfirmationModal() {
+            document.getElementById('confirmModal').style.display = "none";
+        }
+
+        // Final form submission
+        function submitForm() {
+            // Add the date to the form
+            const hiddenDateInput = document.createElement('input');
+            hiddenDateInput.type = 'hidden';
+            hiddenDateInput.name = 'insurance_date';
+            hiddenDateInput.value = selectedDate;
+            document.getElementById('insuranceForm').appendChild(hiddenDateInput);
+            
+            // Close confirmation modal
+            closeConfirmationModal();
+            
+            // Submit the form
+            document.getElementById('insuranceForm').submit();
+        }
+
         window.onclick = function(event) {
-            const modal = document.getElementById('insuranceModal');
-            if (event.target == modal) {
+            const insuranceModal = document.getElementById('insuranceModal');
+            const dateModal = document.getElementById('dateModal');
+            const confirmModal = document.getElementById('confirmModal');
+            
+            if (event.target == insuranceModal) {
                 closeModal();
+            }
+            
+            if (event.target == dateModal) {
+                closeDateModal();
+            }
+            
+            if (event.target == confirmModal) {
+                closeConfirmationModal();
             }
         };
     </script>
@@ -131,7 +294,7 @@ $user_mobile = $client['Contact_Number'] ?? '';
     </header>
 
     <main class="form-section">
-        <form id="insuranceForm" action="../../PHP_Files/User_View/register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form" onsubmit="return validateForm()">
+        <form id="insuranceForm" action="../../PHP_Files/User_View/register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
 
             <div class="form-column">
                 <label for="name">Full Name:</label>
@@ -176,7 +339,7 @@ $user_mobile = $client['Contact_Number'] ?? '';
             </div>
 
             <div class="submit-container">
-                <button type="button" class="submit-btn" onclick="proceedToNextPage()">Proceed</button>
+                <button type="button" class="submit-btn" onclick="showDateModal()">Proceed</button>
             </div>
         </form>
     </main>
@@ -193,14 +356,38 @@ $user_mobile = $client['Contact_Number'] ?? '';
         </div>
     </div>
 
-    <script>
-    function proceedToNextPage() {
-        if (validateForm()) {
-            window.location.href = "register_insurance2.php"; // Change to your actual next page
-        }
-    }
-    </script>
+    <!-- Modal for Date Selection -->
+    <div id="dateModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDateModal()">&times;</span>
+            <h2>Select Insurance Start Date</h2>
+            
+            <div class="input-group">
+                <label for="insurance_date">Insurance Start Date:</label>
+                <input type="date" id="insurance_date" name="insurance_date" required>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn cancel-btn" onclick="closeDateModal()">Cancel</button>
+                <button class="modal-btn confirm-btn" onclick="showConfirmationModal()">Continue</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Modal for Confirmation -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeConfirmationModal()">&times;</span>
+            <h2>Confirm Submission</h2>
+            
+            <p id="confirmationMessage" class="confirmation-text"></p>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn cancel-btn" onclick="closeConfirmationModal()">Cancel</button>
+                <button class="modal-btn confirm-btn" onclick="submitForm()">Confirm</button>
+            </div>
+        </div>
+    </div>
 
 </body>
 
