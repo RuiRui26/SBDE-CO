@@ -522,12 +522,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="mobile">Mobile Number:</label>
                 <input type="hidden" name="mobile" value="<?= htmlspecialchars($user_mobile) ?>">
 
+                <label for="vehicle_id">Vehicle ID:</label>
+                <input type="hidden" id="vehicle_id" name="vehicle_id" value="<?php echo isset($vehicle_id) ? $vehicle_id : ''; ?>" readonly>
+
                 <label for="insurance_type">Type of Insurance:</label>
                 <select id="insurance_type" name="insurance_type" required onchange="showInsuranceInfo()">
                 <option value="">Select Insurance Type</option>
                 <option value="TPL">Third Party Liability (TPL) Insurance</option>
                 <option value="TPPD">Third Party Property Damage (TPPD) Insurance</option>
                 </select>
+
 
                 <label for="plate_number">Plate Number:</label>
                 <input type="text" id="plate_number" name="plate_number" placeholder="Enter your plate number">

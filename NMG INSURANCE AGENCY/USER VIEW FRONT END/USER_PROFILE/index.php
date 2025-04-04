@@ -11,6 +11,7 @@ include 'sidebar.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Policy Holder Profile</title>
     <link rel="stylesheet" href="../css/profile.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -22,17 +23,23 @@ include 'sidebar.php';
             <header class="top-bar">
                 <h2>Welcome, John Cena!</h2>
                 
+                <div class="container">
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <header class="top-bar">
+                <h2>Welcome, <?php echo htmlspecialchars($full_name); ?>!</h2>
+                
                 <!-- Profile Section with Dropdown -->
                 <div class="profile-dropdown">
                     <div class="profile" onclick="toggleDropdown()">
                         <img src="../img/userprofile.png" alt="User">
-                        <span>John Cena</span>
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <ul class="dropdown-menu" id="dropdownMenu">
                         <li><a href="profile_view.php">View Profile</a></li>
                         <li><a href="#">Settings</a></li>
-                        <li><a href="#">Logout</a></li>
+                        <li><a href="../../../Logout_Login_USER/Logout.php">Logout</a></li>
                     </ul>
                 </div>
             </header>
