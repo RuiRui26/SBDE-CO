@@ -46,14 +46,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $chassis_number = $_POST['chassis_number'] ?? null;
         $vehicle_type = $_POST['vehicle_type'] ?? null;
         $insurance_type = $_POST['insurance_type'] ?? null;
-        $insurance_date = $_POST['insurance_date'] ?? null;
+        $start_date = $_POST['start_date'] ?? null;
 
         // Validate required fields
         $errors = [];
         if (empty($chassis_number)) $errors[] = "Chassis number is required.";
         if (empty($vehicle_type)) $errors[] = "Vehicle type is required.";
         if (empty($insurance_type)) $errors[] = "Insurance type is required.";
-        if (empty($insurance_date)) $errors[] = "Insurance start date is required.";
+        if (empty($start_date)) $errors[] = "Start date is required.";
         
         // Check if at least one identifier is provided
         if (empty($plate_number) && empty($mv_file_number)) {
@@ -291,219 +291,206 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 18px;
         }
     </style>
-    <script>
-   // Store selected date for confirmation
-   let selectedDate = '';
-    
-    function validateForm() {
-        let plateNumber = document.getElementById("plate_number").value.trim();
-        let mvFileNumber = document.getElementById("mv_file_number").value.trim();
-        let mvFileError = document.getElementById("mvFileError");
-        let plateError = document.getElementById("plateError");
+   
 
-        mvFileError.textContent = "";
-        plateError.textContent = "";
 
-        if (!mvFileNumber && !plateNumber) {
-            mvFileError.textContent = "Either MV File Number or Plate Number is required.";
-            plateError.textContent = "Either MV File Number or Plate Number is required.";
-            return false;
-        }
 
-        if (mvFileNumber && !/^\d{15}$/.test(mvFileNumber)) {
-            mvFileError.textContent = "MV File Number must be exactly 15 digits (numbers only).";
-            return false;
-        }
-        return true;
+   <script>
+let selectedDate = '';
+
+// Validate the form inputs before proceeding
+function validateForm() {
+    let plateNumber = document.getElementById("plate_number").value.trim();
+    let mvFileNumber = document.getElementById("mv_file_number").value.trim();
+    let mvFileError = document.getElementById("mvFileError");
+    let plateError = document.getElementById("plateError");
+
+    mvFileError.textContent = "";
+    plateError.textContent = "";
+
+    if (!mvFileNumber && !plateNumber) {
+        mvFileError.textContent = "Either MV File Number or Plate Number is required.";
+        plateError.textContent = "Either MV File Number or Plate Number is required.";
+        return false;
     }
 
-    // Show insurance information modal
-    function showInsuranceInfo() {
-        const type = document.getElementById('insurance_type').value;
-        const modal = document.getElementById('insuranceModal');
-        const modalContent = document.getElementById('modalContent');
+    if (mvFileNumber && !/^\d{15}$/.test(mvFileNumber)) {
+        mvFileError.textContent = "MV File Number must be exactly 15 digits (numbers only).";
+        return false;
+    }
 
-        if (type === "TPL") {
-            modalContent.innerHTML = `
-                <h2>Third Party Liability (TPL) Insurance</h2>
-                <p>TPL insurance covers the policyholder's legal responsibility for causing injury or death to other people (third parties) or damage to their property due to a vehicle-related accident.</p>
-                <p><strong>Benefits:</strong></p>
-                <ul style="text-align: left;">
+    return true;
+}
+
+// Show modal with insurance information
+function showInsuranceInfo() {
+    const type = document.getElementById('insurance_type').value;
+    const modal = document.getElementById('insuranceModal');
+    const modalContent = document.getElementById('modalContent');
+
+    if (type === "TPL") {
+        modalContent.innerHTML = `
+            <h2>Third Party Liability (TPL) Insurance</h2>
+            <p>TPL insurance covers the policyholder's legal responsibility for causing injury or death to others in a vehicle accident.</p>
+            <ul style="text-align: left;">
                 <li>Covers medical expenses for third parties injured in an accident.</li>
                 <li>Provides compensation for accidental death or disability of third parties.</li>
                 <li>Legal protection against claims arising from third-party injuries or fatalities.</li>
-                <li>Mandatory coverage in many regions to legally drive a vehicle.</li>
-             </ul>
-                <p><strong>Requirements:</strong></p>
-                <ul style="text-align: left;">
-                <li>Official Receipt (OR)</li>
-                <li>Certificate of Registration (CR)</li>
-                <li>Smoke Emission</li>
+                <li>Mandatory coverage to legally drive a vehicle.</li>
             </ul>
-            `;
-        } else if (type === "TPPD") {
-            modalContent.innerHTML = `
-                <h2>Third-Party Property Damage (TPPD) Insurance</h2>
-                <p>TPPD insurance specifically covers the cost of repairing or replacing third-party property damaged by your vehicle during an accident.</p>
-                <p><strong>Benefits:</strong></p>
-                <ul style="text-align: left;">
-                <li>Pays for property damage caused to other people's cars, buildings, or infrastructure.</li>
+        `;
+    } else if (type === "TPPD") {
+        modalContent.innerHTML = `
+            <h2>Third-Party Property Damage (TPPD) Insurance</h2>
+            <p>TPPD insurance covers the cost of repairing or replacing third-party property damaged during an accident.</p>
+            <ul style="text-align: left;">
+                <li>Pays for property damage caused to other people's cars or property.</li>
                 <li>Reduces financial burden by covering expensive repair costs.</li>
-                <li>Legal coverage if the third party takes legal action for property damage.</li>
-                <li>Peace of mind knowing accidental damage to others' property is covered.</li>
-             </ul>
-             <p><strong>Requirements:</strong></p>
-                <ul style="text-align: left;">
-                <li>Official Receipt (OR)</li>
-                <li>Certificate of Registration (CR)</li>
-                <li>Smoke Emission</li>
+                <li>Legal coverage if the third party takes legal action.</li>
+                <li>Peace of mind knowing property damage is covered.</li>
             </ul>
-            `;
-        } else {
-            modal.style.display = "none";
-            return;
-        }
-
-        modal.style.display = "block";
+        `;
+    } else {
+        modal.style.display = "none";
+        return;
     }
 
-    // Close the modal
-    function closeModal() {
-        document.getElementById('insuranceModal').style.display = "none";
-    }
+    modal.style.display = "block";
+}
 
-    // Show date selection modal
-    function showDateModal() {
-        if (validateForm()) {
-            document.getElementById('dateModal').style.display = "block";
-        }
-    }
+function closeModal() {
+    document.getElementById('insuranceModal').style.display = "none";
+}
 
-    // Close date modal
-    function closeDateModal() {
-        document.getElementById('dateModal').style.display = "none";
+function showDateModal() {
+    if (validateForm()) {
+        document.getElementById('dateModal').style.display = "block";
     }
+}
 
-    // Show confirmation modal
-    function showConfirmationModal() {
-        const dateInput = document.getElementById('insurance_date');
-        if (!dateInput.value) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Please select an insurance start date.',
-                confirmButtonText: 'OK'
-            });
-            return;
-        }
-        
-        // Store the selected date
-        selectedDate = dateInput.value;
-        
-        // Format date for display
-        const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-        
-        // Set confirmation message
-        document.getElementById('confirmationMessage').textContent = 
-            `Are you sure you want to submit your insurance application with a start date of ${formattedDate}?`;
-        
-        // Close date modal and show confirmation modal
-        closeDateModal();
-        document.getElementById('confirmModal').style.display = "block";
-    }
+function closeDateModal() {
+    document.getElementById('dateModal').style.display = "none";
+}
 
-    // Close confirmation modal
-    function closeConfirmationModal() {
-        document.getElementById('confirmModal').style.display = "none";
-    }
-
-    // Final form submission
-    function submitForm() {
-        // Add the date to the form
-        const hiddenDateInput = document.createElement('input');
-        hiddenDateInput.type = 'hidden';
-        hiddenDateInput.name = 'insurance_date';
-        hiddenDateInput.value = selectedDate;
-        document.getElementById('insuranceForm').appendChild(hiddenDateInput);
-        
-        // Close confirmation modal
-        closeConfirmationModal();
-        
-        // Submit the form via AJAX
-        const form = document.getElementById('insuranceForm');
-        const formData = new FormData(form);
-        
-        // Show loading indicator
+function showConfirmationModal() {
+    const dateInput = document.getElementById('start_date');
+    if (!dateInput.value) {
         Swal.fire({
-            title: 'Processing',
-            html: 'Please wait while we submit your application...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Please select an insurance start date.',
+            confirmButtonText: 'OK'
         });
-        
-        fetch(form.action, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            Swal.close();
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: data.message,
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    // You can redirect or reset the form here if needed
-                    // window.location.href = 'success_page.php';
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: data.message,
-                    confirmButtonText: 'OK'
-                });
-            }
-        })
-        .catch(error => {
-            Swal.close();
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'An error occurred while submitting the form.',
-                confirmButtonText: 'OK'
-            });
-            console.error('Error:', error);
-        });
+        return;
     }
 
-    window.onclick = function(event) {
-        const insuranceModal = document.getElementById('insuranceModal');
-        const dateModal = document.getElementById('dateModal');
-        const confirmModal = document.getElementById('confirmModal');
-        
-        if (event.target == insuranceModal) {
-            closeModal();
-        }
-        
-        if (event.target == dateModal) {
-            closeDateModal();
-        }
-        
-        if (event.target == confirmModal) {
+    selectedDate = dateInput.value;
+    const formattedDate = new Date(selectedDate);
+    const year = formattedDate.getFullYear().toString().slice(-2);
+    const month = (formattedDate.getMonth() + 1).toString().padStart(2, '0');
+    const day = formattedDate.getDate().toString().padStart(2, '0');
+    const formattedDateString = `${year}/${month}/${day}`;
+
+    document.getElementById('confirmationMessage').textContent =
+        `Are you sure you want to submit your insurance application with a start date of ${formattedDateString}?`;
+
+    closeDateModal();
+    document.getElementById('confirmModal').style.display = "block";
+}
+
+function closeConfirmationModal() {
+    document.getElementById('confirmModal').style.display = "none";
+}
+
+function submitForm() {
+    const form = document.getElementById('insuranceForm');
+    const formData = new FormData(form);
+
+    // Format the date and attach it
+    const dateInput = document.getElementById('start_date').value;
+    if (!dateInput) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Please enter a valid date.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    const [year, month, day] = dateInput.split("-");
+    const formattedDate = `${day}-${month}-${year}`;
+    formData.set("start_date", formattedDate);
+
+    fetch(form.action, {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
             closeConfirmationModal();
+            showPostSubmissionModal();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Submission Failed',
+                text: data.message || 'Something went wrong.',
+                confirmButtonText: 'OK'
+            });
         }
-    };
-    </script>
+    })
+    .catch(error => {
+        console.error("Submission error:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An unexpected error occurred.',
+            confirmButtonText: 'OK'
+        });
+    });
+}
+
+function showPostSubmissionModal() {
+    document.getElementById('postSubmissionModal').style.display = "block";
+}
+
+function closePostSubmissionModal() {
+    document.getElementById('postSubmissionModal').style.display = "none";
+}
+
+function goToDashboard() {
+    window.location.href = 'USER_PROFILE/index.php'; // Replace as needed
+}
+
+function submitAnotherTransaction() {
+    window.location.href = '/new-transaction'; // Replace as needed
+}
+
+// Event listeners for modal buttons
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById('submitBtn').addEventListener('click', function (e) {
+        e.preventDefault();
+        showDateModal();
+    });
+
+    document.getElementById('confirmSubmitBtn').addEventListener('click', function (e) {
+        e.preventDefault();
+        submitForm();
+    });
+
+    document.getElementById('cancelSubmitBtn').addEventListener('click', function (e) {
+        e.preventDefault();
+        closeConfirmationModal();
+    });
+});
+</script>
+
+
+
 </head>
+
+
 
 <body>
 
@@ -513,100 +500,123 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </header>
 
     <main class="form-section">
-        <form id="insuranceForm" action="../../PHP_Files/User_View/register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
+    <form id="insuranceForm" action="../../PHP_Files/User_View/register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
 
-            <div class="form-column">
-                <label for="name">Full Name:</label>
-                <input type="hidden" name="name" value="<?= htmlspecialchars($user_name) ?>">
+        <div class="form-column">
+            <label for="name">Full Name:</label>
+            <input type="hidden" name="name" value="<?= htmlspecialchars($user_name) ?>">
 
-                <label for="mobile">Mobile Number:</label>
-                <input type="hidden" name="mobile" value="<?= htmlspecialchars($user_mobile) ?>">
+            <label for="mobile">Mobile Number:</label>
+            <input type="hidden" name="mobile" value="<?= htmlspecialchars($user_mobile) ?>">
 
-                <label for="insurance_type">Type of Insurance:</label>
-                <select id="insurance_type" name="insurance_type" required onchange="showInsuranceInfo()">
+            <label for="insurance_type">Type of Insurance:</label>
+            <select id="insurance_type" name="insurance_type" required onchange="showInsuranceInfo()">
                 <option value="">Select Insurance Type</option>
                 <option value="TPL">Third Party Liability (TPL) Insurance</option>
                 <option value="TPPD">Third Party Property Damage (TPPD) Insurance</option>
-                </select>
+            </select>
 
-                <label for="plate_number">Plate Number:</label>
-                <input type="text" id="plate_number" name="plate_number" placeholder="Enter your plate number">
-                <span class="error-message" id="plateError"></span>
+            <label for="plate_number">Plate Number:</label>
+            <input type="text" id="plate_number" name="plate_number" placeholder="Enter your plate number">
+            <span class="error-message" id="plateError"></span>
 
-                <label for="mv_file_number">MV File Number (15 chars):</label>
-                <input type="text" id="mv_file_number" name="mv_file_number" maxlength="15" placeholder="Enter 15-character MV File Number">
-                <span class="error-message" id="mvFileError"></span>
-            </div>
+            <label for="mv_file_number">MV File Number (15 chars):</label>
+            <input type="text" id="mv_file_number" name="mv_file_number" maxlength="15" placeholder="Enter 15-character MV File Number">
+            <span class="error-message" id="mvFileError"></span>
 
-            <div class="form-column">
-                <label for="chassis_number">Chassis Number:</label>
-                <input type="text" id="chassis_number" name="chassis_number" required placeholder="Enter chassis number">
+            <label for="brand">Brand:</label>
+            <input type="text" id="brand" name="brand" placeholder="e.g. Toyota" required>
 
-                <label for="vehicle_type">Vehicle Type:</label>
-                <select id="vehicle_type" name="vehicle_type" required>
-                    <option value="">Select Vehicle Type</option>
-                    <option value="Motorcycle">Motorcycle</option>
-                    <option value="4 Wheels">4 Wheels</option>
-                    <option value="Truck">Truck</option>
-                </select>
+            <label for="model">Model:</label>
+            <input type="text" id="model" name="model" placeholder="e.g. Vios" required>
+        </div>
 
-                <label for="or_picture">Upload OR Picture:</label>
-                <input type="file" id="or_picture" name="or_picture" accept="image/*" required>
+        <div class="form-column">
+            <label for="chassis_number">Chassis Number:</label>
+            <input type="text" id="chassis_number" name="chassis_number" required placeholder="Enter chassis number">
 
-                <label for="cr_picture">Upload CR Picture:</label>
-                <input type="file" id="cr_picture" name="cr_picture" accept="image/*" required>
-            </div>
+            <label for="vehicle_type">Vehicle Type:</label>
+            <select id="vehicle_type" name="vehicle_type" required>
+                <option value="">Select Vehicle Type</option>
+                <option value="Motorcycle">Motorcycle</option>
+                <option value="4 Wheels">4 Wheels</option>
+                <option value="Truck">Truck</option>
+            </select>
 
-            <div class="submit-container">
-                <button type="button" class="submit-btn" onclick="showDateModal()">Proceed</button>
-            </div>
-        </form>
-    </main>
+            <label for="year">Year:</label>
+            <input type="number" id="year" name="year" min="1980" max="2025" placeholder="e.g. 2020" required>
+
+            <label for="color">Color:</label>
+            <input type="text" id="color" name="color" placeholder="e.g. Black" required>
+
+            <label for="or_picture">Upload OR Picture:</label>
+            <input type="file" id="or_picture" name="or_picture" accept="image/*" required>
+
+            <label for="cr_picture">Upload CR Picture:</label>
+            <input type="file" id="cr_picture" name="cr_picture" accept="image/*" required>
+        </div>
+
+        <div class="submit-container">
+            <button type="button" class="submit-btn" onclick="showDateModal()">Proceed</button>
+        </div>
+    </form>
+</main>
 
     <footer>
         <p>© 2025 NMG Insurance Agency. All Rights Reserved.</p>
     </footer>
 
-    <!-- Modal for Insurance Info -->
-    <div id="insuranceModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <div id="modalContent"></div>
-        </div>
+   <!-- Modal for Insurance Info -->
+<div id="insuranceModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="modalContent"></div>
     </div>
+</div>
 
-    <!-- Modal for Date Selection -->
-    <div id="dateModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeDateModal()">&times;</span>
-            <h2>Select Insurance Start Date</h2>
-            
-            <div class="input-group">
-                <label for="insurance_date">Insurance Start Date:</label>
-                <input type="date" id="insurance_date" name="insurance_date" required>
-            </div>
-            
-            <div class="modal-buttons">
-                <button class="modal-btn cancel-btn" onclick="closeDateModal()">Cancel</button>
-                <button class="modal-btn confirm-btn" onclick="showConfirmationModal()">Continue</button>
-            </div>
+<!-- Modal for Date Selection -->
+<div id="dateModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeDateModal()">&times;</span>
+        <h2>Select Insurance Start Date</h2>
+        <div class="input-group">
+            <label for="start_date">Insurance Start Date:</label>
+            <input type="date" id="start_date" name="start_date" placeholder="DD-MM-YYYY" required>
+        </div>
+        <div class="modal-buttons">
+            <button class="modal-btn cancel-btn" onclick="closeDateModal()">Cancel</button>
+            <button class="modal-btn confirm-btn" onclick="showConfirmationModal()">Continue</button>
         </div>
     </div>
+</div>
 
-    <!-- Modal for Confirmation -->
-    <div id="confirmModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeConfirmationModal()">&times;</span>
-            <h2>Confirm Submission</h2>
-            
-            <p id="confirmationMessage" class="confirmation-text"></p>
-            
-            <div class="modal-buttons">
-                <button class="modal-btn cancel-btn" onclick="closeConfirmationModal()">Cancel</button>
-                <button class="modal-btn confirm-btn" onclick="submitForm()">Confirm</button>
-            </div>
+<!-- Modal for Confirmation -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeConfirmationModal()">&times;</span>
+        <h2>Confirm Submission</h2>
+        <p id="confirmationMessage" class="confirmation-text"></p>
+        <div class="modal-buttons">
+            <button class="modal-btn cancel-btn" onclick="closeConfirmationModal()">Cancel</button>
+            <button class="modal-btn confirm-btn" onclick="submitForm()">Confirm</button>
         </div>
     </div>
+</div>
+
+<!-- Modal for Post-Submission Options -->
+<div id="postSubmissionModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closePostSubmissionModal()">&times;</span>
+        <h2>Success!</h2>
+        <p>Your insurance application has been successfully submitted.</p>
+        <div class="modal-buttons">
+            <button class="modal-btn cancel-btn" onclick="goToDashboard()">Go to Dashboard</button>
+            <button class="modal-btn confirm-btn" onclick="submitAnotherTransaction()">Submit Another Transaction</button>
+        </div>
+    </div>
+</div>
+
+
 
 </body>
 
