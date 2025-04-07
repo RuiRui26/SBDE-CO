@@ -95,25 +95,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // If vehicle doesn't exist, create new vehicle record
-        if (!$vehicle_id) {
-            $stmt = $pdo->prepare("INSERT INTO vehicles 
-                                  (client_id, plate_number, vehicle_type, chassis_number, mv_file_number, type_of_insurance) 
-                                  VALUES 
-                                  (:client_id, :plate_number, :vehicle_type, :chassis_number, :mv_file_number, :insurance_type)");
-            
-            $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
-            $stmt->bindParam(':plate_number', $plate_number);
-            $stmt->bindParam(':vehicle_type', $vehicle_type);
-            $stmt->bindParam(':chassis_number', $chassis_number);
-            $stmt->bindParam(':mv_file_number', $mv_file_number);
-            $stmt->bindParam(':insurance_type', $insurance_type);
-            
-            if (!$stmt->execute()) {
-                throw new Exception("Failed to create vehicle record.");
-            }
-            
-            $vehicle_id = $pdo->lastInsertId();
-        }
+    if (!$vehicle_id) {
+    // Add these lines to get the form data
+    $brand = $_POST['brand'] ?? null;
+    $model = $_POST['model'] ?? null;
+    $year = $_POST['year'] ?? null;
+    $color = $_POST['color'] ?? null;
+
+    $stmt = $pdo->prepare("INSERT INTO vehicles 
+                  (client_id, plate_number, vehicle_type, chassis_number, 
+                   mv_file_number, type_of_insurance, brand, model, year, color) 
+                  VALUES 
+                  (:client_id, :plate_number, :vehicle_type, :chassis_number, 
+                   :mv_file_number, :insurance_type, :brand, :model, :year, :color)");
+    
+    $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
+    $stmt->bindParam(':plate_number', $plate_number);
+    $stmt->bindParam(':vehicle_type', $vehicle_type);
+    $stmt->bindParam(':chassis_number', $chassis_number);
+    $stmt->bindParam(':mv_file_number', $mv_file_number);
+    $stmt->bindParam(':insurance_type', $insurance_type);
+    $stmt->bindParam(':brand', $brand);
+    $stmt->bindParam(':model', $model);
+    $stmt->bindParam(':year', $year);
+    $stmt->bindParam(':color', $color);
+    
+    if (!$stmt->execute()) {
+        throw new Exception("Failed to create vehicle record.");
+    }
+    
+    $vehicle_id = $pdo->lastInsertId();
+}
 
         // Handle file uploads
         $upload_dir = "../../uploads/insurance_docs/";
