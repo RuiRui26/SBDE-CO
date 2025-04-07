@@ -15,20 +15,28 @@ body {
     align-items: center;
     justify-content: space-between;
     background: white;
-    padding: 15px 20px;
-    width: calc(100% - 80px); /* Adjusted for sidebar */
+    padding: 0 20px; /* Removed vertical padding */
+    width: calc(100% - 80px);
     position: fixed;
     top: 0;
     left: 80px;
     height: 60px;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+.top-bar h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    line-height: 60px; /* matches the height of .top-bar */
 }
 
 /* Profile Section */
 .profile-dropdown {
-    position: relative;
-    display: flex;
-    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    
 }
 
 /* Profile Box */

@@ -5,7 +5,7 @@
     <nav class="menu">
         <button class="menu-item <?php echo ($_SERVER['PHP_SELF'] == '/profile.php') ? 'active' : ''; ?>" aria-label="Home" onclick="window.location.href='profile.php'">
             <img src="../img/dashboardd.png" alt="Dashboard Icon">
-            <span>Home</span>
+            <span>My Policies</span>
         </button>
         <button class="menu-item <?php echo ($_SERVER['PHP_SELF'] == '/transactions.php') ? 'active' : ''; ?>" aria-label="Transactions" onclick="window.location.href='transactions.php'">
             <img src="../img/transaction.png" alt="Transactions Icon">

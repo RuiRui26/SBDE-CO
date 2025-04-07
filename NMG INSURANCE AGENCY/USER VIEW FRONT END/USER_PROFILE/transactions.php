@@ -10,12 +10,34 @@ $pdo = $database->getConnection();
 $user_id = $_SESSION['user_id'];
 
 // Get client information
-$stmt = $pdo->prepare("SELECT full_name FROM clients WHERE user_id = :user_id");
+$stmt = $pdo->prepare("SELECT client_id, full_name FROM clients WHERE user_id = :user_id");
 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 $stmt->execute();
 $client = $stmt->fetch(PDO::FETCH_ASSOC);
 
+$client_id = $client['client_id'] ?? null;
 $full_name = $client['full_name'] ?? 'User';
+
+// Get insurance registrations for this client
+$insurance_data = [];
+if ($client_id) {
+    $stmt = $pdo->prepare("
+        SELECT 
+            ir.created_at AS register_date,
+            v.plate_number,
+            v.vehicle_type,
+            v.type_of_insurance,
+            ir.created_at AS insurance_date,
+            DATE_ADD(ir.created_at, INTERVAL 1 YEAR) AS expiration_date
+        FROM insurance_registration ir
+        JOIN vehicles v ON ir.vehicle_id = v.vehicle_id
+        WHERE ir.client_id = :client_id
+        ORDER BY ir.created_at DESC
+    ");
+    $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $insurance_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -97,8 +119,25 @@ $full_name = $client['full_name'] ?? 'User';
             padding: 5px;
             border-radius: 5px;
         }
+        
+        /* Status badges */
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-expired {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
     </style>
-
 </head>
 <body>
 
@@ -125,10 +164,30 @@ $full_name = $client['full_name'] ?? 'User';
                 <th>Insurance Type</th>
                 <th>Register Insurance Date</th>
                 <th>Expiration Date</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
-            
+            <?php foreach ($insurance_data as $row): ?>
+                <?php 
+                    $register_date = date('Y-m-d', strtotime($row['register_date']));
+                    $expiration_date = date('Y-m-d', strtotime($row['expiration_date']));
+                    $is_expired = strtotime($expiration_date) < time();
+                ?>
+                <tr>
+                    <td><?= htmlspecialchars($register_date) ?></td>
+                    <td><?= htmlspecialchars($row['plate_number']) ?></td>
+                    <td><?= htmlspecialchars($row['vehicle_type']) ?></td>
+                    <td><?= htmlspecialchars($row['type_of_insurance']) ?></td>
+                    <td><?= htmlspecialchars($register_date) ?></td>
+                    <td><?= htmlspecialchars($expiration_date) ?></td>
+                    <td>
+                        <span class="status-badge <?= $is_expired ? 'status-expired' : 'status-active' ?>">
+                            <?= $is_expired ? 'Expired' : 'Active' ?>
+                        </span>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
         </tbody>
     </table>
 </div>
@@ -140,7 +199,8 @@ $full_name = $client['full_name'] ?? 'User';
             dom: 'Bfrtip',
             buttons: [
                 'copy', 'csv', 'excel', 'pdf', 'print'
-            ]
+            ],
+            order: [[0, 'desc']] // Sort by date descending by default
         });
 
         // Date Filter Function
@@ -149,21 +209,22 @@ $full_name = $client['full_name'] ?? 'User';
             let endDate = $('#end-date').val();
 
             if (startDate && endDate) {
-                table.rows().every(function() {
-                    let rowDate = new Date(this.data()[0]); // Get the date from first column
-                    let start = new Date(startDate);
-                    let end = new Date(endDate);
-
-                    if (rowDate >= start && rowDate <= end) {
-                        $(this.node()).show();
-                    } else {
-                        $(this.node()).hide();
+                // Convert to comparable format
+                startDate = new Date(startDate).getTime();
+                endDate = new Date(endDate).getTime();
+                
+                // Filter the table
+                $.fn.dataTable.ext.search.push(
+                    function(settings, data, dataIndex) {
+                        var rowDate = new Date(data[0]).getTime();
+                        return (rowDate >= startDate && rowDate <= endDate);
                     }
-                });
+                );
+                
+                table.draw();
+                $.fn.dataTable.ext.search.pop(); // Remove the filter
             } else {
-                table.rows().every(function() {
-                    $(this.node()).show();
-                });
+                table.search('').draw(); // Clear any filtering
             }
         });
     });
