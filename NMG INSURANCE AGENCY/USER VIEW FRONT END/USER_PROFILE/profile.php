@@ -10,7 +10,7 @@ $pdo = $database->getConnection();
 $user_id = $_SESSION['user_id'];
 
 // Get client information
-$stmt = $pdo->prepare("SELECT client_id, full_name FROM clients WHERE user_id = :user_id");
+$stmt = $pdo->prepare("SELECT client_id, full_name, contact_number FROM clients WHERE user_id = :user_id");
 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 $stmt->execute();
 $client = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -216,14 +216,14 @@ if ($client_id) {
         
         .detail-label {
             font-weight: bold;
-            color: #7f8c8d;
+            color:rgb(35, 37, 37);
             display: block;
             margin-bottom: 3px;
             font-size: 0.9rem;
         }
         
         .detail-value {
-            color: #2c3e50;
+            color:rgb(55, 63, 71);
             font-size: 1rem;
             padding: 8px 12px;
             background: #f8f9fa;
@@ -493,7 +493,7 @@ if ($client_id) {
                     </div>
                     
                     <div class="action-buttons">
-                     <button class="btn-primary" onclick="window.location.href='register_insurance.php';">
+                     <button class="btn-primary" onclick="window.location.href='../register_insurance.php';">
                      <i class="fas fa-plus"></i> Register Another Insurance
                     </button>
                     </div>

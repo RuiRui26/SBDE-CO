@@ -1,24 +1,28 @@
 <?php 
 include 'sidebar.php';
 require '../../../Logout_Login_USER/Restricted.php';
-
-// Connect to database and fetch user information
 require_once '../../../DB_connection/db.php';
+
 $database = new Database();
 $pdo = $database->getConnection();
 
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'] ?? null;
 
-// Get client information
-$stmt = $pdo->prepare("SELECT client_id, full_name FROM clients WHERE user_id = :user_id");
-$stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-$stmt->execute();
-$client = $stmt->fetch(PDO::FETCH_ASSOC);
+$client = [];
+if ($user_id) {
+    $stmt = $pdo->prepare("SELECT client_id, full_name, contact_number, street_address, barangay FROM clients WHERE user_id = :user_id");
+    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $client = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+}
 
 $client_id = $client['client_id'] ?? null;
 $full_name = $client['full_name'] ?? 'User';
+$contact_number = $client['contact_number'] ?? '';
+$street_address = $client['street_address'] ?? 'N/A';
+$barangay = $client['barangay'] ?? 'N/A';
 
-// Get insurance registrations for this client
 $insurance_data = [];
 if ($client_id) {
     $stmt = $pdo->prepare("
@@ -39,53 +43,56 @@ if ($client_id) {
     $insurance_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>Transaction Records</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transactions</title>
 
-    <!-- DataTables CSS -->
+    <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="../css/sidebar.css">
-
-    <!-- jQuery and DataTables JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
 
-    <!-- Custom Styles -->
+    <!-- Styles -->
+    <link rel="stylesheet" href="../css/sidebar.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f4f4f4;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f5f5f5;
             display: flex;
         }
+
         .main-content {
             margin-left: 100px;
-            padding: 20px;
+            padding: 30px;
             flex-grow: 1;
             width: calc(100% - 250px);
-            transition: margin-left 0.3s;
-        }
-
-        .collapsed + .main-content {
-            margin-left: 80px;
-            width: calc(100% - 80px);
         }
 
         h2 {
-            text-align: left;
             color: #333;
+            margin-bottom: 20px;
+        }
+
+        .client-info {
+            background: #fff;
+            padding: 20px;
+            border-left: 5px solid #007bff;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        .client-info p {
+            margin: 6px 0;
+            font-size: 15px;
         }
 
         .date-filter {
@@ -94,75 +101,113 @@ if ($client_id) {
             gap: 10px;
         }
 
-        .date-filter label {
-            font-weight: bold;
-        }
-
-        input[type="date"] {
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        /* DataTable Styling */
         table.dataTable thead {
-            background: #007bff;
+            background-color: #007bff;
             color: white;
         }
 
-        table.dataTable tbody tr:hover {
-            background: rgba(0, 123, 255, 0.2);
+        .status-badge {
+            padding: 5px 10px;
+            font-weight: bold;
+            border-radius: 20px;
+            font-size: 13px;
         }
 
-        .dataTables_wrapper .dataTables_filter input {
-            border: 1px solid #ccc;
-            padding: 5px;
-            border-radius: 5px;
-        }
-        
-        /* Status badges */
-        .status-badge {
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
         .status-active {
-            background-color: #d4edda;
+            background: #d4edda;
             color: #155724;
         }
-        
+
         .status-expired {
-            background-color: #f8d7da;
+            background: #f8d7da;
             color: #721c24;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .main-content {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
+
+            .sidebar,
+            .date-filter,
+            .dataTables_length,
+            .dataTables_filter,
+            .dataTables_info,
+            .dataTables_paginate,
+            .dt-buttons {
+                display: none !important;
+            }
+
+            .client-info {
+                margin-top: 20px;
+                margin-bottom: 30px;
+                border: none;
+                page-break-inside: avoid;
+                padding: 10px;
+                border: 1px solid #ccc;
+            }
+
+            h2 {
+                text-align: center;
+                margin-bottom: 30px;
+                font-size: 24px;
+            }
+
+            table {
+                font-size: 14px;
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            table, th, td {
+                border: 1px solid #333;
+            }
+
+            th, td {
+                padding: 8px;
+                text-align: center;
+            }
+
+            thead {
+                background: #f0f0f0;
+            }
         }
     </style>
 </head>
 <body>
 
-<!-- Main Content -->
 <div class="main-content">
     <h2>Transaction Records</h2>
 
-    <!-- Date Filter -->
+    <div class="client-info">
+        <p><strong>Name:</strong> <?= htmlspecialchars($full_name) ?></p>
+        <p><strong>Contact Number:</strong> <?= htmlspecialchars($contact_number) ?></p>
+        <p><strong>Street:</strong> <?= htmlspecialchars($street_address) ?></p>
+        <p><strong>Barangay:</strong> <?= htmlspecialchars($barangay) ?></p>
+    </div>
+
     <div class="date-filter">
-        <label for="start-date">From:</label>
+        <label>From:</label>
         <input type="date" id="start-date">
-        <label for="end-date">To:</label>
+        <label>To:</label>
         <input type="date" id="end-date">
         <button id="filter-btn">Filter</button>
     </div>
 
-    <!-- Transactions Table -->
     <table id="transactionsTable" class="display" style="width:100%">
         <thead>
             <tr>
                 <th>Date</th>
-                <th>Vehicle Plate No.</th>
+                <th>Plate No.</th>
                 <th>Vehicle Type</th>
                 <th>Insurance Type</th>
-                <th>Register Insurance Date</th>
+                <th>Registered Date</th>
                 <th>Expiration Date</th>
                 <th>Status</th>
             </tr>
@@ -175,12 +220,12 @@ if ($client_id) {
                     $is_expired = strtotime($expiration_date) < time();
                 ?>
                 <tr>
-                    <td><?= htmlspecialchars($register_date) ?></td>
+                    <td><?= $register_date ?></td>
                     <td><?= htmlspecialchars($row['plate_number']) ?></td>
                     <td><?= htmlspecialchars($row['vehicle_type']) ?></td>
                     <td><?= htmlspecialchars($row['type_of_insurance']) ?></td>
-                    <td><?= htmlspecialchars($register_date) ?></td>
-                    <td><?= htmlspecialchars($expiration_date) ?></td>
+                    <td><?= $register_date ?></td>
+                    <td><?= $expiration_date ?></td>
                     <td>
                         <span class="status-badge <?= $is_expired ? 'status-expired' : 'status-active' ?>">
                             <?= $is_expired ? 'Expired' : 'Active' ?>
@@ -192,54 +237,49 @@ if ($client_id) {
     </table>
 </div>
 
-<!-- Initialize DataTables -->
 <script>
     $(document).ready(function() {
-        var table = $('#transactionsTable').DataTable({
+        const table = $('#transactionsTable').DataTable({
             dom: 'Bfrtip',
             buttons: [
-                'copy', 'csv', 'excel', 'pdf', 'print'
+                {
+                    extend: 'print',
+                    title: 'Transaction Records',
+                    customize: function (win) {
+                        $(win.document.body).css('font-size', '14px');
+                        $(win.document.body).prepend(
+                            $('.client-info').clone().css({
+                                marginBottom: '20px',
+                                padding: '10px',
+                                border: '1px solid #ccc'
+                            }).wrap('<div>').parent().html()
+                        );
+                    }
+                },
+                'copy', 'csv', 'excel', 'pdf'
             ],
-            order: [[0, 'desc']] // Sort by date descending by default
+            order: [[0, 'desc']]
         });
 
-        // Date Filter Function
-        $('#filter-btn').on('click', function() {
-            let startDate = $('#start-date').val();
-            let endDate = $('#end-date').val();
+        $('#filter-btn').on('click', function () {
+            let start = $('#start-date').val();
+            let end = $('#end-date').val();
 
-            if (startDate && endDate) {
-                // Convert to comparable format
-                startDate = new Date(startDate).getTime();
-                endDate = new Date(endDate).getTime();
-                
-                // Filter the table
-                $.fn.dataTable.ext.search.push(
-                    function(settings, data, dataIndex) {
-                        var rowDate = new Date(data[0]).getTime();
-                        return (rowDate >= startDate && rowDate <= endDate);
-                    }
-                );
-                
+            if (start && end) {
+                const startDate = new Date(start).getTime();
+                const endDate = new Date(end).getTime();
+
+                $.fn.dataTable.ext.search.push(function(settings, data) {
+                    const rowDate = new Date(data[0]).getTime();
+                    return rowDate >= startDate && rowDate <= endDate;
+                });
+
                 table.draw();
-                $.fn.dataTable.ext.search.pop(); // Remove the filter
+                $.fn.dataTable.ext.search.pop();
             } else {
-                table.search('').draw(); // Clear any filtering
+                table.search('').draw();
             }
         });
-    });
-
-    // Sidebar Toggle Functionality
-    document.addEventListener("DOMContentLoaded", function() {
-        const sidebar = document.querySelector(".sidebar");
-        const mainContent = document.querySelector(".main-content");
-
-        if (sidebar) {
-            sidebar.addEventListener("click", function() {
-                sidebar.classList.toggle("collapsed");
-                mainContent.classList.toggle("collapsed");
-            });
-        }
     });
 </script>
 
