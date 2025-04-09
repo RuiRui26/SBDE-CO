@@ -10,18 +10,16 @@ $user_id = $_SESSION['user_id'] ?? null;
 
 $client = [];
 if ($user_id) {
-    $stmt = $pdo->prepare("SELECT client_id, full_name, contact_number, street_address, barangay FROM clients WHERE user_id = :user_id");
+    $stmt = $pdo->prepare("SELECT client_id, full_name, contact_number, address FROM clients WHERE user_id = :user_id");
     $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
     $stmt->execute();
     $client = $stmt->fetch(PDO::FETCH_ASSOC);
-    
 }
 
 $client_id = $client['client_id'] ?? null;
 $full_name = $client['full_name'] ?? 'User';
 $contact_number = $client['contact_number'] ?? '';
-$street_address = $client['street_address'] ?? 'N/A';
-$barangay = $client['barangay'] ?? 'N/A';
+$address = $client['address'] ?? 'N/A';
 
 $insurance_data = [];
 if ($client_id) {
@@ -32,9 +30,13 @@ if ($client_id) {
             v.vehicle_type,
             v.type_of_insurance,
             ir.created_at AS insurance_date,
-            DATE_ADD(ir.created_at, INTERVAL 1 YEAR) AS expiration_date
+            DATE_ADD(ir.created_at, INTERVAL 1 YEAR) AS expiration_date,
+            c.full_name,
+            c.contact_number,
+            CONCAT(c.street_address, ', ', c.barangay) AS address
         FROM insurance_registration ir
         JOIN vehicles v ON ir.vehicle_id = v.vehicle_id
+        JOIN clients c ON ir.client_id = c.client_id
         WHERE ir.client_id = :client_id
         ORDER BY ir.created_at DESC
     ");
@@ -60,7 +62,6 @@ if ($client_id) {
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
 
-    <!-- Styles -->
     <link rel="stylesheet" href="../css/sidebar.css">
     <style>
         body {
@@ -126,12 +127,7 @@ if ($client_id) {
         @media print {
             body {
                 background: white;
-            }
-
-            .main-content {
-                margin: 0;
-                padding: 0;
-                width: 100%;
+                font-size: 14px;
             }
 
             .sidebar,
@@ -144,25 +140,28 @@ if ($client_id) {
                 display: none !important;
             }
 
+            .main-content {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
+
             .client-info {
-                margin-top: 20px;
-                margin-bottom: 30px;
-                border: none;
-                page-break-inside: avoid;
-                padding: 10px;
                 border: 1px solid #ccc;
+                padding: 15px;
+                margin-bottom: 20px;
             }
 
             h2 {
                 text-align: center;
-                margin-bottom: 30px;
-                font-size: 24px;
+                font-size: 22px;
+                margin-bottom: 20px;
             }
 
             table {
-                font-size: 14px;
-                width: 100%;
                 border-collapse: collapse;
+                width: 100%;
+                font-size: 14px;
             }
 
             table, th, td {
@@ -175,7 +174,15 @@ if ($client_id) {
             }
 
             thead {
-                background: #f0f0f0;
+                background-color: #eee;
+            }
+
+            .status-badge {
+                border-radius: 0;
+                padding: 0;
+                font-weight: normal;
+                background: none !important;
+                color: inherit !important;
             }
         }
     </style>
@@ -185,11 +192,10 @@ if ($client_id) {
 <div class="main-content">
     <h2>Transaction Records</h2>
 
-    <div class="client-info">
+    <div class="client-info" id="print-client-info">
         <p><strong>Name:</strong> <?= htmlspecialchars($full_name) ?></p>
         <p><strong>Contact Number:</strong> <?= htmlspecialchars($contact_number) ?></p>
-        <p><strong>Street:</strong> <?= htmlspecialchars($street_address) ?></p>
-        <p><strong>Barangay:</strong> <?= htmlspecialchars($barangay) ?></p>
+        <p><strong>Address:</strong> <?= htmlspecialchars($address) ?></p>
     </div>
 
     <div class="date-filter">
@@ -247,13 +253,12 @@ if ($client_id) {
                     title: 'Transaction Records',
                     customize: function (win) {
                         $(win.document.body).css('font-size', '14px');
-                        $(win.document.body).prepend(
-                            $('.client-info').clone().css({
-                                marginBottom: '20px',
-                                padding: '10px',
-                                border: '1px solid #ccc'
-                            }).wrap('<div>').parent().html()
-                        );
+                        const clientInfoHtml = $('#print-client-info').clone().css({
+                            marginBottom: '20px',
+                            padding: '15px',
+                            border: '1px solid #ccc'
+                        }).wrap('<div>').parent().html();
+                        $(win.document.body).prepend(clientInfoHtml);
                     }
                 },
                 'copy', 'csv', 'excel', 'pdf'

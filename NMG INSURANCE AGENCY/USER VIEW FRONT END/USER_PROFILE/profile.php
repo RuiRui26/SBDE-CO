@@ -10,12 +10,16 @@ $pdo = $database->getConnection();
 $user_id = $_SESSION['user_id'];
 
 // Get client information
-$stmt = $pdo->prepare("SELECT client_id, full_name, contact_number FROM clients WHERE user_id = :user_id");
+
+$stmt = $pdo->prepare("SELECT client_id, full_name, contact_number, email, address FROM clients WHERE user_id = :user_id");
 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 $stmt->execute();
 $client = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $full_name = $client['full_name'] ?? 'User';
+$email = $client['email'] ?? '';
+$contact = $client['contact_number'] ?? '';
+$address = $client['address'] ?? '';
 $client_id = $client['client_id'] ?? null;
 
 // Get all insurance registration data for this client
@@ -52,6 +56,7 @@ if ($client_id) {
     <title>Policy Holder Profile</title>
     <link rel="stylesheet" href="../css/profile.css">
     <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/profile_view.css">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
         /* Insurance Dashboard Styling */
@@ -360,12 +365,23 @@ if ($client_id) {
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <ul class="dropdown-menu" id="dropdownMenu">
-                        <li><a href="profile_view.php">View Profile</a></li>
                         <li><a href="#">Settings</a></li>
                         <li><a href="../../../Logout_Login_USER/Logout.php">Logout</a></li>
                     </ul>
                 </div>
             </header>
+
+            <div class="profile-section">
+            <div class="profile-picture">
+                <img src="../img/userprofile.png" alt="User Picture">
+            </div>
+            <div class="user-info">
+                <h2><?php echo htmlspecialchars($full_name); ?></h2>
+                <p><strong>Email:</strong> <?php echo htmlspecialchars($email); ?></p>
+                <p><strong>Phone:</strong> <?php echo htmlspecialchars($contact); ?></p>
+                <p><strong>Address:</strong> <?php echo htmlspecialchars($address); ?></p>
+            </div>
+        </div>
             
             <!-- Insurance Dashboard Section -->
             <div class="dashboard-container">
