@@ -218,94 +218,238 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
-        /* Modal styles */
+        /* Modal styles - Enhanced Design */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1;
+            z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
             max-width: 500px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            position: relative;
+            animation: slideInDown 0.4s;
+            border: none;
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
         }
 
         .close {
-            color: #aaa;
-            float: right;
+            color: #95a5a6;
             font-size: 28px;
             font-weight: bold;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            padding: 0;
             cursor: pointer;
         }
 
         .close:hover {
-            color: black;
+            color: #e74c3c;
         }
 
-        /* Date modal specific styles */
-        #dateModal .modal-content,
-        #confirmModal .modal-content {
-            text-align: center;
+        /* Input group styling */
+        .input-group {
+            margin-bottom: 20px;
         }
 
-        #dateModal .input-group {
-            margin: 20px 0;
-        }
-
-        #dateModal label {
+        .input-group label {
             display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #34495e;
         }
 
-        #dateModal input[type="date"] {
-            padding: 8px;
+        .input-group input[type="date"] {
             width: 100%;
-            max-width: 250px;
+            padding: 12px 15px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
         }
 
-        .modal-buttons {
-            margin-top: 20px;
+        .input-group input[type="date"]:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        /* Modal body */
+        .modal-body {
+            margin-bottom: 25px;
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+
+        .modal-body ul {
+            padding-left: 20px;
+            margin: 15px 0;
+        }
+
+        .modal-body li {
+            margin-bottom: 8px;
+        }
+
+        /* Modal footer/buttons */
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
         }
 
         .modal-btn {
             padding: 10px 20px;
-            margin: 0 10px;
-            border: none;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-weight: 500;
             cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 15px;
+        }
+
+        .modal-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
         }
 
         .confirm-btn {
-            background-color: #4CAF50;
+            background-color: #27ae60;
             color: white;
+        }
+
+        .confirm-btn:hover {
+            background-color: #2ecc71;
+            transform: translateY(-2px);
         }
 
         .cancel-btn {
-            background-color: #f44336;
+            background-color: #e74c3c;
             color: white;
         }
 
-        /* Confirmation modal styles */
-        #confirmModal .confirmation-text {
-            margin: 20px 0;
-            font-size: 18px;
+        .cancel-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
         }
-    </style>
+
+        .neutral-btn {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .neutral-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        /* Confirmation specific styles */
+        .confirmation-text {
+            font-size: 16px;
+            color: #2c3e50;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        /* Success modal */
+        .success-icon {
+            text-align: center;
+            font-size: 60px;
+            color: #27ae60;
+            margin: 20px 0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 576px) {
+            .modal-content {
+                margin: 20% auto;
+                padding: 20px;
+                width: 95%;
+            }
+            
+            .modal-footer {
+                flex-direction: column;
+            }
+            
+            .modal-btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* Date picker customization */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            background: transparent;
+            bottom: 0;
+            color: transparent;
+            cursor: pointer;
+            height: auto;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: auto;
+        }
+
+        .date-input-container {
+            position: relative;
+        }
+
+        .date-input-container::after {
+            content: "📅";
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+        </style>
    
 
 
@@ -347,22 +491,36 @@ function showInsuranceInfo() {
         modalContent.innerHTML = `
             <h2>Third Party Liability (TPL) Insurance</h2>
             <p>TPL insurance covers the policyholder's legal responsibility for causing injury or death to others in a vehicle accident.</p>
+            <h2>Benefits</h2>
             <ul style="text-align: left;">
                 <li>Covers medical expenses for third parties injured in an accident.</li>
                 <li>Provides compensation for accidental death or disability of third parties.</li>
                 <li>Legal protection against claims arising from third-party injuries or fatalities.</li>
                 <li>Mandatory coverage to legally drive a vehicle.</li>
             </ul>
+             <h2>Requirements</h2>
+            <ul style="text-align: left;">
+                <li>Certificate of Registration (CR)</li>
+                <li>Official Receipt (OR)</li>
+                <li>Smoke Emission</li>
+            </ul>
         `;
     } else if (type === "TPPD") {
         modalContent.innerHTML = `
             <h2>Third-Party Property Damage (TPPD) Insurance</h2>
             <p>TPPD insurance covers the cost of repairing or replacing third-party property damaged during an accident.</p>
+            <h2>Benefits</h2>
             <ul style="text-align: left;">
                 <li>Pays for property damage caused to other people's cars or property.</li>
                 <li>Reduces financial burden by covering expensive repair costs.</li>
                 <li>Legal coverage if the third party takes legal action.</li>
                 <li>Peace of mind knowing property damage is covered.</li>
+            </ul>
+            <h2>Requirements</h2>
+            <ul style="text-align: left;">
+                <li>Certificate of Registration (CR)</li>
+                <li>Official Receipt (OR)</li>
+                <li>Smoke Emission</li>
             </ul>
         `;
     } else {
@@ -600,45 +758,64 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <!-- Modal for Date Selection -->
 <div id="dateModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeDateModal()">&times;</span>
-        <h2>Select Insurance Start Date</h2>
-        <div class="input-group">
-            <label for="start_date">Insurance Start Date:</label>
-            <input type="date" id="start_date" name="start_date" placeholder="DD-MM-YYYY" required>
-        </div>
-        <div class="modal-buttons">
-            <button class="modal-btn cancel-btn" onclick="closeDateModal()">Cancel</button>
-            <button class="modal-btn confirm-btn" onclick="showConfirmationModal()">Continue</button>
+        <div class="modal-content animate__animated animate__fadeInDown">
+            <div class="modal-header">
+                <h2 class="modal-title">Select Start Date</h2>
+                <button class="close" onclick="closeDateModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="start_date">Insurance Start Date</label>
+                    <div class="date-input-container">
+                        <input type="date" id="start_date" name="start_date" required>
+                    </div>
+                    <small class="text-muted">Select the date when your insurance coverage should begin</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel-btn" onclick="closeDateModal()">Cancel</button>
+                <button class="modal-btn confirm-btn" onclick="showConfirmationModal()">Continue</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Modal for Confirmation -->
-<div id="confirmModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeConfirmationModal()">&times;</span>
-        <h2>Confirm Submission</h2>
-        <p id="confirmationMessage" class="confirmation-text"></p>
-        <div class="modal-buttons">
-            <button class="modal-btn cancel-btn" onclick="closeConfirmationModal()">Cancel</button>
-            <button class="modal-btn confirm-btn" onclick="submitForm()">Confirm</button>
+    <!-- Modal for Confirmation -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content animate__animated animate__fadeInDown">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirm Submission</h2>
+                <button class="close" onclick="closeConfirmationModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirmation-text" id="confirmationMessage"></div>
+                <p>Please review all information before submitting. You won't be able to make changes after submission.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel-btn" onclick="closeConfirmationModal()">Go Back</button>
+                <button class="modal-btn confirm-btn" onclick="submitForm()">Confirm Submission</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Modal for Post-Submission Options -->
-<div id="postSubmissionModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closePostSubmissionModal()">&times;</span>
-        <h2>Success!</h2>
-        <p>Your insurance application has been successfully submitted.</p>
-        <div class="modal-buttons">
-            <button class="modal-btn cancel-btn" onclick="goToDashboard()">Go to Dashboard</button>
-            <button class="modal-btn confirm-btn" onclick="submitAnotherTransaction()">Submit Another Transaction</button>
+ <!-- Modal for Post-Submission Options -->
+ <div id="postSubmissionModal" class="modal">
+        <div class="modal-content animate__animated animate__fadeInDown">
+            <div class="modal-header">
+                <h2 class="modal-title">Application Submitted</h2>
+                <button class="close" onclick="closePostSubmissionModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="success-icon">✓</div>
+                <p style="text-align: center;">Your insurance application has been successfully submitted!</p>
+                <p style="text-align: center;">Reference number: <strong id="referenceNumber"></strong></p>
+                <p style="text-align: center; font-size: 14px; color: #7f8c8d;">You'll receive a confirmation email shortly.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn neutral-btn" onclick="goToDashboard()">View Dashboard</button>
+                <button class="modal-btn confirm-btn" onclick="submitAnotherTransaction()">New Application</button>
+            </div>
         </div>
     </div>
-</div>
 
 <script>
 function fillMyInfo(checked) {
