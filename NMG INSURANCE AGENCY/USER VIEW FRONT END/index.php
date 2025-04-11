@@ -60,14 +60,17 @@
         </div>
     </section>
 
-    <!-- Login Modal -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <p>You need to be logged in to apply.</p>
-            <a href="../../Logout_Login_USER/Login.php" class="btn btn-primary">Login</a>
-        </div>
+    <!-- Enhanced Login Modal -->
+<div id="loginModal" class="modal">
+    <div class="modal-content enhanced-modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img src="img/NMG3.png" alt="Logo" class="modal-logo">
+        <h3 class="modal-title">Login Required</h3>
+        <p class="modal-text">You need to be logged in to apply for insurance.</p>
+        <a href="../../Logout_Login_USER/Login.php" class="btn-login-enhanced">Login Now</a>
     </div>
+</div>
+
 
     <!-- Footer -->
     <footer>
