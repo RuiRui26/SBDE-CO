@@ -68,3 +68,31 @@ nav {
 .hamberger {
     display: none;
 }
+
+.profile-enhanced-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #ffffff21;
+    color: white;
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    margin-left: 30px;
+}
+
+.profile-enhanced-btn:hover {
+    background-color: #128fce;
+    border-color: #128fce;
+}
+
+.profile-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
