@@ -1,7 +1,10 @@
-<?php
-session_start(); // Ensure session is started
 
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

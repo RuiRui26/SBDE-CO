@@ -19,5 +19,9 @@
             <img src="../img/lost.png" alt="Lost Documents Icon">
             <span>Lost Documents</span>
         </button>
+        <button class="menu-item <?php echo ($_SERVER['PHP_SELF'] == '../index.php') ? 'active' : ''; ?>" aria-label="Home page" onclick="window.location.href='../index.php'">
+            <img src="../img/back.png" alt="Lost Documents Icon">
+            <span>Back to Homepage</span>
+        </button>
     </nav>
 </aside>
