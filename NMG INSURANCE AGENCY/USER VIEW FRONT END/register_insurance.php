@@ -16,8 +16,24 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
+// Get user information
+$stmt = $pdo->prepare("SELECT first_name, last_name, contact_number FROM users WHERE user_id = :user_id");
+$stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt->execute();
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$user) {
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'User record not found.']);
+    exit;
+}
+
+$user_first_name = $user['first_name'] ?? '';
+$user_last_name = $user['last_name'] ?? '';
+$user_mobile = $user['contact_number'] ?? '';
+
 // Get client information
-$stmt = $pdo->prepare("SELECT client_id, full_name, contact_number FROM clients WHERE user_id = :user_id");
+$stmt = $pdo->prepare("SELECT client_id FROM clients WHERE user_id = :user_id");
 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 $stmt->execute();
 $client = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -28,9 +44,7 @@ if (!$client) {
     exit;
 }
 
-$client_id = $client['client_id'];
-$user_name = $client['full_name'] ?? '';
-$user_mobile = $client['contact_number'] ?? '';
+$client_id = $client['client_id']; // <-- Missing semicolon was here
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -95,37 +109,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // If vehicle doesn't exist, create new vehicle record
-    if (!$vehicle_id) {
-    // Add these lines to get the form data
-    $brand = $_POST['brand'] ?? null;
-    $model = $_POST['model'] ?? null;
-    $year = $_POST['year'] ?? null;
-    $color = $_POST['color'] ?? null;
-
-    $stmt = $pdo->prepare("INSERT INTO vehicles 
-                  (client_id, plate_number, vehicle_type, chassis_number, 
-                   mv_file_number, type_of_insurance, brand, model, year, color) 
-                  VALUES 
-                  (:client_id, :plate_number, :vehicle_type, :chassis_number, 
-                   :mv_file_number, :insurance_type, :brand, :model, :year, :color)");
-    
-    $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
-    $stmt->bindParam(':plate_number', $plate_number);
-    $stmt->bindParam(':vehicle_type', $vehicle_type);
-    $stmt->bindParam(':chassis_number', $chassis_number);
-    $stmt->bindParam(':mv_file_number', $mv_file_number);
-    $stmt->bindParam(':insurance_type', $insurance_type);
-    $stmt->bindParam(':brand', $brand);
-    $stmt->bindParam(':model', $model);
-    $stmt->bindParam(':year', $year);
-    $stmt->bindParam(':color', $color);
-    
-    if (!$stmt->execute()) {
-        throw new Exception("Failed to create vehicle record.");
-    }
-    
-    $vehicle_id = $pdo->lastInsertId();
-}
+        if (!$vehicle_id) {
+            $stmt = $pdo->prepare("INSERT INTO vehicles 
+                                  (client_id, plate_number, vehicle_type, chassis_number, mv_file_number, type_of_insurance) 
+                                  VALUES 
+                                  (:client_id, :plate_number, :vehicle_type, :chassis_number, :mv_file_number, :insurance_type)");
+            
+            $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
+            $stmt->bindParam(':plate_number', $plate_number);
+            $stmt->bindParam(':vehicle_type', $vehicle_type);
+            $stmt->bindParam(':chassis_number', $chassis_number);
+            $stmt->bindParam(':mv_file_number', $mv_file_number);
+            $stmt->bindParam(':insurance_type', $insurance_type);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to create vehicle record.");
+            }
+            
+            $vehicle_id = $pdo->lastInsertId();
+        }
 
         // Handle file uploads
         $upload_dir = "../../uploads/insurance_docs/";
@@ -203,6 +205,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // If not a POST request, continue with the HTML rendering below
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -337,7 +340,7 @@ function validateForm() {
 // Show modal with insurance information
 function showInsuranceInfo() {
     const type = document.getElementById('insurance_type').value;
-    const modal = document.getElementById('insuranceModal');
+    const modal = document.getElementById('insuranceModal'); 
     const modalContent = document.getElementById('modalContent');
 
     if (type === "TPL") {
@@ -502,8 +505,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </head>
 
-
-
 <body>
 
     <header class="header">
@@ -515,11 +516,15 @@ document.addEventListener("DOMContentLoaded", () => {
     <form id="insuranceForm" action="../../PHP_Files/User_View/register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
 
         <div class="form-column">
-            <label for="name">Full Name:</label>
-            <input type="hidden" name="name" value="<?= htmlspecialchars($user_name) ?>">
+        <label for="first_name">First Name:</label>
+        <input type="text" id="first_name" name="first_name" placeholder="Enter first name" required>
 
-            <label for="mobile">Mobile Number:</label>
-            <input type="hidden" name="mobile" value="<?= htmlspecialchars($user_mobile) ?>">
+        <label for="last_name">Last Name:</label>
+        <input type="text" id="last_name" name="last_name" placeholder="Enter last name" required>
+
+        <label for="mobile">Mobile Number:</label>
+        <input type="text" id="mobile" name="mobile" placeholder="Enter mobile number" required>
+
 
             <label for="insurance_type">Type of Insurance:</label>
             <select id="insurance_type" name="insurance_type" required onchange="showInsuranceInfo()">
@@ -567,6 +572,13 @@ document.addEventListener("DOMContentLoaded", () => {
             <label for="cr_picture">Upload CR Picture:</label>
             <input type="file" id="cr_picture" name="cr_picture" accept="image/*" required>
         </div>
+
+    
+        <label>
+  <input type="checkbox" id="useMyInfo" onchange="fillMyInfo(this.checked)">
+  Use my saved information
+</label>
+
 
         <div class="submit-container">
             <button type="button" class="submit-btn" onclick="showDateModal()">Proceed</button>
@@ -628,6 +640,31 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
 </div>
 
+<script>
+function fillMyInfo(checked) {
+  console.log("Checkbox checked:", checked);  // This will log true or false when the checkbox is checked/unchecked
+  if (checked) {
+    const firstName = "<?= htmlspecialchars($user_first_name ?? '') ?>";
+    const lastName = "<?= htmlspecialchars($user_last_name ?? '') ?>";
+    const userMobile = "<?= htmlspecialchars($user_mobile ?? '') ?>";
+
+    console.log("First Name:", firstName);  // Check if first name is correctly populated
+    console.log("Last Name:", lastName);    // Check if last name is correctly populated
+    console.log("Mobile:", userMobile);     // Check if mobile is correctly populated
+
+    document.getElementById('first_name').value = firstName;
+    document.getElementById('last_name').value = lastName;
+    document.getElementById('mobile').value = userMobile;
+  } else {
+    document.getElementById('first_name').value = '';
+    document.getElementById('last_name').value = '';
+    document.getElementById('mobile').value = '';
+  }
+}
+
+
+
+</script>
 
 
 </body>
