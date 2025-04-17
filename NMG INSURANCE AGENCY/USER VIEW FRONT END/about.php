@@ -1,3 +1,20 @@
+<?php
+include '../../DB_connection/db.php';
+$db = new Database();
+$conn = $db->getConnection();
+
+function getSection($conn, $section) {
+	$stmt = $conn->prepare("SELECT * FROM about_content WHERE section = ?");
+	$stmt->execute([$section]);
+	return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+$future = getSection($conn, 'future');
+$vision = getSection($conn, 'vision');
+$mission = getSection($conn, 'mission');
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,19 +61,14 @@
 	<section class="future">
 		<div class="container">
 			<h4 class="sub-heading"></h4>
-			<h2 class="heading">
-				Your Future is Protected
-			</h2>
-			<p class="para-line">
-				NMG Insurance Agency, originally named VJB Insurance, was founded in 1999. The company changed its name to NJM in 2001 following the passing of one of its owners, with Mrs. Nelly M. Gabas taking over management. Under her leadership, NJM earned the loyalty of its staff, maintaining its position in the insurance sector for 26 years, specifically within the Land Transportation Office (LTO) insurance branch. NJM has expanded with branches to better serve customers in need of insurance and vehicle management services. Despite facing competition from other companies, NMG has continued to thrive and reach significant milestones. Recognizing its potential, 
-				SDBE Co. expressed interest in contributing to the company's future success.
-			</p>
+			<h2 class="heading">Your Future is Protected</h2>
+<p class="para-line"><?= nl2br($future['content']) ?></p>
+<div class="future-protection-imgs">
+	<img src="<?= $future['image1'] ?>" alt="Future protection" class="future-protection-img">
+	<img src="<?= $future['image2'] ?>" alt="Future protection" class="future-protection-img">
+	<img src="<?= $future['image3'] ?>" alt="Future protection" class="future-protection-img">
+</div>
 
-			<div class="future-protection-imgs">
-				<img src="img/aboutus1.jpg" alt="Future protection" title="Future protection" class="future-protection-img">
-				<img src="img/aboutus3.jpg" alt="Future protection" title="Future protection" class="future-protection-img">
-				<img src="img/aboutus2.jpg" alt="Future protection" title="Future protection" class="future-protection-img">
-			</div>
 		</div>
 	</section>
 	<!-------------------- Future protection -------------------->
@@ -70,22 +82,17 @@
 			</h2>
 
 			<div class="company-values">
-				<div class="value">
-					<img src="img/vision.png" alt="Custom Image" class="value-icon">
-					<h4 class="value-heading">Vision</h4>
-					<p class="para-line">
-						"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, 
-						quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-					</p>
-				</div>
-				<div class="value">
-					<img src="img/mission.png" alt="Custom Image" class="value-icon">
-					<h4 class="value-heading">Mission</h4>
-					<p class="para-line">
-						"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, 
-						quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-					</p>
-				</div>
+			<div class="value">
+	<img src="img/vision.png" alt="Custom Image" class="value-icon">
+	<h4 class="value-heading">Vision</h4>
+	<p class="para-line"><?= nl2br($vision['content']) ?></p>
+</div>
+<div class="value">
+	<img src="img/mission.png" alt="Custom Image" class="value-icon">
+	<h4 class="value-heading">Mission</h4>
+	<p class="para-line"><?= nl2br($mission['content']) ?></p>
+</div>
+
 			</div>
 		</div>
 	</section>
