@@ -69,6 +69,7 @@ $mission = getSection($conn, 'mission');
 <head>
     <meta charset="UTF-8">
     <title>Edit About Page | Admin</title>
+    <link rel="icon" type="image/png" href="img2/logo.png">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -178,6 +179,15 @@ $mission = getSection($conn, 'mission');
         <textarea name="mission_text"><?= htmlspecialchars($mission['content']) ?></textarea>
 
         <button type="submit">Save Changes</button>
+
+        <div class="container">
+    <a href="page_management.php" style="
+        display: inline-block;
+        margin-bottom: 20px;
+        text-decoration: none;
+        color: #007BFF;
+        font-weight: bold;
+    ">&larr; Back to Page Management</a>
     </form>
 </div>
 </body>
