@@ -70,74 +70,89 @@ $mission = getSection($conn, 'mission');
     <meta charset="UTF-8">
     <title>Edit About Page | Admin</title>
     <link rel="icon" type="image/png" href="img2/logo.png">
+    <link rel="stylesheet" href="css/setting_pages.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 40px;
-        }
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #f4f7fc;
+        padding: 40px;
+    }
 
-        h2 {
-            color: #333;
-        }
+    .container {
+        max-width: 1000px;
+        margin: auto;
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 10px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
 
-        .container {
-            max-width: 900px;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 12px rgba(0,0,0,0.1);
-        }
+    h2, h3 {
+        color: #333;
+        margin-bottom: 10px;
+    }
 
-        textarea {
-            width: 100%;
-            min-height: 120px;
-            margin-bottom: 20px;
-            padding: 10px;
-            font-size: 15px;
-        }
+    textarea, input[type="text"], input[type="file"] {
+        width: 100%;
+        padding: 12px;
+        font-size: 15px;
+        margin-top: 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        margin-bottom: 20px;
+    }
 
-        input[type="file"] {
-            margin-bottom: 10px;
-        }
+    .img-preview {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
 
-        .img-preview {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
+    .img-preview img {
+        height: 100px;
+        object-fit: cover;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        padding: 4px;
+        background: #f9f9f9;
+    }
 
-        .img-preview img {
-            height: 100px;
-            object-fit: cover;
-            border: 1px solid #ccc;
-            padding: 5px;
-            border-radius: 4px;
-        }
+    button {
+        background: #007BFF;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        font-size: 16px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
 
-        button {
-            padding: 10px 20px;
-            background: #007BFF;
-            color: white;
-            border: none;
-            font-size: 16px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+    button:hover {
+        background: #0056b3;
+    }
 
-        button:hover {
-            background: #0056b3;
-        }
+    .success {
+        background-color: #d4edda;
+        padding: 15px;
+        border-left: 5px solid #28a745;
+        margin-bottom: 20px;
+        border-radius: 6px;
+        color: #155724;
+    }
 
-        .success {
-            background: #d4edda;
-            color: #155724;
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-    </style>
+    .back-link {
+        margin-top: 20px;
+        display: block;
+        text-decoration: none;
+        font-weight: bold;
+        color: #007BFF;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
 </head>
 <body>
 <div class="container">

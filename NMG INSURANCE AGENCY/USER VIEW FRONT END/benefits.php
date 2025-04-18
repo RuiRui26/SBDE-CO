@@ -1,3 +1,10 @@
+<?php
+include '../../DB_connection/db.php';
+$db = new Database();
+$conn = $db->getConnection();
+
+$benefits = $conn->query("SELECT * FROM benefits_contents")->fetchAll();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,65 +31,24 @@
         <div class="container">
             <h2 class="heading bold">Insurance</h2>
             <div class="benefits-catalogue">
-                <div class="benefits-card">
-                    <img src="img/benefits1.jpg" alt="Credit & Insurance" class="featured-image">
-                    <h3 class="bold">Third Party Liability (TPL) Insurance</h3>
-                    <p class="para-line">Third-Party Liability in car insurance covers damages or injuries caused to another person, vehicle, or property by the insured driver.</a></p>
-                </div>
-                <div class="benefits-card">
-                    <img src="img/insurance3.jpg" alt="Insurance Mistakes" class="featured-image">
-                    <h3 class="bold">Third Party Property Damages (TPPD) Insurance</h3>
-                    <p class="para-line">Third-Party Property Damage coverage in car insurance pays for the cost of repairing or replacing someone else's property that you damage in an accident</a></p>
-                </div>
-                <div class="benefits-card">
-                    <img src="img/benefits4.jpg" alt="Trends in Insurance" class="featured-image">
-                    <h3 class="bold">Own Damage (OD) Insurance</h3>
-                    <p class="para-line">Own Damage coverage in car insurance protects the policyholder’s vehicle against loss or damage due to accidents, theft, natural disasters, or vandalism. It specifically covers the insured's car and is typically part of a comprehensive insurance policy but can also be purchased as a standalone cover.</a></p>
-                </div>
-                <div class="benefits-card">
-                    <img src="img/benefits2.jpg" alt="Health Insurance" class="featured-image">
-                    <h3 class="bold">Unnamed Personal Accident(UPA) Insurance</h3>
-                    <p class="para-line">Coverage in car insurance provides compensation for accidental injuries, disability, or death to passengers in the insured vehicle, without needing to list their names individually on the policy.</a></p>
-                </div>
+                <?php foreach ($benefits as $benefit): ?>
+                    <div class="benefits-card">
+                        <img src="<?= $benefit['image'] ?>" alt="<?= $benefit['title'] ?>" class="featured-image">
+                        <h3 class="bold"><?= $benefit['title'] ?></h3>
+                        <p class="para-line"><?= $benefit['description'] ?></p>
+                    </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </section>
-	<!-- ---------------------------benefits ---------------------------- -->
 
-
-
-	<!-- ---------------------------- Footer---------------------------- -->
+	<!-- --------------------------- Footer ---------------------------- -->
 	<footer>
 		<div class="footer-container">
 			<p class="para-line white">Copyright NMG Insurance Agency ©2025</p>
 		</div>
 	</footer>
-	<!-- ---------------------------- Footer---------------------------- -->
 
-
-
-	<!-------------- Importing JS file -------------->
-	<script src="js/script.js"></script>	
-
-	
-	<script>
-		$(document).ready(function() {
- 
-    let currentPath = window.location.pathname.split("/").pop();
-
-    
-    if (currentPath === "" || currentPath === "index.php") {
-        currentPath = "index.php";
-    }
-
-    $(".nav-list li").removeClass("active");
-
-    $(".nav-list li a").each(function() {
-        if ($(this).attr("href") === currentPath) {
-            $(this).parent().addClass("active");
-        }
-    });
-});
-	</script>
+	<script src="js/script.js"></script>
 </body>
 </html>
