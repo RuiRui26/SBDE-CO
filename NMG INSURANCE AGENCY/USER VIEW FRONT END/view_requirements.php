@@ -1,3 +1,15 @@
+<?php
+    include '../../DB_connection/db.php'; // include the PDO connection file
+
+    $database = new Database();
+    $conn = $database->getConnection();
+
+    $query = "SELECT * FROM requirements";
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,19 +20,19 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="img/NMG3.png">
 
-    <!-- External CSS link -->
+    <!-- External CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/view_requirements.css">
 
-    <!-- FontAwesome for icons -->
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <!-- FontAwesome -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
-     <!-- Navigation -->
-     <?php include 'nav.php'; ?>
+    <!-- Navigation -->
+    <?php include 'nav.php'; ?>
 
-    <!-- Car Insurance Requirements Section -->
+    <!-- Insurance Requirements Section -->
     <section class="insurance-requirements">
         <div class="container">
             <h2 class="heading">Insurance Requirements</h2>
@@ -35,42 +47,13 @@
             </div>
 
             <div class="requirements-list">
-                <!-- Apply Insurance Requirements -->
-                <div class="requirement-card" data-type="apply-insurance">
-                    <h3>📌 Valid ID <i class="fas fa-chevron-down toggle"></i></h3>
-                    <p class="details">>A valid passport, driver’s license, or any government-issued ID is required.</p>
-                </div>
-
-                <div class="requirement-card" data-type="apply-insurance">
-                    <h3>📌 Vehicle Plate Number <i class="fas fa-chevron-down toggle"></i></h3>
-                    <p class="details">For insurance purposes, it helps verify the vehicle's identity, link it to a specific policy, and facilitate claims or legal processes.</p>
-                </div>
-
-                <div class="requirement-card" data-type="apply-insurance">
-                    <h3>📌 Vehicle Chasis Number <i class="fas fa-chevron-down toggle"></i></h3>
-                    <p class="details"> It serves as the vehicle’s fingerprint, containing details such as the make, model, year, and country of production.</p>
-                </div>
-
-                <div class="requirement-card" data-type="apply-insurance">
-                    <h3>📌 Vehicle OR-CR <i class="fas fa-chevron-down toggle"></i></h3>
-                    <p class="details">Proof of payment for vehicle registration.</p>
-                </div>
-
-
-                <!-- For Retrieval Requirements -->
-                <div class="requirement-card" data-type="for-retrieval">
-                    <h3>📌 Affidavit of Loss <i class="fas fa-chevron-down toggle"></i></h3>
-                    <p class="details">If the document was lost, an affidavit of loss is required.</p>
-                </div>
-
-                <div class="requirement-card" data-type="for-retrieval">
-                    <h3>📌 Police Blotter <i class="fas fa-chevron-down toggle"></i></h3>
-                    <p class="details">Entry for a lost insurance document is a formal record detailing the loss.</p>
-                </div>
-
+                <?php foreach ($result as $row) : ?>
+                    <div class="requirement-card" data-type="<?= htmlspecialchars($row['type']) ?>">
+                        <h3>📌 <?= htmlspecialchars($row['title']) ?> <i class="fas fa-chevron-down toggle"></i></h3>
+                        <p class="details"><?= htmlspecialchars($row['details']) ?></p>
+                    </div>
+                <?php endforeach; ?>
             </div>
-
-
         </div>
     </section>
 
@@ -82,70 +65,82 @@
     </footer>
 
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const requirementCards = document.querySelectorAll(".requirement-card");
-        const searchInput = document.getElementById("search");
-        const filterDropdown = document.getElementById("insurance-type");
-        const heading = document.querySelector(".heading"); 
-    
-        const headingMap = {
-            "all": "Insurance Requirements",
-            "apply-insurance": "Apply Insurance Requirements",
-            "lto-transaction": "LTO Transaction Requirements",
-            "for-retrieval": "Lost Document Requirements"
-        };
-    
-       
-        function updateRequirements(filterType) {
+        document.addEventListener("DOMContentLoaded", function () {
+            const requirementCards = document.querySelectorAll(".requirement-card");
+            const searchInput = document.getElementById("search");
+            const filterDropdown = document.getElementById("insurance-type");
+            const heading = document.querySelector(".heading");
+
+            const headingMap = {
+                "all": "Insurance Requirements",
+                "apply-insurance": "Apply Insurance Requirements",
+                "lto-transaction": "LTO Transaction Requirements",
+                "for-retrieval": "Lost Document Requirements"
+            };
+
+            function updateRequirements(filterType) {
+                requirementCards.forEach(card => {
+                    if (filterType === "all" || card.dataset.type === filterType) {
+                        card.style.display = "block";
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+
+                heading.textContent = headingMap[filterType] || "Insurance Requirements";
+            }
+
+            filterDropdown.addEventListener("change", function () {
+                const selectedType = this.value;
+                searchInput.value = "";
+                updateRequirements(selectedType);
+            });
+
+            searchInput.addEventListener("input", function () {
+                const searchValue = this.value.toLowerCase().trim();
+                requirementCards.forEach(card => {
+                    const cardText = card.textContent.toLowerCase();
+                    card.style.display = cardText.includes(searchValue) ? "block" : "none";
+                });
+
+                filterDropdown.value = "all";
+                heading.textContent = "Search Results";
+            });
+
+            // Hide all requirement cards initially
+            requirementCards.forEach(card => card.style.display = "none");
+
+            // Initially hide all details
             requirementCards.forEach(card => {
-                if (filterType === "all" || card.dataset.type === filterType) {
-                    card.style.display = "block";
-                } else {
-                    card.style.display = "none";
-                }
+                const details = card.querySelector(".details");
+                details.style.display = "none";  // Hide details initially
             });
-    
-          
-            heading.textContent = headingMap[filterType] || "Insurance Requirements";
-        }
-    
-        filterDropdown.addEventListener("change", function () {
-            const selectedType = this.value;
-            searchInput.value = ""; 
-            updateRequirements(selectedType);
-        });
-    
-        searchInput.addEventListener("input", function () {
-            const searchValue = this.value.toLowerCase().trim();
+
+            // Toggle details and chevron icon
             requirementCards.forEach(card => {
-                const cardText = card.textContent.toLowerCase();
-                card.style.display = cardText.includes(searchValue) ? "block" : "none";
+                card.addEventListener("click", function () {
+                    const details = this.querySelector(".details");
+                    const toggleIcon = this.querySelector(".toggle");
+
+                    // Toggle the details visibility
+                    if (details.style.display === "none") {
+                        details.style.display = "block";  // Show details
+                    } else {
+                        details.style.display = "none";  // Hide details
+                    }
+
+                    // Toggle the chevron icon direction
+                    if (details.style.display === "block") {
+                        toggleIcon.classList.remove("fa-chevron-down");
+                        toggleIcon.classList.add("fa-chevron-up");
+                    } else {
+                        toggleIcon.classList.remove("fa-chevron-up");
+                        toggleIcon.classList.add("fa-chevron-down");
+                    }
+                });
             });
-    
-            
-            filterDropdown.value = "all";
-            heading.textContent = "Search Results"; 
         });
-    
-        
-        requirementCards.forEach(card => card.style.display = "none");
-    
-        
-        requirementCards.forEach(card => {
-            card.addEventListener("click", function () {
-                this.querySelector(".details").classList.toggle("show");
-            });
-        });
-    
-      
-        document.getElementById("download-btn").addEventListener("click", function () {
-            alert("PDF Download Feature Coming Soon!");
-        });
-    });
-</script>
-    
-    
-    
-    
+    </script>
+
 </body>
 </html>
