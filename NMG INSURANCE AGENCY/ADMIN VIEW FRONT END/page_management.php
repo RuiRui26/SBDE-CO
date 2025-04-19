@@ -55,6 +55,7 @@ require '../../Logout_Login/Restricted.php';
                     ["About Page", "Active", "about_setting.php"],
                     ["Insurance", "Active", "insurance_setting.php"],
                     ["Contacts", "Active", "contact_setting.php"],
+                    ["Requirements", "Active", "requirements_setting.php"],
                 ];
 
                 // Loop through each page and display rows
