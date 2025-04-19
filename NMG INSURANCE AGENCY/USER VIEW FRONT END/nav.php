@@ -44,7 +44,9 @@ if (session_status() === PHP_SESSION_NONE) {
     <!-- If logged in as Client, show a user icon button to dashboard -->
     <button onclick="window.location.href='USER_PROFILE/index.php'" class="profile-enhanced-btn">
     <img src="img/samplepic.png" alt="Profile" class="profile-avatar">
-    <span>Dashboard</span>
+    <span>
+                <?php echo $_SESSION['full_name']; ?> <!-- Display the user's name -->
+            </span>
 </button>
 
     <?php else: ?>
