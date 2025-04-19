@@ -10,7 +10,6 @@ try {
     $db = $database->getConnection();
 
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        // Get form data (adjusting for the updated field names in your form)
         $first_name = trim($_POST["first_name"] ?? "");
         $last_name = trim($_POST["last_name"] ?? "");
         $email = trim($_POST["email"] ?? "");
@@ -20,11 +19,12 @@ try {
         $city = trim($_POST["city"] ?? "");
         $barangay = trim($_POST["barangay"] ?? "");
         $password = $_POST["password"] ?? "";
+        $birthday = $_POST["birthday"] ?? "";
 
-        // Combine address fields into a single address string
         $address = $street_address . ", " . $barangay . ", " . $city . " " . $zip_code;
 
-        if (empty($first_name) || empty($last_name) || empty($email) || empty($contact_number) || empty($address) || empty($password)) {
+        // Check required fields
+        if (empty($first_name) || empty($last_name) || empty($email) || empty($contact_number) || empty($address) || empty($password) || empty($birthday)) {
             $response["message"] = "All fields are required.";
             echo json_encode($response);
             exit;
@@ -48,7 +48,24 @@ try {
             exit;
         }
 
-        // Check if email or phone number already exists in `users`
+        // Birthday validation
+        $birthDate = DateTime::createFromFormat('Y-m-d', $birthday);
+        if (!$birthDate) {
+            $response["message"] = "Invalid birthday format.";
+            echo json_encode($response);
+            exit;
+        }
+
+        $today = new DateTime();
+        $age = $today->diff($birthDate)->y;
+
+        if ($age < 18) {
+            $response["message"] = "You must be at least 18 years old to register.";
+            echo json_encode($response);
+            exit;
+        }
+
+        // Check for duplicates
         $checkStmt = $db->prepare("SELECT user_id FROM users WHERE email = :email OR contact_number = :contact_number");
         $checkStmt->execute([
             ":email" => $email,
@@ -61,12 +78,12 @@ try {
             exit;
         }
 
-        // Start transaction
+        // Begin transaction
         $db->beginTransaction();
 
         $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-        // Insert into `users`
+        // Insert into users
         $stmtUser = $db->prepare("INSERT INTO users (name, email, contact_number, password, role) 
                                   VALUES (:name, :email, :contact_number, :password, 'Client')");
         $stmtUser->execute([
@@ -76,22 +93,21 @@ try {
             ":password" => $hashed_password
         ]);
 
-        // Get the last inserted `user_id`
         $user_id = $db->lastInsertId();
 
         if ($user_id) {
-            // Insert into `clients`
-            $stmtClient = $db->prepare("INSERT INTO clients (full_name, email, contact_number, address, user_id) 
-                                        VALUES (:full_name, :email, :contact_number, :address, :user_id)");
+            // Insert into clients with birthday
+            $stmtClient = $db->prepare("INSERT INTO clients (full_name, email, contact_number, address, birthday, user_id) 
+                                        VALUES (:full_name, :email, :contact_number, :address, :birthday, :user_id)");
             $stmtClient->execute([
                 ":full_name" => $first_name . " " . $last_name,
                 ":email" => $email,
                 ":contact_number" => $contact_number,
                 ":address" => $address,
+                ":birthday" => $birthday,
                 ":user_id" => $user_id
             ]);
 
-            // Commit transaction
             $db->commit();
 
             $response["success"] = true;
