@@ -49,16 +49,16 @@
 
         <!-- Second Row -->
         <div class="form-row">
-            <div class="input-group small">
-                <label for="age">Age</label>
-                <input type="number" id="age" name="age" min="18" placeholder="18+" required>
-                <span class="error" id="age-error"></span>
-            </div>
 
-            <div class="input-group medium">
-                <label for="birthday">Birthday *</label>
-                <input type="date" id="birthday" name="birthday" required>
-            </div>
+
+            <div class="form-row">
+    <div class="input-group medium">
+        <label for="birthday">Birthday *</label>
+        <input type="date" id="birthday" name="birthday" required>
+        <span class="error" id="birthday-error"></span>
+    </div>
+</div>
+
 
             <div class="input-group medium">
                 <label for="email">Email</label>
