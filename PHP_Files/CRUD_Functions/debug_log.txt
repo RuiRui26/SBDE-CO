@@ -37,3 +37,30 @@ Update successful for ID: 2
 Received ID: 2, Status: Pending
 Current Status for ID: 2 is Approved, Applied Date: 2025-03-11 18:46:05
 Update successful for ID: 2
+Received ID: 78, Status: Approved
+Current Status for ID: 78 is Pending, Applied Date: 2025-04-12 00:31:10
+Update successful for ID: 78
+Received ID: 78, Status: Pending
+Current Status for ID: 78 is Approved, Applied Date: 2025-04-12 00:31:10
+Update successful for ID: 78
+Received ID: 76, Status: Rejected
+Current Status for ID: 76 is Pending, Applied Date: 2025-04-04 22:43:58
+Update successful for ID: 76
+Received ID: 76, Status: Pending
+Current Status for ID: 76 is Rejected, Applied Date: 2025-04-04 22:43:58
+Update successful for ID: 76
+Received ID: 76, Status: Approved
+Current Status for ID: 76 is Pending, Applied Date: 2025-04-04 22:43:58
+Update successful for ID: 76
+Received ID: 76, Status: Pending
+Current Status for ID: 76 is Approved, Applied Date: 2025-04-04 22:43:58
+Update successful for ID: 76
+Received ID: 76, Status: Rejected
+Current Status for ID: 76 is Pending, Applied Date: 2025-04-04 22:43:58
+Update successful for ID: 76
+Received ID: 76, Status: Pending
+Current Status for ID: 76 is Rejected, Applied Date: 2025-04-04 22:43:58
+Update successful for ID: 76
+Received ID: 76, Status: Approved
+Current Status for ID: 76 is Pending, Applied Date: 2025-04-04 22:43:58
+Update successful for ID: 76

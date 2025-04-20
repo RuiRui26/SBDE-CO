@@ -12,12 +12,12 @@ class InsuranceTransactions {
     public function getTransactions($search = '', $limit = 10, $offset = 0) {
         try {
             $query = "
-                SELECT ir.insurance_id, c.full_name, v.plate_number, ir.type_of_insurance, 
-                       ir.created_at, ir.status 
-                FROM nmg_insurance.insurance_registration ir
-                JOIN nmg_insurance.clients c ON ir.client_id = c.client_id
-                JOIN nmg_insurance.vehicles v ON ir.vehicle_id = v.vehicle_id
-            ";
+    SELECT ir.insurance_id, c.full_name, v.plate_number, v.mv_file_number, 
+           ir.type_of_insurance, ir.created_at, ir.status 
+    FROM nmg_insurance.insurance_registration ir
+    JOIN nmg_insurance.clients c ON ir.client_id = c.client_id
+    JOIN nmg_insurance.vehicles v ON ir.vehicle_id = v.vehicle_id
+";
 
             // Search Filter
             if (!empty($search)) {
