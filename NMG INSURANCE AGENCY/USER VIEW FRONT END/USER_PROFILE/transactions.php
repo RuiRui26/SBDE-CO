@@ -184,6 +184,22 @@ if ($client_id) {
                 background: none !important;
                 color: inherit !important;
             }
+            .view-btn {
+    display: inline-block;
+    padding: 5px 12px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+}
+
+.view-btn:hover {
+    background-color: #0056b3;
+}
+
         }
     </style>
 </head>
@@ -233,10 +249,9 @@ if ($client_id) {
                     <td><?= $register_date ?></td>
                     <td><?= $expiration_date ?></td>
                     <td>
-                        <span class="status-badge <?= $is_expired ? 'status-expired' : 'status-active' ?>">
-                            <?= $is_expired ? 'Expired' : 'Active' ?>
-                        </span>
-                    </td>
+    <a href="view_transaction.php?id=<?= urlencode($row['plate_number']) ?>" class="view-btn">View</a>
+</td>
+
                 </tr>
             <?php endforeach; ?>
         </tbody>
