@@ -2,87 +2,84 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Client Registration</title>
-    <link rel="stylesheet" href="css/register.css">
+    <link rel="stylesheet" href="css/register.css" />
 </head>
 
 <body>
-<!-- Registration Form -->
-<div class="registration-container">
+    <!-- Registration Form -->
+    <div class="registration-container">
 
-    <!-- Header -->
-    <div class="form-header">
-        <h2>Register as a Client</h2>
-        <p>Fill in the details below to create your account</p>
-    </div>
-
-    <form id="clientForm" method="POST" action="register_api.php">
-
-        <!-- First Row -->
-        <div class="form-row">
-            <div class="input-group">
-                <label for="first_name">First Name</label>
-                <input type="text" id="first_name" name="first_name" placeholder="Enter First Name" required>
-                <span class="error" id="first-name-error"></span>
-            </div>
-            
-            <div class="input-group">
-                <label for="last_name">Last Name</label>
-                <input type="text" id="last_name" name="last_name" placeholder="Enter Last Name" required>
-                <span class="error" id="last-name-error"></span>
-            </div>
-
-            <div class="input-group small">
-                <label for="middle_initial">M.I (Optional)</label>
-                <input type="text" id="middle_initial" name="middle_initial" placeholder="M" maxlength="1">
-            </div>
+        <!-- Header -->
+        <div class="form-header">
+            <h2>Register as a Client</h2>
+            <p>Fill in the details below to create your account</p>
         </div>
 
-        <!-- Contact Number Field -->
-        <div class="input-group">
-            <label for="contact_number">Contact Number</label>
-            <input type="text" id="contact_number" name="contact_number" placeholder="09XXXXXXXXX" required>
-            <span class="error" id="contact-error"></span>
-        </div>
+        <form id="clientForm" method="POST" action="register_api.php">
 
-        <!-- Second Row -->
-        <div class="form-row">
-
-
+            <!-- First Row -->
             <div class="form-row">
-    <div class="input-group medium">
-        <label for="birthday">Birthday *</label>
-        <input type="date" id="birthday" name="birthday" required>
-        <span class="error" id="birthday-error"></span>
-    </div>
-</div>
+                <div class="input-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" placeholder="Enter First Name" required />
+                    <span class="error" id="first-name-error"></span>
+                </div>
 
+                <div class="input-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" placeholder="Enter Last Name" required />
+                    <span class="error" id="last-name-error"></span>
+                </div>
 
-            <div class="input-group medium">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
+                <div class="input-group small">
+                    <label for="middle_initial">M.I (Optional)</label>
+                    <input type="text" id="middle_initial" name="middle_initial" placeholder="M" maxlength="1" />
+                </div>
             </div>
 
-            <div class="input-group small">
-                <label for="zip_code">Zip Code</label>
-                <input type="text" id="zip_code" name="zip_code" placeholder="Enter Zip" required>
-                <span class="error" id="zip-code-error"></span>
-            </div>
-
+            <!-- Contact Number Field -->
             <div class="input-group">
-                <label for="street_address">Street Address</label>
-                <input type="text" id="street_address" name="street_address" placeholder="Enter Address" required>
+                <label for="contact_number">Contact Number</label>
+                <input type="text" id="contact_number" name="contact_number" placeholder="09XXXXXXXXX" required />
+                <span class="error" id="contact-error"></span>
             </div>
-        </div>
 
-        <!-- Third Row -->
-        <div class="form-row">
-            <div class="input-group">
-                <label for="city">City</label>
-                <input type="text" id="city" name="city" placeholder="Enter City" required>
+            <!-- Second Row -->
+            <div class="form-row">
+                <div class="input-group medium">
+                    <label for="birthday">Birthday *</label>
+                    <input type="date" id="birthday" name="birthday" required />
+                    <span class="error" id="birthday-error"></span>
+                    <span class="error" id="age-error"></span> <!-- Added age error span -->
+                </div>
+
+                <div class="input-group medium">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required />
+                </div>
+
+                <div class="input-group small">
+                    <label for="zip_code">Zip Code</label>
+                    <input type="text" id="zip_code" name="zip_code" placeholder="Enter Zip" required />
+                    <span class="error" id="zip-code-error"></span>
+                </div>
+
+                <div class="input-group">
+                    <label for="street_address">Street Address</label>
+                    <input type="text" id="street_address" name="street_address" placeholder="Enter Address" required />
+                </div>
             </div>
+
+            <!-- Third Row -->
+            <div class="form-row">
+                <div class="input-group">
+                    <label for="city">City</label>
+                    <input type="text" id="city" name="city" placeholder="Enter City" required />
+                </div>
+        
 
             <div class="input-group medium">
                 <label for="barangay">Barangay</label>
@@ -186,35 +183,36 @@
             </div>
         </div>
 
-        <!-- Password Fields -->
-        <div class="form-row">
-            <div class="input-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Create a Password" required>
-                <span class="error" id="password-error"></span>
+            <!-- Password Fields -->
+            <div class="form-row">
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a Password" required />
+                    <span class="error" id="password-error"></span>
 
-                <!-- Show Password Checkbox -->
-                <label class="show-password">
-                    <input type="checkbox" id="show-password"> Show Password
-                </label>
+                    <!-- Show Password Checkbox -->
+                    <label class="show-password">
+                        <input type="checkbox" id="show-password" /> Show Password
+                    </label>
+                </div>
+
+                <div class="input-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter Password" required />
+                    <span class="error" id="confirm-password-error"></span>
+                </div>
             </div>
 
-            <div class="input-group">
-                <label for="confirm_password">Confirm Password</label>
-                <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter Password" required>
-                <span class="error" id="confirm-password-error"></span>
+            <!-- Submit Button -->
+            <div class="form-row submit-container">
+                <button type="submit" class="submit-btn">Register</button>
             </div>
-        </div>
 
-        <!-- Submit Button -->
-        <div class="form-row submit-container">
-            <button type="submit" class="submit-btn">Register</button>
-        </div>
-
-        <p class="login-link">Already have an account? <a href="login.php">Login here</a></p>
-
-    </form>
-</div>
+            <p class="login-link">
+                Already have an account? <a href="login.php">Login here</a>
+            </p>
+        </form>
+    </div>
 
     <script>
         const form = document.getElementById("clientForm");
@@ -228,16 +226,31 @@
             confirmPasswordField.type = type;
         });
 
+        // Helper function to calculate age from birthday string (YYYY-MM-DD)
+        function calculateAge(birthdayStr) {
+            const today = new Date();
+            const birthDate = new Date(birthdayStr);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
         form.addEventListener("submit", async function (e) {
             e.preventDefault();
+
+            // Clear errors first
+            document.querySelectorAll(".error").forEach(el => el.textContent = "");
+
             const lastName = document.getElementById("last_name").value.trim();
             const firstName = document.getElementById("first_name").value.trim();
-            const age = document.getElementById("age").value;
+            const birthday = document.getElementById("birthday").value;
             const password = passwordField.value.trim();
             const confirmPassword = confirmPasswordField.value.trim();
 
             let isValid = true;
-            document.querySelectorAll(".error").forEach(el => el.textContent = "");
 
             // Name Validation
             const nameRegex = /^[a-zA-Z ]{2,50}$/;
@@ -250,7 +263,7 @@
                 isValid = false;
             }
 
-            // Add validation for Contact Number
+            // Contact Number Validation
             const contactNumber = document.getElementById("contact_number").value.trim();
             const contactRegex = /^09\d{9}$/; // Must start with "09" and be 11 digits
             if (!contactRegex.test(contactNumber)) {
@@ -266,10 +279,16 @@
                 isValid = false;
             }
 
-            // Age Validation
-            if (parseInt(age) < 18) {
-                document.getElementById("age-error").textContent = "You must be 18+ to register.";
+            // Age Validation (calculate from birthday)
+            if (!birthday) {
+                document.getElementById("birthday-error").textContent = "Birthday is required.";
                 isValid = false;
+            } else {
+                const age = calculateAge(birthday);
+                if (age < 18) {
+                    document.getElementById("age-error").textContent = "You must be 18+ to register.";
+                    isValid = false;
+                }
             }
 
             // Password Validation
@@ -286,19 +305,20 @@
             }
 
             if (isValid) {
-                let formData = new FormData(form);
-                let response = await fetch("register_api.php", {
+                const formData = new FormData(form);
+                const response = await fetch("register_api.php", {
                     method: "POST",
                     body: formData
                 });
 
-                let result = await response.json();
+                const result = await response.json();
                 alert(result.message);
-                if (result.success) window.location.href = "login.php";
+                if (result.success) {
+                    window.location.href = "login.php";
+                }
             }
         });
     </script>
-
 </body>
 
 </html>
