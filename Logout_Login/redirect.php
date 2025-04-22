@@ -11,10 +11,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 $redirects = [
     'Admin' => "ADMIN VIEW FRONT END/index.php",
-    'Secretary' => "USER VIEW FRONT END/index.php",
-    'Staff' => "STAFF VIEW FRONT END/index.php",
-    'Agent' => "AGENT VIEW FRONT END/index.php",
-    'Cashier' => "CASHIER VIEW FRONT END/index.php"
+    'Secretary' => "SECRETARY VIEW/index.php",
+    'Staff' => "STAFF VIEW/index.php",
+    'Agent' => "AGENT VIEW/index.php",
+    'Cashier' => "CASHIER VIEW /index.php"
 ];
 
 // Get the correct redirect path
