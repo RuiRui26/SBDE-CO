@@ -110,165 +110,172 @@ try {
         </div>
     </div>
 
+
+
+
     <!-- Add Staff Modal -->
-    <div id="addStaffModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeAddStaffModal()">&times;</span>
-            <h2>Add Staff</h2>
-            <form id="addStaffForm" action="../../PHP_Files/CRUD_Functions/add_staff.php" method="POST" onsubmit="return validateAddStaffForm()">
-                <label>First Name:</label>
-                <input type="text" name="first_name" required>
+<div id="addStaffModal" class="modal" onclick="closeModalOnBackgroundClick(event, 'addStaffModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close" onclick="closeAddStaffModal()">&times;</span>
+        <h2>Add Staff</h2>
+        <form id="addStaffForm" action="../../PHP_Files/CRUD_Functions/add_staff.php" method="POST" onsubmit="return validateAddStaffForm()">
+            <label>First Name:</label>
+            <input type="text" name="first_name" required>
 
-                <label>Last Name:</label>
-                <input type="text" name="last_name" required>
+            <label>Last Name:</label>
+            <input type="text" name="last_name" required>
 
-                <label>Email:</label>
-                <input type="email" name="email" required>
+            <label>Email:</label>
+            <input type="email" name="email" required>
 
-                <label>Password:</label>
-                <input type="password" name="password" required>
+            <label>Password:</label>
+            <input type="password" name="password" required>
 
-                <label>Contact Number:</label>
-                <input type="text" name="contact_number" required>
+            <label>Contact Number:</label>
+            <input type="text" name="contact_number" required>
 
-                <label>Role:</label>
-                <select name="role" required>
-                    <option>Secretary</option>
-                    <option>Staff</option>
-                    <option>Agent</option>
-                    <option>Cashier</option>
-                    <option>Admin</option>
-                </select>
+            <label>Role:</label>
+            <select name="role" required>
+                <option>Secretary</option>
+                <option>Staff</option>
+                <option>Agent</option>
+                <option>Cashier</option>
+                <option>Admin</option>
+            </select>
 
-                <button type="submit">Register</button>
-            </form>
-        </div>
+            <button type="submit">Register</button>
+        </form>
     </div>
+</div>
 
-    <!-- Edit Staff Modal -->
-    <div id="editStaffModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeEditStaffModal()">&times;</span>
-            <h2>Edit Staff</h2>
-            <form id="editStaffForm" action="../../PHP_Files/CRUD_Functions/edit_staff.php" method="POST" onsubmit="return validateEditStaffForm()">
-                <input type="hidden" name="user_id" id="edit_user_id">
-                <input type="hidden" name="original_email" id="edit_original_email">
+<!-- Edit Staff Modal -->
+<div id="editStaffModal" class="modal" onclick="closeModalOnBackgroundClick(event, 'editStaffModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close" onclick="closeEditStaffModal()">&times;</span>
+        <h2>Edit Staff</h2>
+        <form id="editStaffForm" action="../../PHP_Files/CRUD_Functions/edit_staff.php" method="POST" onsubmit="return validateEditStaffForm()">
+            <input type="hidden" name="user_id" id="edit_user_id">
+            <input type="hidden" name="original_email" id="edit_original_email">
 
-                <label>First Name:</label>
-                <input type="text" name="first_name" id="edit_first_name" required>
+            <label>First Name:</label>
+            <input type="text" name="first_name" id="edit_first_name" required>
 
-                <label>Last Name:</label>
-                <input type="text" name="last_name" id="edit_last_name" required>
+            <label>Last Name:</label>
+            <input type="text" name="last_name" id="edit_last_name" required>
 
-                <label>Email:</label>
-                <input type="email" name="email" id="edit_email" required>
+            <label>Email:</label>
+            <input type="email" name="email" id="edit_email" required>
 
-                <label>Contact Number:</label>
-                <input type="text" name="contact_number" id="edit_contact_number" required>
+            <label>Contact Number:</label>
+            <input type="text" name="contact_number" id="edit_contact_number" required>
 
-                <label>Role:</label>
-                <select name="role" id="edit_role" required>
-                    <option>Secretary</option>
-                    <option>Staff</option>
-                    <option>Agent</option>
-                    <option>Cashier</option>
-                    <option>Admin</option>
-                </select>
+            <label>Role:</label>
+            <select name="role" id="edit_role" required>
+                <option>Secretary</option>
+                <option>Staff</option>
+                <option>Agent</option>
+                <option>Cashier</option>
+                <option>Admin</option>
+            </select>
 
-                <button type="submit">Update</button>
-            </form>
-        </div>
+            <button type="submit">Update</button>
+        </form>
     </div>
+</div>
 
-    <!-- JavaScript -->
-    <script>
-        function searchStaff() {
-            let input = document.getElementById('searchInput').value.toLowerCase();
-            let staffCards = document.querySelectorAll('.staff-card');
+<!-- Add this to your existing <script> block -->
+<script>
+    function searchStaff() {
+        let input = document.getElementById('searchInput').value.toLowerCase();
+        let staffCards = document.querySelectorAll('.staff-card');
 
-            staffCards.forEach(card => {
-                let text = card.innerText.toLowerCase();
-                card.style.display = text.includes(input) ? "block" : "none";
-            });
+        staffCards.forEach(card => {
+            let text = card.innerText.toLowerCase();
+            card.style.display = text.includes(input) ? "block" : "none";
+        });
+    }
+
+    function openAddStaffModal() {
+        document.getElementById("addStaffModal").style.display = "flex";
+    }
+
+    function closeAddStaffModal() {
+        document.getElementById("addStaffModal").style.display = "none";
+    }
+
+    function openEditStaffModal(data) {
+        document.getElementById("editStaffModal").style.display = "flex";
+        document.getElementById('edit_user_id').value = data.user_id;
+        document.getElementById("edit_original_email").value = data.email;
+        document.getElementById("edit_first_name").value = data.first_name;
+        document.getElementById("edit_last_name").value = data.last_name;
+        document.getElementById("edit_email").value = data.email;
+        document.getElementById("edit_contact_number").value = data.contact_number;
+        document.getElementById("edit_role").value = data.role;
+    }
+
+    function closeEditStaffModal() {
+        document.getElementById("editStaffModal").style.display = "none";
+    }
+
+    function closeModalOnBackgroundClick(event, modalId) {
+        const modal = document.getElementById(modalId);
+        if (event.target === modal) {
+            modal.style.display = "none";
         }
+    }
 
-        function openAddStaffModal() {
-            document.getElementById("addStaffModal").style.display = "flex";
-        }
-
-        function closeAddStaffModal() {
-            document.getElementById("addStaffModal").style.display = "none";
-        }
-
-        function validateAddStaffForm() {
-            let firstName = document.forms["addStaffForm"]["first_name"].value;
-            let lastName = document.forms["addStaffForm"]["last_name"].value;
-            let email = document.forms["addStaffForm"]["email"].value;
-            let contactNumber = document.forms["addStaffForm"]["contact_number"].value;
-            let password = document.forms["addStaffForm"]["password"].value;
-            let role = document.forms["addStaffForm"]["role"].value;
-
-            if (firstName == "" || lastName == "" || email == "" || contactNumber == "" || password == "" || role == "") {
-                alert("All fields must be filled out");
-                return false;
-            }
-            return true;
-        }
-
-        function deleteStaff(email) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you want to delete this staff member?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'No, cancel!',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Perform the delete action via AJAX (use PHP to delete from DB)
-                    $.ajax({
-                        type: "POST",
-                        url: "delete_staff.php",
-                        data: { email: email },
-                        success: function(response) {
-                            if (response == "success") {
-                                // Remove staff card from the page
-                                document.getElementById("staff-" + email).remove();
-                                Swal.fire('Deleted!', 'The staff member has been deleted.', 'success');
-                            } else {
-                                Swal.fire('Error!', 'There was an issue deleting the staff.', 'error');
-                            }
-                        }
-                    });
-                }
-            });
-        }
-
-        function openEditStaffModal(data) {
-            document.getElementById("editStaffModal").style.display = "flex";
-            document.getElementById('edit_user_id').value = data.user_id;
-            document.getElementById("edit_original_email").value = data.email;
-            document.getElementById("edit_first_name").value = data.first_name;
-            document.getElementById("edit_last_name").value = data.last_name;
-            document.getElementById("edit_email").value = data.email;
-            document.getElementById("edit_contact_number").value = data.contact_number;
-            document.getElementById("edit_role").value = data.role;
-        }
-
-        function closeEditStaffModal() {
-            document.getElementById("editStaffModal").style.display = "none"; }
-
-            function validateEditStaffForm() {
-        let firstName = document.forms["editStaffForm"]["first_name"].value;
-        let lastName = document.forms["editStaffForm"]["last_name"].value;
-        let email = document.forms["editStaffForm"]["email"].value;
-        let contactNumber = document.forms["editStaffForm"]["contact_number"].value;
-        let role = document.forms["editStaffForm"]["role"].value;
-
-        if (firstName == "" || lastName == "" || email == "" || contactNumber == "" || role == "") {
+    function validateAddStaffForm() {
+        let form = document.forms["addStaffForm"];
+        if (form["first_name"].value === "" ||
+            form["last_name"].value === "" ||
+            form["email"].value === "" ||
+            form["password"].value === "" ||
+            form["contact_number"].value === "" ||
+            form["role"].value === "") {
             alert("All fields must be filled out");
             return false;
         }
         return true;
+    }
+
+    function validateEditStaffForm() {
+        let form = document.forms["editStaffForm"];
+        if (form["first_name"].value === "" ||
+            form["last_name"].value === "" ||
+            form["email"].value === "" ||
+            form["contact_number"].value === "" ||
+            form["role"].value === "") {
+            alert("All fields must be filled out");
+            return false;
+        }
+        return true;
+    }
+
+    function deleteStaff(email) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to delete this staff member?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    type: "POST",
+                    url: "delete_staff.php",
+                    data: { email: email },
+                    success: function(response) {
+                        if (response == "success") {
+                            document.getElementById("staff-" + email).remove();
+                            Swal.fire('Deleted!', 'The staff member has been deleted.', 'success');
+                        } else {
+                            Swal.fire('Error!', 'There was an issue deleting the staff.', 'error');
+                        }
+                    }
+                });
+            }
+        });
     }
 </script>

@@ -2,28 +2,40 @@
 session_start(); 
 $allowed_roles = ['Admin'];
 require '../../Logout_Login/Restricted.php';
+
+// Include database connection
+include '../../DB_connection/db.php';
+
+$db = new Database();
+$conn = $db->getConnection(); // Ensure that $conn is a PDO instance
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activity Log </title>
+    <title>Activity Log</title>
     <!-- Favicon -->
-    <link rel="icon" type="imag2/png" href="img2/logo.png">
+    <link rel="icon" type="image/png" href="img2/logo.png">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/activitylog.css">
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+    <!-- jQuery (necessary for DataTables plugin) -->
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 </head>
 <body>
-   <!-- Sidebar -->
-   <?php include 'sidebar.php'; ?>
+    <!-- Sidebar -->
+    <?php include 'sidebar.php'; ?>
 
     <!-- Main Content -->
     <div class="main-content">
-        <!-- Title -->
         <h1 class="activity-title">Activity Log</h1>
 
         <!-- Search Bar -->
@@ -34,7 +46,7 @@ require '../../Logout_Login/Restricted.php';
 
         <!-- Activity Log Table -->
         <div class="table-container">
-            <table>
+            <table id="activityLogTable">
                 <thead>
                     <tr>
                         <th>Date and Time</th>
@@ -43,33 +55,40 @@ require '../../Logout_Login/Restricted.php';
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Sample Rows lang te andy -->
-                    <tr>
-                        <td>2024-02-20 10:30 AM</td>
-                        <td>Admin123</td>
-                        <td>Apply Insurance</td>
-                    </tr>
-                    <tr>
-                        <td>2024-02-20 10:30 AM</td>
-                        <td>Admin456</td>
-                        <td>LTO Transaction</td>
-                    </tr>
+                    <?php
+                    // Query to fetch data
+                    $query = "SELECT u.name, ul.action, ul.created_at 
+          FROM user_logs ul
+          JOIN users u ON ul.user_id = u.user_id
+          ORDER BY ul.created_at DESC";
+
                     
+                    // Prepare the query with PDO
+                    $stmt = $conn->prepare($query);
+                    $stmt->execute(); // Execute the query
+
+                    // Check if there are results and display them
+                    if ($stmt->rowCount() > 0) {
+                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                            echo "<tr>
+                                    <td>" . $row['created_at'] . "</td>
+                                    <td>" . $row['username'] . "</td>
+                                    <td>" . $row['action'] . "</td>
+                                  </tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='3'>No activity logs found.</td></tr>";
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        // Toggle Submenu for Settings (Hover + Click Support)
-        function toggleSubmenu(event) {
-            event.stopPropagation(); // Prevent event from bubbling up
-            const submenu = event.currentTarget.querySelector('.submenu');
-            submenu.style.display = (submenu.style.display === 'block') ? 'none' : 'block';
-        }
+        $(document).ready(function() {
+            $('#activityLogTable').DataTable(); // Initialize DataTable on the table
+        });
     </script>
-
-
-    
 </body>
 </html>

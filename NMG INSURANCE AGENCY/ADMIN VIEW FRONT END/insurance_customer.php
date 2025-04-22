@@ -149,16 +149,13 @@ $transactions = $insuranceTransactions->getTransactions($search, $limit, $offset
                             <tr>
                                 <td><?= htmlspecialchars($transaction['full_name']); ?></td>
                                 <td>
-                                    <?php 
-                                    if (!empty($transaction['plate_number'])) {
-                                        echo htmlspecialchars($transaction['plate_number']);
-                                    } elseif (!empty($transaction['mv_file_number'])) {
-                                        echo "MV/File: " . htmlspecialchars($transaction['mv_file_number']);
-                                    } else {
-                                        echo "N/A";
-                                    }
-                                    ?>
-                                </td>
+    <?= !empty($transaction['plate_number']) 
+        ? htmlspecialchars($transaction['plate_number']) 
+        : (!empty($transaction['mv_file_number']) 
+            ? 'MV/File: ' . htmlspecialchars($transaction['mv_file_number']) 
+            : 'N/A'); ?>
+</td>
+
                                 <td><?= htmlspecialchars($transaction['type_of_insurance']); ?></td>
                                 <td><?= htmlspecialchars($transaction['created_at']); ?></td>
                                 <td>
