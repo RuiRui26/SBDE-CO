@@ -1,117 +1,183 @@
 <?php
-session_start(); 
+session_start();
 $allowed_roles = ['Cashier'];
 require('../../Logout_Login/Restricted.php');
-?>
+require '../../DB_connection/db.php';
 
+// Initialize Database and get PDO connection
+$database = new Database();
+$conn = $database->getConnection();
+?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insurance Transaction List</title>
-    <link rel="icon" type="image/png" href="img3/logo.png">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/customer_table.css">
-</head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Insurance Transactions</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/customer_table.css" />
+  <style>
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+      display: inline-block;
+    }
+    .badge.pending { background-color: orange; }
+    .badge.approved { background-color: green; }
+    .badge.rejected { background-color: red; }
+    .badge.unpaid { background-color: crimson; }
+    .badge.paid { background-color: royalblue; }
+    .badge.claimed { background-color: darkgreen; }
+    .badge.unclaimed { background-color: brown; }
 
+    table.dataTable tbody tr:hover {
+      background-color: #f3f3f3;
+    }
+    .view-btn {
+      padding: 5px 10px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none; 
+      position: fixed; 
+      z-index: 1000; 
+      padding-top: 100px; 
+      left: 0; top: 0; width: 100%; height: 100%;
+      overflow: auto; 
+      background-color: rgba(0,0,0,0.4); 
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto; padding: 20px;
+      border: 1px solid #888;
+      width: 80%; max-width: 400px;
+      border-radius: 8px;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+    .close-btn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 15px;
+      font-size: 16px;
+    }
+    .close-btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
 <body>
 
-      <!-- Sidebar -->
-   <?php include 'sidebar.php'; ?>
+<?php include 'sidebar.php'; ?>
 
-    <!-- Main Content -->
-    <div class="main-content">
+<div class="main-content">
+  <h1 class="activity-title">Insurance Invoice Sales</h1>
+  <div class="table-container">
+    <table id="insuranceTable" class="display">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Insurance Type</th>
+          <th>Scheduled Date</th>
+          <th>Start Date</th>
+          <th>Rescheduled Date</th>
+          <th>Status</th>
+          <th>Claimed</th>
+          <th>Paid</th>
+          <th>View</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+        $stmt = $conn->query("
+          SELECT ir.*, CONCAT(c.first_name, ' ', c.last_name) AS fullname
+          FROM insurance_registration ir
+          JOIN clients c ON ir.client_id = c.client_id
+          WHERE ir.status = 'Approved'
+          ORDER BY ir.start_date DESC
+        ");
 
-        <!-- Page Title -->
-        <h1 class="activity-title">Insurance Invoice Sales</h1>
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+          $statusClass = strtolower($row['status']);
+          $claimedClass = strtolower($row['is_claimed']);
+          $paidClass = strtolower($row['is_paid']);
 
-        <!-- Search and Date Filter -->
-        <div class="search-container">
-            <!-- Search Section -->
-            <div class="search-section">
-                <label for="searchInput">Search</label>
-                <input type="text" id="searchInput" placeholder="Search by name or status...">
-                <button class="go-btn" onclick="searchTable()">Go</button>
-            </div>
+          $claimedText = !empty($row['is_claimed']) ? $row['is_claimed'] : 'Unclaimed';
+          $paidText = !empty($row['is_paid']) ? $row['is_paid'] : 'Unpaid';
 
-            <!-- Date Filter Section -->
-            <div class="date-section">
-                <label for="dateFilter">Select Date</label>
-                <input type="date" id="dateFilter" class="date-picker" onchange="filterByDate()">
-            </div>
-        </div>
+          // Base64 encode the insurance_id to hide raw ID in URL
+          $encodedId = base64_encode($row['insurance_id']);
 
-        <!-- Table Section -->
-        <div class="table-container">
-            <table id="insuranceTable">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Transaction</th>
-                        <th>Scheduled Date</th>
-                        <th>Re-Scheduled Date</th>
-                        <th>Status</th>
-                        <th>View Information</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Sample Data -->
-                    <tr>
-                        <td>John Doe</td>
-                        <td>Insurance</td>
-                        <td>2024-02-15</td>
-                        <td></td>
-                        <td><span class="status pending">Pending</span></td>
-                        <td><button class="view-btn" onclick="viewCustomer('John Doe')">View</button></td>
-                    </tr>
-                    <tr>
-                        <td>Jane Smith</td>
-                        <td>Life Insurance</td>
-                        <td>2024-03-01</td>
-                        <td>2024-03-05</td>
-                        <td><span class="status completed">Completed</span></td>
-                        <td><button class="view-btn" onclick="viewCustomer('Jane Smith')">View</button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+          echo "<tr>";
+          echo "<td>" . htmlspecialchars($row['fullname']) . "</td>";
+          echo "<td>" . htmlspecialchars($row['type_of_insurance']) . "</td>";
+          echo "<td>" . (!empty($row['scheduled_date']) ? htmlspecialchars($row['scheduled_date']) : '-') . "</td>";
+          echo "<td>" . (!empty($row['start_date']) ? htmlspecialchars($row['start_date']) : '-') . "</td>";
+          echo "<td>" . (!empty($row['rescheduled_date']) ? htmlspecialchars($row['rescheduled_date']) : '-') . "</td>";
+          echo "<td><span class='badge {$statusClass}'>" . htmlspecialchars($row['status']) . "</span></td>";
+          echo "<td><span class='badge {$claimedClass}'>" . htmlspecialchars($claimedText) . "</span></td>";
+          echo "<td><span class='badge {$paidClass}'>" . htmlspecialchars($paidText) . "</span></td>";
+          echo "<td><button class='view-btn' onclick=\"viewCustomer('{$encodedId}')\">View</button></td>";
+          echo "</tr>";
+        }
+        ?>
+      </tbody>
+    </table>
+  </div>
+</div>
 
+<?php if (isset($_SESSION['success_message'])): ?>
+  <div id="successModal" class="modal">
+    <div class="modal-content">
+      <p><?= htmlspecialchars($_SESSION['success_message']) ?></p>
+      <button class="close-btn" onclick="closeModal()">OK</button>
     </div>
+  </div>
+  <?php unset($_SESSION['success_message']); ?>
+<?php endif; ?>
 
-    <!-- Scripts -->
-    <script>
-        // Navigate to view details page
-        function viewCustomer(name) {
-            alert("Viewing details for " + name);
-            window.location.href = 'cashier_details.php';
-        }
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $('#insuranceTable').DataTable({
+      responsive: true,
+      pageLength: 10
+    });
 
-        // Search Table Functionality
-        function searchTable() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.querySelectorAll("#insuranceTable tbody tr");
+    // Show modal if exists
+    var modal = document.getElementById('successModal');
+    if (modal) {
+      modal.style.display = 'block';
+    }
+  });
 
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(input) ? "" : "none";
-            });
-        }
+  function closeModal() {
+    var modal = document.getElementById('successModal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+  }
 
-        // Filter by Date Functionality
-        function filterByDate() {
-            const selectedDate = document.getElementById('dateFilter').value;
-            const rows = document.querySelectorAll("#insuranceTable tbody tr");
-
-            rows.forEach(row => {
-                const scheduledDate = row.cells[2].textContent.trim();
-                row.style.display = !selectedDate || scheduledDate === selectedDate ? "" : "none";
-            });
-        }
-    </script>
+  function viewCustomer(encodedId) {
+    window.location.href = 'cashier_insurance_details.php?id=' + encodeURIComponent(encodedId);
+  }
+</script>
 
 </body>
-
 </html>
