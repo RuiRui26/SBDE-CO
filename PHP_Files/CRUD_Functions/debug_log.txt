@@ -64,3 +64,9 @@ Update successful for ID: 76
 Received ID: 76, Status: Approved
 Current Status for ID: 76 is Pending, Applied Date: 2025-04-04 22:43:58
 Update successful for ID: 76
+Received ID: 76, Status: Rejected
+Current Status for ID: 76 is Approved, Applied Date: 2025-04-04 22:43:58
+Update successful for ID: 76
+Received ID: 76, Status: Approved
+Current Status for ID: 76 is Rejected, Applied Date: 2025-04-04 22:43:58
+Update successful for ID: 76
