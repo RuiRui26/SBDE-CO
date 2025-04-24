@@ -217,241 +217,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/register_insurance.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    <style>
-        /* Modal styles - Enhanced Design */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s;
-        }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background-color: #fff;
-            margin: 10% auto;
-            padding: 30px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            position: relative;
-            animation: slideInDown 0.4s;
-            border: none;
-        }
-
-        @keyframes slideInDown {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-header {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-size: 22px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin: 0;
-        }
-
-        .close {
-            color: #95a5a6;
-            font-size: 28px;
-            font-weight: bold;
-            transition: color 0.2s;
-            background: none;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: #e74c3c;
-        }
-
-        /* Input group styling */
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #34495e;
-        }
-
-        .input-group input[type="date"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        .input-group input[type="date"]:focus {
-            border-color: #3498db;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-
-        /* Modal body */
-        .modal-body {
-            margin-bottom: 25px;
-            color: #7f8c8d;
-            line-height: 1.6;
-        }
-
-        .modal-body ul {
-            padding-left: 20px;
-            margin: 15px 0;
-        }
-
-        .modal-body li {
-            margin-bottom: 8px;
-        }
-
-        /* Modal footer/buttons */
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-
-        .modal-btn {
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            font-size: 15px;
-        }
-
-        .modal-btn:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
-        }
-
-        .confirm-btn {
-            background-color: #27ae60;
-            color: white;
-        }
-
-        .confirm-btn:hover {
-            background-color: #2ecc71;
-            transform: translateY(-2px);
-        }
-
-        .cancel-btn {
-            background-color: #e74c3c;
-            color: white;
-        }
-
-        .cancel-btn:hover {
-            background-color: #c0392b;
-            transform: translateY(-2px);
-        }
-
-        .neutral-btn {
-            background-color: #3498db;
-            color: white;
-        }
-
-        .neutral-btn:hover {
-            background-color: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        /* Confirmation specific styles */
-        .confirmation-text {
-            font-size: 16px;
-            color: #2c3e50;
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        /* Success modal */
-        .success-icon {
-            text-align: center;
-            font-size: 60px;
-            color: #27ae60;
-            margin: 20px 0;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 576px) {
-            .modal-content {
-                margin: 20% auto;
-                padding: 20px;
-                width: 95%;
-            }
-            
-            .modal-footer {
-                flex-direction: column;
-            }
-            
-            .modal-btn {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-        }
-
-        /* Date picker customization */
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            background: transparent;
-            bottom: 0;
-            color: transparent;
-            cursor: pointer;
-            height: auto;
-            left: 0;
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: auto;
-        }
-
-        .date-input-container {
-            position: relative;
-        }
-
-        .date-input-container::after {
-            content: "📅";
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-        }
-        </style>
    
-
 
 
    <script>
@@ -675,13 +442,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <div class="form-column">
         <label for="first_name">First Name:</label>
-        <input type="text" id="first_name" name="first_name" placeholder="Enter first name" required>
+<input type="text" id="first_name" name="first_name" value="<?= htmlspecialchars($user_first_name) ?>" placeholder="Enter first name" required>
 
-        <label for="last_name">Last Name:</label>
-        <input type="text" id="last_name" name="last_name" placeholder="Enter last name" required>
+<label for="last_name">Last Name:</label>
+<input type="text" id="last_name" name="last_name" value="<?= htmlspecialchars($user_last_name) ?>" placeholder="Enter last name" required>
 
-        <label for="mobile">Mobile Number:</label>
-        <input type="text" id="mobile" name="mobile" placeholder="Enter mobile number" required>
+<label for="mobile">Mobile Number:</label>
+<input type="text" id="mobile" name="mobile" value="<?= htmlspecialchars($user_mobile) ?>" placeholder="Enter mobile number" required>
 
 
             <label for="insurance_type">Type of Insurance:</label>
@@ -819,24 +586,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <script>
 function fillMyInfo(checked) {
-  console.log("Checkbox checked:", checked);  // This will log true or false when the checkbox is checked/unchecked
-  if (checked) {
-    const firstName = "<?= htmlspecialchars($user_first_name ?? '') ?>";
-    const lastName = "<?= htmlspecialchars($user_last_name ?? '') ?>";
-    const userMobile = "<?= htmlspecialchars($user_mobile ?? '') ?>";
-
-    console.log("First Name:", firstName);  // Check if first name is correctly populated
-    console.log("Last Name:", lastName);    // Check if last name is correctly populated
-    console.log("Mobile:", userMobile);     // Check if mobile is correctly populated
-
-    document.getElementById('first_name').value = firstName;
-    document.getElementById('last_name').value = lastName;
-    document.getElementById('mobile').value = userMobile;
-  } else {
-    document.getElementById('first_name').value = '';
-    document.getElementById('last_name').value = '';
-    document.getElementById('mobile').value = '';
-  }
+    if (checked) {
+        // Get the values directly from PHP
+        const firstName = "<?php echo addslashes($user_first_name); ?>";
+        const lastName = "<?php echo addslashes($user_last_name); ?>";
+        const userMobile = "<?php echo addslashes($user_mobile); ?>";
+        
+        console.log("Filling info:", firstName, lastName, userMobile);
+        
+        document.getElementById('first_name').value = firstName;
+        document.getElementById('last_name').value = lastName;
+        document.getElementById('mobile').value = userMobile;
+    } else {
+        document.getElementById('first_name').value = '';
+        document.getElementById('last_name').value = '';
+        document.getElementById('mobile').value = '';
+    }
 }
 
 
