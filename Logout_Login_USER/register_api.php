@@ -23,7 +23,7 @@ try {
 
         $address = $street_address . ", " . $barangay . ", " . $city . " " . $zip_code;
 
-        // Check required fields
+        // Validate fields
         if (empty($first_name) || empty($last_name) || empty($email) || empty($contact_number) || empty($address) || empty($password) || empty($birthday)) {
             $response["message"] = "All fields are required.";
             echo json_encode($response);
@@ -48,7 +48,6 @@ try {
             exit;
         }
 
-        // Birthday validation
         $birthDate = DateTime::createFromFormat('Y-m-d', $birthday);
         if (!$birthDate) {
             $response["message"] = "Invalid birthday format.";
@@ -78,12 +77,12 @@ try {
             exit;
         }
 
-        // Begin transaction
+        // Start transaction
         $db->beginTransaction();
 
         $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-        // Insert into users
+        // Insert into users table
         $stmtUser = $db->prepare("INSERT INTO users (name, email, contact_number, password, role) 
                                   VALUES (:name, :email, :contact_number, :password, 'Client')");
         $stmtUser->execute([
@@ -96,11 +95,12 @@ try {
         $user_id = $db->lastInsertId();
 
         if ($user_id) {
-            // Insert into clients with birthday
-            $stmtClient = $db->prepare("INSERT INTO clients (full_name, email, contact_number, address, birthday, user_id) 
-                                        VALUES (:full_name, :email, :contact_number, :address, :birthday, :user_id)");
+            // Insert into clients table (now using separate first_name and last_name)
+            $stmtClient = $db->prepare("INSERT INTO clients (first_name, last_name, email, contact_number, address, birthday, user_id) 
+                                        VALUES (:first_name, :last_name, :email, :contact_number, :address, :birthday, :user_id)");
             $stmtClient->execute([
-                ":full_name" => $first_name . " " . $last_name,
+                ":first_name" => $first_name,
+                ":last_name" => $last_name,
                 ":email" => $email,
                 ":contact_number" => $contact_number,
                 ":address" => $address,
