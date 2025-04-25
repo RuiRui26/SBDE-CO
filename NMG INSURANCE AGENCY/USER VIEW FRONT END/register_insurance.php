@@ -217,241 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/register_insurance.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    <style>
-        /* Modal styles - Enhanced Design */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background-color: #fff;
-            margin: 10% auto;
-            padding: 30px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            position: relative;
-            animation: slideInDown 0.4s;
-            border: none;
-        }
-
-        @keyframes slideInDown {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-header {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-size: 22px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin: 0;
-        }
-
-        .close {
-            color: #95a5a6;
-            font-size: 28px;
-            font-weight: bold;
-            transition: color 0.2s;
-            background: none;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: #e74c3c;
-        }
-
-        /* Input group styling */
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #34495e;
-        }
-
-        .input-group input[type="date"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        .input-group input[type="date"]:focus {
-            border-color: #3498db;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-
-        /* Modal body */
-        .modal-body {
-            margin-bottom: 25px;
-            color: #7f8c8d;
-            line-height: 1.6;
-        }
-
-        .modal-body ul {
-            padding-left: 20px;
-            margin: 15px 0;
-        }
-
-        .modal-body li {
-            margin-bottom: 8px;
-        }
-
-        /* Modal footer/buttons */
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-
-        .modal-btn {
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            font-size: 15px;
-        }
-
-        .modal-btn:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
-        }
-
-        .confirm-btn {
-            background-color: #27ae60;
-            color: white;
-        }
-
-        .confirm-btn:hover {
-            background-color: #2ecc71;
-            transform: translateY(-2px);
-        }
-
-        .cancel-btn {
-            background-color: #e74c3c;
-            color: white;
-        }
-
-        .cancel-btn:hover {
-            background-color: #c0392b;
-            transform: translateY(-2px);
-        }
-
-        .neutral-btn {
-            background-color: #3498db;
-            color: white;
-        }
-
-        .neutral-btn:hover {
-            background-color: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        /* Confirmation specific styles */
-        .confirmation-text {
-            font-size: 16px;
-            color: #2c3e50;
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        /* Success modal */
-        .success-icon {
-            text-align: center;
-            font-size: 60px;
-            color: #27ae60;
-            margin: 20px 0;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 576px) {
-            .modal-content {
-                margin: 20% auto;
-                padding: 20px;
-                width: 95%;
-            }
-            
-            .modal-footer {
-                flex-direction: column;
-            }
-            
-            .modal-btn {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-        }
-
-        /* Date picker customization */
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            background: transparent;
-            bottom: 0;
-            color: transparent;
-            cursor: pointer;
-            height: auto;
-            left: 0;
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: auto;
-        }
-
-        .date-input-container {
-            position: relative;
-        }
-
-        .date-input-container::after {
-            content: "📅";
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-        }
-        </style>
-   
-
+    
 
 
    <script>
@@ -665,84 +431,142 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <body>
 
-    <header class="header">
-        <img src="img/NMG3.png" alt="NMG Insurance Logo" class="logo">
-        <h1 class="header-title">Apply for Insurance</h1>
-    </header>
+<?php include 'nav.php'; ?>
 
     <main class="form-section">
-    <form id="insuranceForm" action="../../PHP_Files/User_View/register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
+        <div class="welcome-message">
+            <h2>Welcome!</h2>
+            <p>A quick step before we continue—please provide your information.</p>
+            <div class="step-progress">
+  <div class="step">
+    <div class="step-number">1</div>
+    <div class="step-title">Register</div>
+    <div class="step-description">Input all required information.</div>
+  </div>
+  <div class="step">
+    <div class="step-number">2</div>
+    <div class="step-title">Wait for Approval</div>
+    <div class="step-description">Admin will review and approve your requirements.</div>
+  </div>
+  <div class="step">
+    <div class="step-number">3</div>
+    <div class="step-title">Payment</div>
+    <div class="step-description">Admin will contact you to complete payment at the office.</div>
+  </div>
+  <div class="step">
+    <div class="step-number">4</div>
+    <div class="step-title">Claim</div>
+    <div class="step-description">You can now claim your insurance.</div>
+  </div>
+</div>
 
-        <div class="form-column">
-        <label for="first_name">First Name:</label>
-        <input type="text" id="first_name" name="first_name" placeholder="Enter first name" required>
-
-        <label for="last_name">Last Name:</label>
-        <input type="text" id="last_name" name="last_name" placeholder="Enter last name" required>
-
-        <label for="mobile">Mobile Number:</label>
-        <input type="text" id="mobile" name="mobile" placeholder="Enter mobile number" required>
-
-
-            <label for="insurance_type">Type of Insurance:</label>
-            <select id="insurance_type" name="insurance_type" required onchange="showInsuranceInfo()">
-                <option value="">Select Insurance Type</option>
-                <option value="TPL">Third Party Liability (TPL) Insurance</option>
-                <option value="TPPD">Third Party Property Damage (TPPD) Insurance</option>
-            </select>
-
-            <label for="plate_number">Plate Number:</label>
-            <input type="text" id="plate_number" name="plate_number" placeholder="Enter your plate number">
-            <span class="error-message" id="plateError"></span>
-
-            <label for="mv_file_number">MV File Number (15 chars):</label>
-            <input type="text" id="mv_file_number" name="mv_file_number" maxlength="15" placeholder="Enter 15-character MV File Number">
-            <span class="error-message" id="mvFileError"></span>
-
-            <label for="brand">Brand:</label>
-            <input type="text" id="brand" name="brand" placeholder="e.g. Toyota" required>
-
-            <label for="model">Model:</label>
-            <input type="text" id="model" name="model" placeholder="e.g. Vios" required>
         </div>
 
-        <div class="form-column">
-            <label for="chassis_number">Chassis Number:</label>
-            <input type="text" id="chassis_number" name="chassis_number" required placeholder="Enter chassis number">
-
-            <label for="vehicle_type">Vehicle Type:</label>
-            <select id="vehicle_type" name="vehicle_type" required>
-                <option value="">Select Vehicle Type</option>
-                <option value="Motorcycle">Motorcycle</option>
-                <option value="4 Wheels">4 Wheels</option>
-                <option value="Truck">Truck</option>
-            </select>
-
-            <label for="year">Year:</label>
-            <input type="number" id="year" name="year" min="1980" max="2025" placeholder="e.g. 2020" required>
-
-            <label for="color">Color:</label>
-            <input type="text" id="color" name="color" placeholder="e.g. Black" required>
-
-            <label for="or_picture">Upload OR Picture:</label>
-            <input type="file" id="or_picture" name="or_picture" accept="image/*" required>
-
-            <label for="cr_picture">Upload CR Picture:</label>
-            <input type="file" id="cr_picture" name="cr_picture" accept="image/*" required>
+        <div class="form-container">
+            <form id="insuranceForm" action="../../PHP_Files/User_View/register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
+            <div class="form-step">
+    <h3>Insurance Registration</h3>
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="first_name">First Name</label>
+            <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($user_first_name); ?>" required readonly>
         </div>
 
-    
-        <label>
-  <input type="checkbox" id="useMyInfo" onchange="fillMyInfo(this.checked)">
-  Use my saved information
-</label>
-
-
-        <div class="submit-container">
-            <button type="button" class="submit-btn" onclick="showDateModal()">Proceed</button>
+        <div class="form-group">
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($user_last_name); ?>" required readonly>
         </div>
-    </form>
-</main>
+
+        <div class="form-group">
+            <label for="mobile">Mobile Number</label>
+            <input type="text" id="mobile" name="mobile" value="<?php echo htmlspecialchars($user_mobile); ?>" required readonly>
+        </div>
+    </div>
+</div>
+
+
+                <div class="form-step">
+                    <h3>Vehicle Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="insurance_type">Type of Insurance</label>
+                            <select id="insurance_type" name="insurance_type" required onchange="showInsuranceInfo()">
+                                <option value="">Select Insurance Type</option>
+                                <option value="TPL">Third Party Liability (TPL)</option>
+                                <option value="TPPD">Third Party Property Damage (TPPD)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="plate_number">Plate Number</label>
+                            <input type="text" id="plate_number" name="plate_number" placeholder="Enter plate number">
+                            <span class="error-message" id="plateError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mv_file_number">MV File Number</label>
+                            <input type="text" id="mv_file_number" name="mv_file_number" maxlength="15" placeholder="15-character MV File">
+                            <span class="error-message" id="mvFileError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="brand">Brand</label>
+                            <input type="text" id="brand" name="brand" placeholder="e.g. Toyota" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="model">Model</label>
+                            <input type="text" id="model" name="model" placeholder="e.g. Vios" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="chassis_number">Chassis Number</label>
+                            <input type="text" id="chassis_number" name="chassis_number" required placeholder="Enter chassis number">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="vehicle_type">Vehicle Type</label>
+                            <select id="vehicle_type" name="vehicle_type" required>
+                                <option value="">Select Vehicle Type</option>
+                                <option value="Motorcycle">Motorcycle</option>
+                                <option value="4 Wheels">4 Wheels</option>
+                                <option value="Truck">Truck</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="year">Year</label>
+                            <input type="number" id="year" name="year" min="1980" max="2025" placeholder="e.g. 2020" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="color">Color</label>
+                            <input type="text" id="color" name="color" placeholder="e.g. Black" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-step">
+                    <h3>Document Upload</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="or_picture">OR Picture</label>
+                            <input type="file" id="or_picture" name="or_picture" accept="image/*" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cr_picture">CR Picture</label>
+                            <input type="file" id="cr_picture" name="cr_picture" accept="image/*" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="submit-btn" onclick="showDateModal()">Register</button>
+                </div>
+            </form>
+        </div>
+    </main>
 
     <footer>
         <p>© 2025 NMG Insurance Agency. All Rights Reserved.</p>

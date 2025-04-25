@@ -3,7 +3,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #f8f9fa, #2c3e50);
+    background: linear-gradient(135deg, #2a435b, #898f96);
     color: #333;
 }
 
@@ -26,109 +26,183 @@ body {
     font-weight: bold;
     color: #f8f8f8;
 }
-
-/* Main Section */
-.form-section {
-    display: flex;
-    justify-content: center;
-    padding: 40px 5%;
-}
-
-/* Form Layout */
-.insurance-form {
-    display: flex;
-    gap: 60px; /* Increased spacing between columns */
-    width: 100%;
-    max-width: 1300px;
+/* New Form Styling */
+.form-container {
+    width: 80%;
+    max-width: 1200px;
+    margin: 0 auto;
     background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    padding: 50px;
-    flex-wrap: wrap; /* Ensures columns stack properly on small screens */
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 40px 80px;
 }
 
-/* Form Columns */
-.form-column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* Adds consistent spacing between inputs */
+.form-header {
+    text-align: center;
+    margin-bottom: 30px;
 }
 
-/* Form Labels */
-label {
-    font-weight: bold;
-    font-size: 18px; /* Larger label */
-    margin-bottom: 12px;
-    margin-bottom: 8px; /* Space below each label */
-    display: block;
+.form-header h2 {
+    font-size: 28px;
+    color: #2c3e50;
+    margin-bottom: 10px;
 }
 
-/* Form Inputs */
-input,
-select {
-    padding: 14px;
-    margin-bottom: 20px; /* Space below each input field */
-    border: 1px solid #ccc;
-    border-radius: 10px;
+.form-header p {
+    color: #7f8c8d;
     font-size: 16px;
-    transition: border 0.3s ease;
-}
-label[for="insurance_type"] {
-    margin-top: 20px; /* Adjust top margin for insurance type */
 }
 
-/* Input Focus Effect */
-input:focus,
-select:focus {
-    outline: none;
-    border-color: #2c3e50;
-    box-shadow: 0 0 8px rgba(44, 62, 80, 0.5);
+.form-step {
+    margin-bottom: 30px;
 }
 
-/* File Input Customization */
-input[type="file"] {
-    border: none;
-    padding: 8px;
+.form-step h3 {
+    font-size: 20px;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
 }
 
-/* Ensure input group and submit button stack properly */
-.input-group {
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 35px;
+}
+
+.form-group {
     display: flex;
     flex-direction: column;
-    margin-bottom: 20px; /* Space between input and submit button */
+    gap: 6px; /* Adjusts space between label and input */
+    margin-bottom: 20px;
 }
 
-/* Submit Button (Now Below Date Input) */
-.submit-container {
-    display: flex;
-    justify-content: flex-end; /* Aligns button to the right */
-    width: 100%; /* Makes it span the form width */
-    margin-top: 10px; /* Small spacing */
+.form-group label {
+    font-size: 15px;
+    color: #34495e;
+    font-weight: 600;
+    margin-bottom: 2px; /* slight margin for clean spacing */
 }
 
+.form-group input,
+.form-group select {
+    padding: 10px 14px;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #fdfdfd;
+    transition: border-color 0.3s ease;
+}
 
-/* Submit Button Style */
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-actions {
+    margin-top: 30px;
+    text-align: center;
+}
+
 .submit-btn {
-    background: #2c3e50;
+    background: #3498db;
     color: white;
-    padding: 35px;
     border: none;
-    border-radius: 12px; 
-    font-size: 22px; 
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    height: 50px;
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    margin-top: auto;
+    transition: all 0.3s ease;
 }
 
 .submit-btn:hover {
-    background: #1a252f;
+    background: #2980b9;
+    transform: translateY(-2px);
 }
 
+.error-message {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* File input styling */
+input[type="file"] {
+    padding: 10px;
+    background: #f8f9fa;
+    border: 1px dashed #ddd;
+}
+
+input[type="file"]::file-selector-button {
+    padding: 8px 12px;
+    background: #ecf0f1;
+    border: none;
+    border-radius: 4px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.form-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 50px 5%;
+    gap: 80px;
+}
+
+.welcome-message {
+    flex: 1;
+    max-width: 450px;
+    margin-top: 30px;
+    padding-left: 40px; /* 👈 creates more spacing from the left */
+}
+
+.welcome-message h2 {
+    font-size: 46px;
+    color: #ffffff;
+    margin-bottom: 15px;
+}
+
+.welcome-message p {
+    font-size: 18px;
+    color: #f0f0f0;
+}
+
+.form-container {
+    flex: 1.3; /* 👈 this gives it a bit more space to the right */
+    max-width: 700px;
+}
+
+
+
+@media (max-width: 992px) {
+    .form-section {
+        flex-direction: column;
+        align-items: center;
+        padding: 30px 5%;
+    }
+
+    .welcome-message {
+        text-align: center;
+        padding-left: 0;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 25px;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
 /* Footer */
 footer {
     text-align: center;
@@ -167,7 +241,312 @@ footer {
     cursor: pointer;
 }
 
+/* Modal styles - Enhanced Design */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s;
+}
 
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    position: relative;
+    animation: slideInDown 0.4s;
+    border: none;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.close {
+    color: #95a5a6;
+    font-size: 28px;
+    font-weight: bold;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #e74c3c;
+}
+
+/* Input group styling */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #34495e;
+}
+
+.input-group input[type="date"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.input-group input[type="date"]:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+/* Remove float-style box labels for specific fields */
+.simple-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+/* Consistent spacing between form groups */
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* Style for inputs */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+input[type="date"],
+select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s;
+}
+
+input:focus,
+select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Modal body */
+.modal-body {
+    margin-bottom: 25px;
+    color: #7f8c8d;
+    line-height: 1.6;
+}
+
+.modal-body ul {
+    padding-left: 20px;
+    margin: 15px 0;
+}
+
+.modal-body li {
+    margin-bottom: 8px;
+}
+
+/* Modal footer/buttons */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.modal-btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-size: 15px;
+}
+
+.modal-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+}
+
+.confirm-btn {
+    background-color: #27ae60;
+    color: white;
+}
+
+.confirm-btn:hover {
+    background-color: #2ecc71;
+    transform: translateY(-2px);
+}
+
+.cancel-btn {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+}
+
+.neutral-btn {
+    background-color: #3498db;
+    color: white;
+}
+
+.neutral-btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+/* Confirmation specific styles */
+.confirmation-text {
+    font-size: 16px;
+    color: #2c3e50;
+    margin: 20px 0;
+    text-align: center;
+}
+
+/* Success modal */
+.success-icon {
+    text-align: center;
+    font-size: 60px;
+    color: #27ae60;
+    margin: 20px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .modal-content {
+        margin: 20% auto;
+        padding: 20px;
+        width: 95%;
+    }
+    
+    .modal-footer {
+        flex-direction: column;
+    }
+    
+    .modal-btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+/* Date picker customization */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    bottom: 0;
+    color: transparent;
+    cursor: pointer;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+}
+
+.date-input-container {
+    position: relative;
+}
+
+.date-input-container::after {
+    content: "📅";
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.step-progress {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.step {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+}
+
+.step-number {
+    font-size: 22px;
+    font-weight: bold;
+    background-color: #3498db;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 6px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.step-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #f7f7f7;
+    margin-bottom: 4px;
+}
+
+.step-description {
+    font-size: 13px;
+    color: #d4d4d4;
+}
 
 
 /* Responsive Design */

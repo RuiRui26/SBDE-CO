@@ -42,7 +42,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 <!-- If logged in as Client, show a user icon button to dashboard -->
                 <button onclick="window.location.href='USER_PROFILE/index.php'" class="profile-enhanced-btn">
                     <img src="img/samplepic.png" alt="Profile" class="profile-avatar">
-                    <span>Client Dashboard</span>
+                    <?php echo isset($_SESSION['full_name']) ? htmlspecialchars($_SESSION['full_name']) : 'Client Dashboard'; ?>
                 </button>
             <?php elseif ($_SESSION['user_role'] === 'Admin'): ?>
                 <!-- If logged in as Admin, show Admin dashboard -->
