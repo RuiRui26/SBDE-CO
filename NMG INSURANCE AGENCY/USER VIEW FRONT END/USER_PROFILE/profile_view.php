@@ -1,6 +1,6 @@
 <?php
 include 'sidebar.php';
-require '../../../Logout_Login_USER/Restricted.php';
+require '../../../Logout_Login/Restricted.php';
 
 // Connect to database and fetch user information
 require_once '../../../DB_connection/db.php';

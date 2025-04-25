@@ -15,7 +15,7 @@ $redirects = [
     'Staff' => "STAFF VIEW/index.php",
     'Agent' => "AGENT VIEW/index.php",
     'Cashier' => "CASHIER VIEW/index.php",
-    'Client' => "CLIENT VIEW FRONT END/index.php"
+    'Client' => "USER VIEW FRONT END/index.php"
 ];
 
 // Get the correct redirect path

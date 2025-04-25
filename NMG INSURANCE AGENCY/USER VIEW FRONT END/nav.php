@@ -1,10 +1,8 @@
-
 <?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -37,22 +35,50 @@ if (session_status() === PHP_SESSION_NONE) {
             <li><a href="contact.php">Contacts</a></li>
         </ul>
 
-        
-
         <!-- Check if the user is logged in and their role -->
-    <?php if (isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'Client'): ?>
-    <!-- If logged in as Client, show a user icon button to dashboard -->
-    <button onclick="window.location.href='USER_PROFILE/index.php'" class="profile-enhanced-btn">
-    <img src="img/samplepic.png" alt="Profile" class="profile-avatar">
-    <span>
-                <?php echo $_SESSION['full_name']; ?> <!-- Display the user's name -->
-            </span>
-</button>
-
-    <?php else: ?>
-    <!-- If not logged in or not a Client, show "Register" -->
-    <button onclick="window.location.href='../../Logout_Login_USER/register.php'" class="register-btn">Register</button>
-    <?php endif; ?>
+        <?php if (isset($_SESSION['user_id']) && isset($_SESSION['user_role'])): ?>
+            <!-- Check the role of the logged-in user -->
+            <?php if ($_SESSION['user_role'] === 'Client'): ?>
+                <!-- If logged in as Client, show a user icon button to dashboard -->
+                <button onclick="window.location.href='USER_PROFILE/index.php'" class="profile-enhanced-btn">
+                    <img src="img/samplepic.png" alt="Profile" class="profile-avatar">
+                    <span>Client Dashboard</span>
+                </button>
+            <?php elseif ($_SESSION['user_role'] === 'Admin'): ?>
+                <!-- If logged in as Admin, show Admin dashboard -->
+                <button onclick="window.location.href='../ADMIN VIEW FRONT END/index.php'" class="profile-enhanced-btn">
+                    <img src="img/samplepic.png" alt="Profile" class="profile-avatar">
+                    <span>Admin Dashboard</span>
+                </button>
+            <?php elseif ($_SESSION['user_role'] === 'Secretary'): ?>
+                <!-- If logged in as Secretary, show Secretary dashboard -->
+                <button onclick="window.location.href='../SECRETARY VIEW/index.php'" class="profile-enhanced-btn">
+                    <img src="img/samplepic.png" alt="Profile" class="profile-avatar">
+                    <span>Secretary Dashboard</span>
+                </button>
+            <?php elseif ($_SESSION['user_role'] === 'Staff'): ?>
+                <!-- If logged in as Staff, show Staff dashboard -->
+                <button onclick="window.location.href='../STAFF VIEW/index.php'" class="profile-enhanced-btn">
+                    <img src="img/samplepic.png" alt="Profile" class="profile-avatar">
+                    <span>Staff Dashboard</span>
+                </button>
+            <?php elseif ($_SESSION['user_role'] === 'Agent'): ?>
+                <!-- If logged in as Agent, show Agent dashboard -->
+                <button onclick="window.location.href='../AGENT VIEW/index.php'" class="profile-enhanced-btn">
+                    <img src="img/samplepic.png" alt="Profile" class="profile-avatar">
+                    <span>Agent Dashboard</span>
+                </button>
+            <?php elseif ($_SESSION['user_role'] === 'Cashier'): ?>
+                <!-- If logged in as Cashier, show Cashier dashboard -->
+                <button onclick="window.location.href='../CASHIER VIEW/index.php'" class="profile-enhanced-btn">
+                    <img src="img/samplepic.png" alt="Profile" class="profile-avatar">
+                    <span>Cashier Dashboard</span>
+                </button>
+            <?php endif; ?>
+        <?php else: ?>
+            <!-- If not logged in, show "Register" button -->
+            <button onclick="window.location.href='../../Logout_Login_USER/register.php'" class="register-btn">Register</button>
+        <?php endif; ?>
     </div>
 </nav>
 

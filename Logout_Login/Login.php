@@ -24,20 +24,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Verify password and restrict Clients
-        if ($user && $user['role'] !== 'Client' && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['user_id'];
-            $_SESSION['user_role'] = $user['role'];
-            $_SESSION['email'] = $user['email'];
-            $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
-            $_SESSION['last_activity'] = time();
-            $_SESSION['timeout_duration'] = 1800;
-            // Redirect based on role
-            header("Location: redirect.php");
-            exit();
-        } else {
-            $error = "Invalid email or password.";
-        }
+        // Verify password and allow all roles including 'Client'
+if ($user && password_verify($password, $user['password'])) {
+    $_SESSION['user_id'] = $user['user_id'];
+    $_SESSION['user_role'] = $user['role'];
+    $_SESSION['email'] = $user['email'];
+    $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
+    $_SESSION['last_activity'] = time();
+    $_SESSION['timeout_duration'] = 1800;
+    // Redirect based on role
+    header("Location: redirect.php");
+    exit();
+} else {
+    $error = "Invalid email or password.";
+}
+
     }
     $db = null; // Close DB connection
 }

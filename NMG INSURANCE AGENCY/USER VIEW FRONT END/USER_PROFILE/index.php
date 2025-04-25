@@ -1,6 +1,10 @@
 <?php 
 include 'sidebar.php';
-require '../../../Logout_Login_USER/Restricted.php';
+
+// Allow only client role (or add more roles as needed)
+$allowed_roles = ['Client']; 
+
+require '../../../Logout_Login/Restricted.php';
 
 // Connect to database and fetch user information
 require_once '../../../DB_connection/db.php';
@@ -10,7 +14,6 @@ $pdo = $database->getConnection();
 $user_id = $_SESSION['user_id'];
 
 // Get client information
-
 $stmt = $pdo->prepare("SELECT client_id, full_name, contact_number, email, address FROM clients WHERE user_id = :user_id");
 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 $stmt->execute();
@@ -47,6 +50,7 @@ if ($client_id) {
     $insurance_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

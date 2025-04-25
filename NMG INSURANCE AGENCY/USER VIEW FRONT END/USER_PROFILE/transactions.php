@@ -1,6 +1,10 @@
 <?php 
 include 'sidebar.php';
-require '../../../Logout_Login_USER/Restricted.php';
+
+// Allow only Client role (or add more roles as needed)
+$allowed_roles = ['Client'];
+
+require '../../../Logout_Login/Restricted.php';
 require_once '../../../DB_connection/db.php';
 
 $database = new Database();
@@ -27,9 +31,9 @@ if ($client_id) {
         SELECT 
             ir.created_at AS register_date,
             v.plate_number,
+            v.mv_file_number,
             v.vehicle_type,
             v.type_of_insurance,
-            ir.created_at AS insurance_date,
             DATE_ADD(ir.created_at, INTERVAL 1 YEAR) AS expiration_date,
             c.full_name,
             c.contact_number,
@@ -46,6 +50,7 @@ if ($client_id) {
 }
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,10 +58,11 @@ if ($client_id) {
     <title>Transaction Records</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- DataTables -->
+    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
 
+    <!-- jQuery and DataTables JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
@@ -184,22 +190,6 @@ if ($client_id) {
                 background: none !important;
                 color: inherit !important;
             }
-            .view-btn {
-    display: inline-block;
-    padding: 5px 12px;
-    background-color: #007bff;
-    color: white;
-    text-decoration: none;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: bold;
-    transition: background-color 0.2s ease;
-}
-
-.view-btn:hover {
-    background-color: #0056b3;
-}
-
         }
     </style>
 </head>
@@ -226,7 +216,7 @@ if ($client_id) {
         <thead>
             <tr>
                 <th>Date</th>
-                <th>Plate No.</th>
+                <th>Plate No. / MV File No.</th>
                 <th>Vehicle Type</th>
                 <th>Insurance Type</th>
                 <th>Registered Date</th>
@@ -235,24 +225,30 @@ if ($client_id) {
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($insurance_data as $row): ?>
-                <?php 
-                    $register_date = date('Y-m-d', strtotime($row['register_date']));
-                    $expiration_date = date('Y-m-d', strtotime($row['expiration_date']));
-                    $is_expired = strtotime($expiration_date) < time();
-                ?>
-                <tr>
-                    <td><?= $register_date ?></td>
-                    <td><?= htmlspecialchars($row['plate_number']) ?></td>
-                    <td><?= htmlspecialchars($row['vehicle_type']) ?></td>
-                    <td><?= htmlspecialchars($row['type_of_insurance']) ?></td>
-                    <td><?= $register_date ?></td>
-                    <td><?= $expiration_date ?></td>
-                    <td>
-    <a href="view_transaction.php?id=<?= urlencode($row['plate_number']) ?>" class="view-btn">View</a>
-</td>
-
-                </tr>
+            <?php foreach ($insurance_data as $row): 
+                $register_date = date('Y-m-d', strtotime($row['register_date']));
+                $expiration_date = date('Y-m-d', strtotime($row['expiration_date']));
+                $is_expired = strtotime($expiration_date) < time();
+            ?>
+            <tr>
+                <td><?= $register_date ?></td>
+                <td>
+                    <?= 
+                        !empty($row['plate_number']) 
+                        ? htmlspecialchars($row['plate_number']) 
+                        : (!empty($row['mv_file_number']) ? htmlspecialchars($row['mv_file_number']) : 'N/A') 
+                    ?>
+                </td>
+                <td><?= htmlspecialchars($row['vehicle_type']) ?></td>
+                <td><?= htmlspecialchars($row['type_of_insurance']) ?></td>
+                <td><?= $register_date ?></td>
+                <td><?= $expiration_date ?></td>
+                <td>
+                    <span class="status-badge <?= $is_expired ? 'status-expired' : 'status-active' ?>">
+                        <?= $is_expired ? 'Expired' : 'Active' ?>
+                    </span>
+                </td>
+            </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
@@ -293,12 +289,11 @@ if ($client_id) {
                     const rowDate = new Date(data[0]).getTime();
                     return rowDate >= startDate && rowDate <= endDate;
                 });
-
-                table.draw();
-                $.fn.dataTable.ext.search.pop();
             } else {
-                table.search('').draw();
+                $.fn.dataTable.ext.search.pop();
             }
+
+            table.draw();
         });
     });
 </script>

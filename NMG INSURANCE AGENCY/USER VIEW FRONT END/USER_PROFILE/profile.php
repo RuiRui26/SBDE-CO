@@ -1,16 +1,19 @@
 <?php 
 include 'sidebar.php';
-require '../../../Logout_Login_USER/Restricted.php';
+
+// Allow the Client role to access this page
+$allowed_roles = ['Client'];
+
+require '../../../Logout_Login/Restricted.php';
 
 // Connect to database and fetch user information
 require_once '../../../DB_connection/db.php';
 $database = new Database();
 $pdo = $database->getConnection();
 
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'] ?? null;
 
 // Get client information
-
 $stmt = $pdo->prepare("SELECT client_id, full_name, contact_number, email, address FROM clients WHERE user_id = :user_id");
 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 $stmt->execute();
@@ -392,7 +395,7 @@ if ($client_id) {
                         <i class="fas fa-folder-open"></i>
                         <p>You don't have any registered insurance policies yet.</p>
                         <div class="action-buttons">
-                            <a href="/register_insurance.php" class="btn-primary">
+                            <a href="register_insurance.php" class="btn-primary">
                                 <i class="fas fa-plus"></i> Register New Insurance
                             </a>
                         </div>
@@ -509,7 +512,7 @@ if ($client_id) {
                     </div>
                     
                     <div class="action-buttons">
-                     <button class="btn-primary" onclick="window.location.href='register_insurance.php';">
+                     <button class="btn-primary" onclick="window.location.href='../register_insurance.php';">
                      <i class="fas fa-plus"></i> Register Another Insurance
                     </button>
                     </div>
