@@ -338,14 +338,179 @@ footer {
   color: #333;
 }
 
-/* Fade in animation */
-@keyframes fadeInUp {
-  from {
-      opacity: 0;
-      transform: translateY(30px);
+
+#topBtn {
+position: fixed;
+bottom: 40px;
+right: 40px;
+font-size: 22px;
+width: 40px;
+height: 40px;
+background: var(--secondary-color);
+color: #fff;
+border: none;
+cursor: pointer;
+display: none;
+}
+
+#topBtn ion-icon {
+color: #fff;
+}
+/*----------------- Registration section styling ----------------*/
+.registration-section {
+  background-color: #172d52fb;
+  padding: 60px 0;
+  border: none;
+  overflow: hidden;
+}
+
+.registration-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.registration-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+}
+
+/* Welcome message styling */
+.welcome-message {
+  flex: 1;
+  padding: 0;
+  padding-left: 40px;
+  max-width: 550px;
+  color: white;
+  margin-top: 50px;
+}
+
+.welcome-message h2 {
+  font-size: 42px;
+  color: #ffffff;
+  margin-bottom: 15px;
+}
+
+.welcome-message p {
+  font-size: 18px;
+  color: #f0f0f0;
+}
+
+.registration-image {
+  flex: 1;
+  text-align: right;
+  margin-left: 40px;
+}
+
+.registration-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .registration-content {
+    flex-direction: column;
   }
-  to {
-      opacity: 1;
-      transform: translateY(0);
+  
+  .registration-image {
+    text-align: center;
+    margin-top: 30px;
+  }
+  
+  .welcome-message {
+    max-width: 100%;
+  }
+}
+
+
+
+
+
+.form-container {
+  flex: 1.3; /* 👈 this gives it a bit more space to the right */
+  max-width: 700px;
+}
+.step-progress {
+  display: flex;
+  justify-content: space-between; /* Align to left */
+  margin-top: 20px;
+  gap: 40px; /* Space between steps */
+  flex-wrap: nowrap; /* All inline */
+  background: none; /* Remove background if any */
+  padding: 0;
+  border: none;
+}
+
+.step {
+  flex: 1 1 200px; /* Responsive, minimum width of each step */
+  max-width: 220px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  padding: 10px;
+}
+
+.step-number {
+  font-size: 20px;
+  font-weight: bold;
+  background-color: #3498db;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.step-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 6px;
+}
+
+.step-description {
+  font-size: 14px;
+  color: #cccccc;
+  line-height: 1.4;
+}
+
+
+/* Registration image on the right */
+.registration-image {
+  flex: 1;
+  text-align: right;
+}
+
+.registration-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  .registration-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .registration-image {
+    text-align: center;
+    margin-top: 30px;
+  }
+
+  .step-progress {
+    justify-content: center;
   }
 }

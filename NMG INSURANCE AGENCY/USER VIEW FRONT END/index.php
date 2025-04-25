@@ -58,6 +58,43 @@ function getContent($key, $section) {
     </div>
 </section>
 
+<!-- Scrollable Registration Section -->
+<section class="registration-section">
+  <div class="registration-container">
+    <div class="registration-content">
+      <div class="welcome-message">
+        <h2>Minimizing Effort On Applying Insurance</h2>
+        <p>These are the steps to get Apply Insurance:</p>
+        <div class="step-progress">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-title">Register</div>
+            <div class="step-description">Input all required information.</div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-title">Wait for Approval</div>
+            <div class="step-description">Admin will review and approve your requirements.</div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-title">Payment</div>
+            <div class="step-description">Admin will contact you to complete payment at the office.</div>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-title">Claim</div>
+            <div class="step-description">You can now claim your insurance.</div>
+          </div>
+        </div>
+      </div>
+      <div class="registration-image">
+        <img src="img/company.jpg" alt="Registration Process">
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Login Modal -->
 <div id="loginModal" class="modal">
     <div class="modal-content enhanced-modal">
