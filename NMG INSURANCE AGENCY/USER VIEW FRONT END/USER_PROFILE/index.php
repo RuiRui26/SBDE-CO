@@ -396,7 +396,7 @@ if ($client_id) {
                         <i class="fas fa-folder-open"></i>
                         <p>You don't have any registered insurance policies yet.</p>
                         <div class="action-buttons">
-                            <a href="register_insurance.php" class="btn-primary">
+                            <a href="../register_insurance.php" class="btn-primary">
                                 <i class="fas fa-plus"></i> Register New Insurance
                             </a>
                         </div>
