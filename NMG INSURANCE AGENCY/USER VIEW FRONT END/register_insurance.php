@@ -17,7 +17,7 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Get user information
-$stmt = $pdo->prepare("SELECT first_name, last_name, contact_number FROM users WHERE user_id = :user_id");
+$stmt = $pdo->prepare("SELECT first_name, middle_name, last_name, contact_number FROM users WHERE user_id = :user_id");
 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 $stmt->execute();
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -29,6 +29,7 @@ if (!$user) {
 }
 
 $user_first_name = $user['first_name'] ?? '';
+$user_middle_name = $user['middle_name'] ?? '';
 $user_last_name = $user['last_name'] ?? '';
 $user_mobile = $user['contact_number'] ?? '';
 
@@ -470,6 +471,11 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="form-group">
             <label for="first_name">First Name</label>
             <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($user_first_name); ?>" required readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="first_name">Middle Initial</label>
+            <input type="text" id="middle_name" name="middle_name" value="<?php echo htmlspecialchars($user_middle_name); ?>" required readonly>
         </div>
 
         <div class="form-group">
