@@ -136,7 +136,7 @@ ini_set('display_errors', 1);
 
                 let result = await response.json();
                 alert(result.message);
-                if (result.success) window.location.href = "login.php";
+                if (result.success) window.location.href = "../Login_Logout/login.php";
             }
         });
     </script>

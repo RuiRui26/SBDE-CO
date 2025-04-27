@@ -24,7 +24,7 @@ $target_page = $redirects[$role] ?? "Login.php";
 
 // Avoid redirecting if already on the correct page
 if ($current_page !== basename($target_page)) {
-    header("Location: ../NMG Insurance Agency/$target_page");
+    header("Location: ../NMG INSURANCE AGENCY/$target_page");
     exit();
 }
 ?>
