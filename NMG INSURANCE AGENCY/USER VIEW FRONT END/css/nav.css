@@ -2,6 +2,7 @@
 nav {
     background-color: #092a4b; 
     padding: 15px 0; 
+    position: relative;
 }
 
 .menu-container {
@@ -12,6 +13,7 @@ nav {
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    position: relative;
 }
 
 /* Brand Positioning */
@@ -22,10 +24,18 @@ nav {
 .brand img {
     width: 500px; /* Adjust size for better fit */
     height: auto;
+    max-width: 100%;
+}
+
+/* Nav Content */
+.nav-content {
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
 }
 
 /* Nav List Positioned to the Right */
-.nav-wrapper ul.nav-list {
+.nav-list {
     list-style-type: none;
     display: flex;
     align-items: center;
@@ -34,19 +44,19 @@ nav {
     padding-right: 20px; 
 }
 
-.nav-wrapper ul.nav-list li {
+.nav-list li {
     padding: 20px 0;
     font-size: 18px;
 }
 
-.nav-wrapper ul.nav-list li a {
+.nav-list li a {
     color: white;
     text-decoration: none;
     transition: all .5s ease-in-out;
 }
 
-.nav-wrapper ul.nav-list li a:hover,
-.nav-wrapper ul.nav-list li.active a {
+.nav-list li a:hover,
+.nav-list li.active a {
     color: #128fce;
 }
 
@@ -58,17 +68,16 @@ nav {
     border-radius: 5px;
     text-decoration: none;
     transition: background-color 0.3s ease-in-out;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
 }
 
 .register-btn:hover {
     background-color: #0a6ca0;
 }
 
-/* Hamburger (for responsive design) */
-.hamberger {
-    display: none;
-}
-
+/* Profile Button */
 .profile-enhanced-btn {
     display: flex;
     align-items: center;
@@ -82,6 +91,7 @@ nav {
     transition: all 0.3s ease;
     font-size: 16px;
     margin-left: 30px;
+    white-space: nowrap;
 }
 
 .profile-enhanced-btn:hover {
@@ -96,3 +106,77 @@ nav {
     object-fit: cover;
 }
 
+/* Hamburger Menu */
+.hamburger {
+    display: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    margin-left: auto;
+    padding: 10px;
+}
+
+/* Mobile Styles */
+@media (max-width: 992px) {
+    .brand img {
+        width: 300px;
+    }
+    
+    .hamburger {
+        display: block;
+        order: 2;
+    }
+    
+    .nav-content {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: #092a4b;
+        flex-direction: column;
+        align-items: flex-end;
+        padding: 20px;
+        box-sizing: border-box;
+        display: none;
+        z-index: 1000;
+    }
+    
+    .nav-content.active {
+        display: flex;
+    }
+    
+    .nav-list {
+        flex-direction: column;
+        width: 100%;
+        align-items: flex-end;
+        padding-right: 0;
+        margin: 0;
+        gap: 15px;
+    }
+    
+    .nav-list li {
+        padding: 10px 0;
+    }
+    
+    .register-btn,
+    .profile-enhanced-btn {
+        margin: 15px 0 0 0;
+        width: 100%;
+        text-align: center;
+        justify-content: flex-end;
+    }
+    
+    .profile-enhanced-btn span {
+        display: inline;
+    }
+}
+
+@media (max-width: 576px) {
+    .brand img {
+        width: 200px;
+    }
+    
+    .profile-enhanced-btn span {
+        font-size: 14px;
+    }
+}
