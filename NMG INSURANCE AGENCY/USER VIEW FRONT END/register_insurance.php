@@ -1,4 +1,10 @@
 <?php
+// Add security headers
+header("X-Frame-Options: DENY");
+header("X-Content-Type-Options: nosniff");
+header("X-XSS-Protection: 1; mode=block");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:;");
+
 session_start();
 require_once '../../DB_connection/db.php';
 $allowed_roles = ['Client'];
@@ -14,7 +20,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
+$user_id = (int)$_SESSION['user_id']; // Cast to integer for safety
 
 // Get user information
 $stmt = $pdo->prepare("SELECT first_name, middle_name, last_name, contact_number FROM users WHERE user_id = :user_id");
@@ -28,10 +34,11 @@ if (!$user) {
     exit;
 }
 
-$user_first_name = $user['first_name'] ?? '';
-$user_middle_name = $user['middle_name'] ?? '';
-$user_last_name = $user['last_name'] ?? '';
-$user_mobile = $user['contact_number'] ?? '';
+// Sanitize user data for output
+$user_first_name = htmlspecialchars($user['first_name'] ?? '', ENT_QUOTES, 'UTF-8');
+$user_middle_name = htmlspecialchars($user['middle_name'] ?? '', ENT_QUOTES, 'UTF-8');
+$user_last_name = htmlspecialchars($user['last_name'] ?? '', ENT_QUOTES, 'UTF-8');
+$user_mobile = htmlspecialchars($user['contact_number'] ?? '', ENT_QUOTES, 'UTF-8');
 
 // Get client information
 $stmt = $pdo->prepare("SELECT client_id FROM clients WHERE user_id = :user_id");
@@ -45,26 +52,32 @@ if (!$client) {
     exit;
 }
 
-$client_id = $client['client_id'];
+$client_id = (int)$client['client_id']; // Cast to integer for safety
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
     
+    // Validate CSRF token if you have one
+    // if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    //     echo json_encode(['success' => false, 'message' => 'Invalid CSRF token.']);
+    //     exit;
+    // }
+    
     // Start transaction
     $pdo->beginTransaction();
 
     try {
-        // Process form data
-        $plate_number = $_POST['plate_number'] ?? null;
-        $mv_file_number = $_POST['mv_file_number'] ?? null;
-        $chassis_number = $_POST['chassis_number'] ?? null;
-        $vehicle_type = $_POST['vehicle_type'] ?? null;
-        $insurance_type = $_POST['insurance_type'] ?? null;
-        $start_date = $_POST['start_date'] ?? null;
-        $brand = $_POST['brand'] ?? null;
-        $model = $_POST['model'] ?? null;
-        $color = $_POST['color'] ?? null;
+        // Process and validate form data
+        $plate_number = !empty($_POST['plate_number']) ? preg_replace('/[^A-Z0-9]/', '', strtoupper($_POST['plate_number'])) : null;
+        $mv_file_number = !empty($_POST['mv_file_number']) ? preg_replace('/[^0-9]/', '', $_POST['mv_file_number']) : null;
+        $chassis_number = !empty($_POST['chassis_number']) ? preg_replace('/[^A-Z0-9]/', '', strtoupper($_POST['chassis_number'])) : null;
+        $vehicle_type = !empty($_POST['vehicle_type']) ? htmlspecialchars($_POST['vehicle_type'], ENT_QUOTES, 'UTF-8') : null;
+        $insurance_type = !empty($_POST['insurance_type']) ? htmlspecialchars($_POST['insurance_type'], ENT_QUOTES, 'UTF-8') : null;
+        $start_date = !empty($_POST['start_date']) ? $_POST['start_date'] : null;
+        $brand = !empty($_POST['brand']) ? htmlspecialchars($_POST['brand'], ENT_QUOTES, 'UTF-8') : null;
+        $model = !empty($_POST['model']) ? htmlspecialchars($_POST['model'], ENT_QUOTES, 'UTF-8') : null;
+        $color = !empty($_POST['color']) ? htmlspecialchars($_POST['color'], ENT_QUOTES, 'UTF-8') : null;
 
         // Validate required fields
         $errors = [];
@@ -76,9 +89,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($insurance_type)) $errors[] = "Insurance type is required.";
         if (empty($start_date)) $errors[] = "Start date is required.";
         
+        // Validate date format
+        if (!empty($start_date) && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $start_date)) {
+            $errors[] = "Invalid date format.";
+        }
+        
         // Check if at least one identifier is provided
         if (empty($plate_number) && empty($mv_file_number)) {
             $errors[] = "Either plate number or MV file number is required.";
+        }
+
+        // Validate MV file number format if provided
+        if (!empty($mv_file_number) && !preg_match('/^\d{15}$/', $mv_file_number)) {
+            $errors[] = "MV file number must be exactly 15 digits.";
         }
 
         // Validate file uploads
@@ -102,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $existing_vehicle = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($existing_vehicle) {
-                $vehicle_id = $existing_vehicle['vehicle_id'];
+                $vehicle_id = (int)$existing_vehicle['vehicle_id'];
             }
         } elseif (!empty($mv_file_number)) {
             $stmt = $pdo->prepare("SELECT vehicle_id FROM vehicles WHERE mv_file_number = :mv_file_number");
@@ -111,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $existing_vehicle = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($existing_vehicle) {
-                $vehicle_id = $existing_vehicle['vehicle_id'];
+                $vehicle_id = (int)$existing_vehicle['vehicle_id'];
             }
         }
 
@@ -136,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Failed to create vehicle record.");
             }
             
-            $vehicle_id = $pdo->lastInsertId();
+            $vehicle_id = (int)$pdo->lastInsertId();
         }
 
         // Handle file uploads
@@ -147,26 +170,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mkdir($upload_dir, 0777, true);
         }
 
+        // Validate and process file uploads
+        function processUploadedFile($file, $prefix, $client_id, $upload_dir) {
+            if ($file['error'] !== UPLOAD_ERR_OK) {
+                throw new Exception("File upload error: " . $file['error']);
+            }
+            
+            // Validate file type
+            $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_file($finfo, $file['tmp_name']);
+            finfo_close($finfo);
+            
+            if (!in_array($mime, $allowed_types)) {
+                throw new Exception("Invalid file type. Only JPEG, PNG, and GIF images are allowed.");
+            }
+            
+            // Validate file size (5MB max)
+            if ($file['size'] > 5 * 1024 * 1024) {
+                throw new Exception("File size exceeds 5MB limit.");
+            }
+            
+            // Generate safe filename
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $safe_ext = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($ext));
+            $filename = $prefix . "_" . $client_id . "_" . time() . "." . $safe_ext;
+            $filepath = $upload_dir . $filename;
+            
+            // Sanitize the file path to prevent directory traversal
+            $filepath = realpath(dirname($filepath)) . DIRECTORY_SEPARATOR . basename($filepath);
+            
+            if (!move_uploaded_file($file['tmp_name'], $filepath)) {
+                throw new Exception("Failed to move uploaded file.");
+            }
+            
+            return $filepath;
+        }
+
         // Process OR picture
         $or_picture_path = null;
         if (isset($_FILES['or_picture']) && $_FILES['or_picture']['error'] === UPLOAD_ERR_OK) {
-            $or_file_name = "OR_" . $client_id . "_" . time() . "." . pathinfo($_FILES['or_picture']['name'], PATHINFO_EXTENSION);
-            $or_picture_path = $upload_dir . $or_file_name;
-            
-            if (!move_uploaded_file($_FILES['or_picture']['tmp_name'], $or_picture_path)) {
-                throw new Exception("Failed to upload OR picture.");
-            }
+            $or_picture_path = processUploadedFile($_FILES['or_picture'], "OR", $client_id, $upload_dir);
         }
 
         // Process CR picture
         $cr_picture_path = null;
         if (isset($_FILES['cr_picture']) && $_FILES['cr_picture']['error'] === UPLOAD_ERR_OK) {
-            $cr_file_name = "CR_" . $client_id . "_" . time() . "." . pathinfo($_FILES['cr_picture']['name'], PATHINFO_EXTENSION);
-            $cr_picture_path = $upload_dir . $cr_file_name;
-            
-            if (!move_uploaded_file($_FILES['cr_picture']['tmp_name'], $cr_picture_path)) {
-                throw new Exception("Failed to upload CR picture.");
-            }
+            $cr_picture_path = processUploadedFile($_FILES['cr_picture'], "CR", $client_id, $upload_dir);
+        }
+
+        // Process proxy authorization letter if exists
+        $auth_letter_path = null;
+        if (!empty($_FILES['authorization_letter']['tmp_name'])) {
+            $auth_letter_path = processUploadedFile($_FILES['authorization_letter'], "AUTH", $client_id, $upload_dir);
         }
 
         // Insert insurance registration
@@ -183,6 +239,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (!$stmt->execute()) {
             throw new Exception("Failed to submit insurance registration.");
+        }
+
+        // If proxy registration, insert proxy details
+        if (!empty($_POST['is_proxy']) && $_POST['is_proxy'] === 'yes') {
+            $proxy_first_name = htmlspecialchars($_POST['proxy_first_name'], ENT_QUOTES, 'UTF-8');
+            $proxy_middle_name = htmlspecialchars($_POST['proxy_middle_name'] ?? '', ENT_QUOTES, 'UTF-8');
+            $proxy_last_name = htmlspecialchars($_POST['proxy_last_name'], ENT_QUOTES, 'UTF-8');
+            $proxy_birthday = $_POST['proxy_birthday'];
+            $proxy_relationship = htmlspecialchars($_POST['proxy_relationship'], ENT_QUOTES, 'UTF-8');
+            $proxy_contact = preg_replace('/[^0-9]/', '', $_POST['proxy_contact']);
+            
+            // Validate proxy age (must be at least 18)
+            $birthday = new DateTime($proxy_birthday);
+            $today = new DateTime();
+            $age = $today->diff($birthday)->y;
+            
+            if ($age < 18) {
+                throw new Exception("Proxy must be at least 18 years old.");
+            }
+            
+            // If relationship is "Other", use the specified value
+            if ($proxy_relationship === 'Other' && !empty($_POST['other_relationship'])) {
+                $proxy_relationship = htmlspecialchars($_POST['other_relationship'], ENT_QUOTES, 'UTF-8');
+            }
+            
+            $stmt = $pdo->prepare("INSERT INTO proxy_registrations 
+                                  (client_id, first_name, middle_name, last_name, birthday, relationship, contact_number, authorization_letter, created_at)
+                                  VALUES
+                                  (:client_id, :first_name, :middle_name, :last_name, :birthday, :relationship, :contact_number, :authorization_letter, NOW())");
+            
+            $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
+            $stmt->bindParam(':first_name', $proxy_first_name);
+            $stmt->bindParam(':middle_name', $proxy_middle_name);
+            $stmt->bindParam(':last_name', $proxy_last_name);
+            $stmt->bindParam(':birthday', $proxy_birthday);
+            $stmt->bindParam(':relationship', $proxy_relationship);
+            $stmt->bindParam(':contact_number', $proxy_contact);
+            $stmt->bindParam(':authorization_letter', $auth_letter_path);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to save proxy information.");
+            }
         }
 
         // Commit transaction
@@ -204,10 +302,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($cr_picture_path) && file_exists($cr_picture_path)) {
             @unlink($cr_picture_path);
         }
+        if (isset($auth_letter_path) && file_exists($auth_letter_path)) {
+            @unlink($auth_letter_path);
+        }
         
         echo json_encode([
             'success' => false,
-            'message' => 'Error: ' . $e->getMessage()
+            'message' => 'Error: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8')
         ]);
     }
     exit;
@@ -314,19 +415,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="first_name" class="required">First Name</label>
-                        <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($user_first_name); ?>" required readonly>
+                        <input type="text" id="first_name" name="first_name" value="<?php echo $user_first_name; ?>" required readonly>
                     </div>
                     <div class="form-group">
                         <label for="middle_name">Middle Name</label>
-                        <input type="text" id="middle_name" name="middle_name" value="<?php echo htmlspecialchars($user_middle_name); ?>" readonly>
+                        <input type="text" id="middle_name" name="middle_name" value="<?php echo $user_middle_name; ?>" readonly>
                     </div>
                     <div class="form-group">
                         <label for="last_name" class="required">Last Name</label>
-                        <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($user_last_name); ?>" required readonly>
+                        <input type="text" id="last_name" name="last_name" value="<?php echo $user_last_name; ?>" required readonly>
                     </div>
                     <div class="form-group">
                         <label for="mobile" class="required">Mobile Number</label>
-                        <input type="text" id="mobile" name="mobile" value="<?php echo htmlspecialchars($user_mobile); ?>" required readonly>
+                        <input type="text" id="mobile" name="mobile" value="<?php echo $user_mobile; ?>" required readonly>
                     </div>
                     
                     <!-- Proxy Registration Section -->
@@ -341,15 +442,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div id="proxyFields" class="form-grid">
                         <div class="form-group">
                             <label for="proxy_first_name" class="required">First Name</label>
-                            <input type="text" id="proxy_first_name" name="proxy_first_name">
+                            <input type="text" id="proxy_first_name" name="proxy_first_name" maxlength="50">
                         </div>
                         <div class="form-group">
                             <label for="proxy_middle_name">Middle Name (Optional)</label>
-                            <input type="text" id="proxy_middle_name" name="proxy_middle_name">
+                            <input type="text" id="proxy_middle_name" name="proxy_middle_name" maxlength="50">
                         </div>
                         <div class="form-group">
                             <label for="proxy_last_name" class="required">Last Name</label>
-                            <input type="text" id="proxy_last_name" name="proxy_last_name">
+                            <input type="text" id="proxy_last_name" name="proxy_last_name" maxlength="50">
                         </div>
                         <div class="form-group">
                             <label for="proxy_birthday" class="required">Birthday</label>
@@ -368,11 +469,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="form-group" id="otherRelationshipContainer">
                             <label for="other_relationship" class="required">Specify Relationship</label>
-                            <input type="text" id="other_relationship" name="other_relationship">
+                            <input type="text" id="other_relationship" name="other_relationship" maxlength="50">
                         </div>
                         <div class="form-group">
                             <label for="proxy_contact" class="required">Contact Number</label>
-                            <input type="text" id="proxy_contact" name="proxy_contact">
+                            <input type="text" id="proxy_contact" name="proxy_contact" maxlength="15" pattern="[0-9]{10,15}">
                         </div>
                         <div class="form-group full-width">
                             <label for="authorization_letter" class="required">Authorization Letter (Image)</label>
@@ -394,22 +495,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="plate_number">Plate Number</label>
-                        <input type="text" id="plate_number" name="plate_number" placeholder="Enter plate number" oninput="validateIdentifierFields()">
+                        <input type="text" id="plate_number" name="plate_number" placeholder="Enter plate number" maxlength="15" oninput="validateIdentifierFields()">
                         <span class="error-message" id="plateError"></span>
                     </div>
                     <div class="form-group">
                         <label for="mv_file_number">MV File Number</label>
-                        <input type="text" id="mv_file_number" name="mv_file_number" maxlength="15" placeholder="15-character MV File" oninput="validateIdentifierFields()">
+                        <input type="text" id="mv_file_number" name="mv_file_number" maxlength="15" placeholder="15-character MV File" pattern="[0-9]{15}" oninput="validateIdentifierFields()">
                         <span class="error-message" id="mvFileError"></span>
                     </div>
                     <div class="form-group">
                         <label for="brand" class="required">Brand</label>
-                        <input type="text" id="brand" name="brand" placeholder="e.g. Toyota" required oninput="updateNextButtonState()">
+                        <input type="text" id="brand" name="brand" placeholder="e.g. Toyota" maxlength="50" required oninput="updateNextButtonState()">
                         <span class="error-message" id="brandError"></span>
                     </div>
                     <div class="form-group">
                         <label for="model" class="required">Model</label>
-                        <input type="text" id="model" name="model" placeholder="e.g. Corolla" required oninput="updateNextButtonState()">
+                        <input type="text" id="model" name="model" placeholder="e.g. Corolla" maxlength="50" required oninput="updateNextButtonState()">
                         <span class="error-message" id="modelError"></span>
                     </div>
                     <div class="form-group">
@@ -424,12 +525,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="form-group">
                         <label for="color" class="required">Color</label>
-                        <input type="text" id="color" name="color" placeholder="e.g. Red" required oninput="updateNextButtonState()">
+                        <input type="text" id="color" name="color" placeholder="e.g. Red" maxlength="30" required oninput="updateNextButtonState()">
                         <span class="error-message" id="colorError"></span>
                     </div>
                     <div class="form-group">
                         <label for="chassis_number" class="required">Chassis Number</label>
-                        <input type="text" id="chassis_number" name="chassis_number" placeholder="Enter chassis number" required oninput="updateNextButtonState()">
+                        <input type="text" id="chassis_number" name="chassis_number" placeholder="Enter chassis number" maxlength="50" required oninput="updateNextButtonState()">
                         <span class="error-message" id="chassisError"></span>
                     </div>
                     <div class="form-group">
@@ -472,7 +573,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="input-group">
                     <label for="start_date" class="required">Insurance Start Date</label>
                     <div class="date-input-container">
-                        <input type="date" id="start_date" name="start_date" required>
+                        <input type="date" id="start_date" name="start_date" required min="<?php echo date('Y-m-d'); ?>">
                     </div>
                     <small class="text-muted">Select the date when your insurance coverage should begin</small>
                 </div>
@@ -541,6 +642,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const today = new Date();
     const maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
     document.getElementById('proxy_birthday').max = maxDate.toISOString().split('T')[0];
+    
+    // Set minimum date for insurance start date (today or later)
+    document.getElementById('start_date').min = today.toISOString().split('T')[0];
 });
 
 // Navigation functions
@@ -648,6 +752,13 @@ function validateStep2() {
         // Check if age is valid
         if (!isProxyAgeValid) {
             isValid = false;
+        }
+        
+        // Validate contact number format
+        const contactNumber = document.getElementById('proxy_contact').value.trim();
+        if (contactNumber && !/^\d{10,15}$/.test(contactNumber)) {
+            isValid = false;
+            document.getElementById('proxy_contact').nextElementSibling.textContent = 'Contact number must be 10-15 digits';
         }
         
         if (!isValid) {
