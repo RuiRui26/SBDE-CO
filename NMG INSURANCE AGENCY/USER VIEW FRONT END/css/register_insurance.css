@@ -163,7 +163,7 @@ input[type="file"]::file-selector-button {
 }
 
 .welcome-message h2 {
-    font-size: 46px;
+    font-size:56px;
     color: #ffffff;
     margin-bottom: 15px;
 }
@@ -178,7 +178,114 @@ input[type="file"]::file-selector-button {
     max-width: 700px;
 }
 
+/* Form Action Buttons */
+.form-actions {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 10px;
+    margin-top: 30px;
+}
 
+button {
+    background-color: #3498db; /* Blue color */
+    color: white;
+    border: none;
+    padding: 12px 25px; /* Adjust the size of the button */
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+}
+
+button:hover {
+    background-color: #2980b9; /* Darker blue on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+}
+
+button:disabled {
+    background-color: #bdc3c7; /* Disabled state with a light gray */
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3); /* Blue outline on focus */
+}
+
+
+
+/* STEP PROGRESS */
+.form-group label.required:after {
+    content: " *";
+    color: red;
+}
+.error-message {
+    color: red;
+    font-size: 0.8em;
+    margin-top: 5px;
+}
+.form-step {
+    display: none;
+}
+.form-step.active {
+    display: block;
+}
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+/* Step progress styling */
+.step-progress {
+    display: flex;
+    justify-content: space-between;
+    margin: 2rem 0;
+    position: relative;
+}
+.step-progress:before {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #e0e0e0;
+    z-index: 1;
+}
+.step-progress .step {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    width: 25%;
+}
+.step-progress .step-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.5rem;
+    font-weight: bold;
+}
+.step-progress .step-title {
+    font-size: 0.9rem;
+    color: #cccccc;
+}
+.step-progress .step.active .step-number {
+    background: #2183e0;
+}
+.step-progress .step.active .step-title {
+    color: #000;
+    font-weight: bold;
+}
+.step-progress .step.completed .step-number {
+    background: #8BC34A;
+}
 
 @media (max-width: 992px) {
     .form-section {

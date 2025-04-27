@@ -45,7 +45,7 @@ if (!$client) {
     exit;
 }
 
-$client_id = $client['client_id']; // <-- Missing semicolon was here
+$client_id = $client['client_id'];
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -62,9 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $vehicle_type = $_POST['vehicle_type'] ?? null;
         $insurance_type = $_POST['insurance_type'] ?? null;
         $start_date = $_POST['start_date'] ?? null;
+        $brand = $_POST['brand'] ?? null;
+        $model = $_POST['model'] ?? null;
+        $color = $_POST['color'] ?? null;
 
         // Validate required fields
         $errors = [];
+        if (empty($brand)) $errors[] = "Brand is required.";
+        if (empty($model)) $errors[] = "Model is required.";
+        if (empty($color)) $errors[] = "Color is required.";
         if (empty($chassis_number)) $errors[] = "Chassis number is required.";
         if (empty($vehicle_type)) $errors[] = "Vehicle type is required.";
         if (empty($insurance_type)) $errors[] = "Insurance type is required.";
@@ -112,9 +118,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // If vehicle doesn't exist, create new vehicle record
         if (!$vehicle_id) {
             $stmt = $pdo->prepare("INSERT INTO vehicles 
-                                  (client_id, plate_number, vehicle_type, chassis_number, mv_file_number, type_of_insurance) 
+                                  (client_id, plate_number, vehicle_type, chassis_number, mv_file_number, type_of_insurance, brand, model, color) 
                                   VALUES 
-                                  (:client_id, :plate_number, :vehicle_type, :chassis_number, :mv_file_number, :insurance_type)");
+                                  (:client_id, :plate_number, :vehicle_type, :chassis_number, :mv_file_number, :insurance_type, :brand, :model, :color)");
             
             $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
             $stmt->bindParam(':plate_number', $plate_number);
@@ -122,6 +128,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bindParam(':chassis_number', $chassis_number);
             $stmt->bindParam(':mv_file_number', $mv_file_number);
             $stmt->bindParam(':insurance_type', $insurance_type);
+            $stmt->bindParam(':brand', $brand);
+            $stmt->bindParam(':model', $model);
+            $stmt->bindParam(':color', $color);
             
             if (!$stmt->execute()) {
                 throw new Exception("Failed to create vehicle record.");
@@ -203,10 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     exit;
 }
-
-// If not a POST request, continue with the HTML rendering below
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -219,17 +225,368 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     
+</head>
 
+<body>
 
-   <script>
-let selectedDate = '';
+<?php include 'nav.php'; ?>
 
-// Validate the form inputs before proceeding
-function validateForm() {
-    let plateNumber = document.getElementById("plate_number").value.trim();
-    let mvFileNumber = document.getElementById("mv_file_number").value.trim();
-    let mvFileError = document.getElementById("mvFileError");
-    let plateError = document.getElementById("plateError");
+    <main class="form-section">
+        <div class="welcome-message">
+            <h2>Welcome!</h2>
+            <p>A quick step before we continue—please provide your information.</p>
+            <div class="step-progress">
+                <div class="step active" id="progress-step1">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Select Types of Insurance</div>
+                </div>
+                <div class="step" id="progress-step2">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Fillup Personal Informations</div>
+                </div>
+                <div class="step" id="progress-step3">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Input Vehicle Information</div>
+                </div>
+                <div class="step" id="progress-step4">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Submit</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <form id="insuranceForm" action="register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
+            
+            <!-- First Step: Type of Insurance -->
+            <div class="form-step active" id="step1">
+                <h3>Step 1: Insurance Type</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="insurance_type" class="required">Type of Insurance</label>
+                        <select id="insurance_type" name="insurance_type" required onchange="showInsuranceInfo(); updateNextButtonState();">
+                            <option value="">Select Insurance Type</option>
+                            <option value="TPL">Third Party Liability (TPL)</option>
+                            <option value="TPPD">Third Party Property Damage (TPPD)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="step1NextBtn" disabled onclick="goToStep(2)">Next</button>
+                </div>
+            </div>
+
+            <!-- Second Step: Personal Information -->
+            <div class="form-step" id="step2">
+                <h3>Step 2: Personal Information</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="first_name" class="required">First Name</label>
+                        <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($user_first_name); ?>" required readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="middle_name">Middle Name</label>
+                        <input type="text" id="middle_name" name="middle_name" value="<?php echo htmlspecialchars($user_middle_name); ?>" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name" class="required">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($user_last_name); ?>" required readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="mobile" class="required">Mobile Number</label>
+                        <input type="text" id="mobile" name="mobile" value="<?php echo htmlspecialchars($user_mobile); ?>" required readonly>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="goToStep(1)">Back</button>
+                    <button type="button" id="step2NextBtn" onclick="goToStep(3)">Next</button>
+                </div>
+            </div>
+
+            <!-- Third Step: Vehicle Information and Document Upload -->
+            <div class="form-step" id="step3">
+                <h3>Step 3: Vehicle Information and Document Upload</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="plate_number">Plate Number</label>
+                        <input type="text" id="plate_number" name="plate_number" placeholder="Enter plate number" oninput="validateIdentifierFields()">
+                        <span class="error-message" id="plateError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="mv_file_number">MV File Number</label>
+                        <input type="text" id="mv_file_number" name="mv_file_number" maxlength="15" placeholder="15-character MV File" oninput="validateIdentifierFields()">
+                        <span class="error-message" id="mvFileError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="brand" class="required">Brand</label>
+                        <input type="text" id="brand" name="brand" placeholder="e.g. Toyota" required oninput="updateNextButtonState()">
+                        <span class="error-message" id="brandError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="model" class="required">Model</label>
+                        <input type="text" id="model" name="model" placeholder="e.g. Corolla" required oninput="updateNextButtonState()">
+                        <span class="error-message" id="modelError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicle_type" class="required">Vehicle Type</label>
+                        <select id="vehicle_type" name="vehicle_type" required onchange="updateNextButtonState()">
+                            <option value="">Select Vehicle Type</option>
+                            <option value="Motorcycle">Motorcycle</option>
+                            <option value="4 Wheels">4 Wheels</option>
+                            <option value="Truck">Truck</option>
+                        </select>
+                        <span class="error-message" id="vehicleTypeError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="color" class="required">Color</label>
+                        <input type="text" id="color" name="color" placeholder="e.g. Red" required oninput="updateNextButtonState()">
+                        <span class="error-message" id="colorError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="chassis_number" class="required">Chassis Number</label>
+                        <input type="text" id="chassis_number" name="chassis_number" placeholder="Enter chassis number" required oninput="updateNextButtonState()">
+                        <span class="error-message" id="chassisError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="or_picture" class="required">OR Picture</label>
+                        <input type="file" id="or_picture" name="or_picture" accept="image/*" required onchange="validateFileUpload(this, 'OR'); updateNextButtonState()">
+                        <span class="error-message" id="orPictureError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="cr_picture" class="required">CR Picture</label>
+                        <input type="file" id="cr_picture" name="cr_picture" accept="image/*" required onchange="validateFileUpload(this, 'CR'); updateNextButtonState()">
+                        <span class="error-message" id="crPictureError"></span>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="goToStep(2)">Back</button>
+                    <button type="button" id="submitBtn" disabled onclick="showDateModal()">Submit</button>
+                </div>
+            </div>
+
+            </form>
+        </div>
+    </main>
+
+    <!--<footer>
+        <p>© 2025 NMG Insurance Agency. All Rights Reserved.</p>
+    </footer>-->
+
+   <!-- Modal for Insurance Info -->
+<div id="insuranceModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<!-- Modal for Date Selection -->
+<div id="dateModal" class="modal">
+        <div class="modal-content animate__animated animate__fadeInDown">
+            <div class="modal-header">
+                <h2 class="modal-title">Select Start Date</h2>
+                <button class="close" onclick="closeDateModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="start_date" class="required">Insurance Start Date</label>
+                    <div class="date-input-container">
+                        <input type="date" id="start_date" name="start_date" required>
+                    </div>
+                    <small class="text-muted">Select the date when your insurance coverage should begin</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel-btn" onclick="closeDateModal()">Cancel</button>
+                <button class="modal-btn confirm-btn" onclick="showConfirmationModal()">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Confirmation -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content animate__animated animate__fadeInDown">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirm Submission</h2>
+                <button class="close" onclick="closeConfirmationModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirmation-text" id="confirmationMessage"></div>
+                <p>Please review all information before submitting. You won't be able to make changes after submission.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel-btn" onclick="closeConfirmationModal()">Go Back</button>
+                <button class="modal-btn confirm-btn" onclick="submitForm()">Confirm Submission</button>
+            </div>
+        </div>
+    </div>
+
+ <!-- Modal for Post-Submission Options -->
+ <div id="postSubmissionModal" class="modal">
+        <div class="modal-content animate__animated animate__fadeInDown">
+            <div class="modal-header">
+                <h2 class="modal-title">Application Submitted</h2>
+                <button class="close" onclick="closePostSubmissionModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="success-icon">✓</div>
+                <p style="text-align: center;">Your insurance application has been successfully submitted!</p>
+                <p style="text-align: center;">Reference number: <strong id="referenceNumber"></strong></p>
+                <p style="text-align: center; font-size: 14px; color: #7f8c8d;">You'll receive a confirmation email shortly.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn neutral-btn" onclick="goToDashboard()">View Dashboard</button>
+                <button class="modal-btn confirm-btn" onclick="submitAnotherTransaction()">New Application</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// Global variables
+let currentStep = 1;
+const totalSteps = 3;
+
+// Initialize the form
+document.addEventListener("DOMContentLoaded", function() {
+    updateNextButtonState();
+    updateProgressIndicator();
+});
+
+// Navigation functions
+function goToStep(step) {
+    if (step < 1 || step > totalSteps) return;
+    
+    // Validate before proceeding to next step
+    if (step > currentStep && !validateCurrentStep()) {
+        return;
+    }
+    
+    // Hide current step
+    document.getElementById(`step${currentStep}`).classList.remove('active');
+    
+    // Show new step
+    document.getElementById(`step${step}`).classList.add('active');
+    currentStep = step;
+    
+    // Update button states
+    updateNextButtonState();
+    updateProgressIndicator();
+}
+
+// Update the progress indicator to highlight current step
+function updateProgressIndicator() {
+    // Reset all steps
+    document.querySelectorAll('.step-progress .step').forEach(step => {
+        step.classList.remove('active', 'completed');
+    });
+    
+    // Mark previous steps as completed
+    for (let i = 1; i < currentStep; i++) {
+        const stepElement = document.getElementById(`progress-step${i}`);
+        if (stepElement) {
+            stepElement.classList.add('completed');
+        }
+    }
+    
+    // Mark current step as active
+    const currentStepElement = document.getElementById(`progress-step${currentStep}`);
+    if (currentStepElement) {
+        currentStepElement.classList.add('active');
+    }
+    
+    // Special case for submission step (step 4)
+    if (currentStep === 3 && document.getElementById('submitBtn').disabled === false) {
+        document.getElementById('progress-step4').classList.add('active');
+    }
+}
+
+// Form validation functions
+function validateCurrentStep() {
+    switch(currentStep) {
+        case 1:
+            return validateStep1();
+        case 2:
+            return true; // Step 2 fields are readonly
+        case 3:
+            return validateStep3();
+        default:
+            return true;
+    }
+}
+
+function validateStep1() {
+    const insuranceType = document.getElementById('insurance_type').value;
+    if (!insuranceType) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Missing Information',
+            text: 'Please select an insurance type to continue.',
+            confirmButtonText: 'OK'
+        });
+        return false;
+    }
+    return true;
+}
+
+function validateStep3() {
+    let isValid = true;
+    
+    // Clear previous errors
+    document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+    
+    // Validate at least one identifier
+    const plateNumber = document.getElementById("plate_number").value.trim();
+    const mvFileNumber = document.getElementById("mv_file_number").value.trim();
+    
+    if (!plateNumber && !mvFileNumber) {
+        document.getElementById("mvFileError").textContent = "Either MV File Number or Plate Number is required.";
+        document.getElementById("plateError").textContent = "Either MV File Number or Plate Number is required.";
+        isValid = false;
+    }
+    
+    if (mvFileNumber && !/^\d{15}$/.test(mvFileNumber)) {
+        document.getElementById("mvFileError").textContent = "MV File Number must be exactly 15 digits (numbers only).";
+        isValid = false;
+    }
+    
+    // Validate required fields
+    const requiredFields = [
+        'brand', 'model', 'vehicle_type', 'color', 'chassis_number',
+        'or_picture', 'cr_picture'
+    ];
+    
+    requiredFields.forEach(field => {
+        const element = document.getElementById(field);
+        const errorElement = document.getElementById(`${field}Error`) || element.parentNode.querySelector('.error-message');
+        
+        if (element.type === 'file') {
+            if (!element.files || element.files.length === 0) {
+                if (errorElement) errorElement.textContent = 'This field is required';
+                isValid = false;
+            }
+        } else if (!element.value.trim()) {
+            if (errorElement) errorElement.textContent = 'This field is required';
+            isValid = false;
+        }
+    });
+    
+    if (!isValid) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Missing Information',
+            text: 'Please fill all required fields correctly.',
+            confirmButtonText: 'OK'
+        });
+    }
+    
+    return isValid;
+}
+
+function validateIdentifierFields() {
+    const plateNumber = document.getElementById("plate_number").value.trim();
+    const mvFileNumber = document.getElementById("mv_file_number").value.trim();
+    const mvFileError = document.getElementById("mvFileError");
+    const plateError = document.getElementById("plateError");
 
     mvFileError.textContent = "";
     plateError.textContent = "";
@@ -246,6 +603,75 @@ function validateForm() {
     }
 
     return true;
+}
+
+function validateFileUpload(input, type) {
+    const errorElement = document.getElementById(`${input.id}Error`);
+    errorElement.textContent = '';
+    
+    if (input.files && input.files.length > 0) {
+        const file = input.files[0];
+        
+        // Check file type
+        if (!file.type.match('image.*')) {
+            errorElement.textContent = `${type} must be an image file`;
+            input.value = '';
+            return false;
+        }
+        
+        // Check file size (5MB limit)
+        if (file.size > 5 * 1024 * 1024) {
+            errorElement.textContent = `${type} image must be less than 5MB`;
+            input.value = '';
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+// Update button states based on form validity
+function updateNextButtonState() {
+    // Step 1 next button
+    const step1NextBtn = document.getElementById('step1NextBtn');
+    if (step1NextBtn) {
+        step1NextBtn.disabled = !document.getElementById('insurance_type').value;
+    }
+    
+    // Step 3 submit button
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
+        const requiredFields = [
+            'brand', 'model', 'vehicle_type', 'color', 'chassis_number',
+            'or_picture', 'cr_picture'
+        ];
+        
+        let allFilled = true;
+        requiredFields.forEach(field => {
+            const element = document.getElementById(field);
+            if (element.type === 'file') {
+                if (!element.files || element.files.length === 0) {
+                    allFilled = false;
+                }
+            } else if (!element.value.trim()) {
+                allFilled = false;
+            }
+        });
+        
+        // Also need at least one identifier
+        const plateNumber = document.getElementById("plate_number").value.trim();
+        const mvFileNumber = document.getElementById("mv_file_number").value.trim();
+        const hasIdentifier = plateNumber || mvFileNumber;
+        
+        submitBtn.disabled = !(allFilled && hasIdentifier);
+        
+        // Update progress indicator when submit button becomes enabled
+        if (!submitBtn.disabled) {
+            document.getElementById('progress-step4').classList.add('active');
+        } else {
+            document.getElementById('progress-step4').classList.remove('active');
+        }
+    }
 }
 
 // Show modal with insurance information
@@ -303,7 +729,7 @@ function closeModal() {
 }
 
 function showDateModal() {
-    if (validateForm()) {
+    if (validateCurrentStep()) {
         document.getElementById('dateModal').style.display = "block";
     }
 }
@@ -326,6 +752,16 @@ function showConfirmationModal() {
 
     selectedDate = dateInput.value;
     const formattedDate = new Date(selectedDate);
+    if (isNaN(formattedDate)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Invalid date format. Please try again.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
     const year = formattedDate.getFullYear().toString().slice(-2);
     const month = (formattedDate.getMonth() + 1).toString().padStart(2, '0');
     const day = formattedDate.getDate().toString().padStart(2, '0');
@@ -371,6 +807,16 @@ function submitForm() {
         if (data.success) {
             closeConfirmationModal();
             showPostSubmissionModal();
+            
+            // Generate a reference number (you might want to use the actual ID from the database)
+            const refNumber = 'REF-' + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('referenceNumber').textContent = refNumber;
+            
+            // Update progress indicator to show completion
+            document.querySelectorAll('.step-progress .step').forEach(step => {
+                step.classList.remove('active');
+                step.classList.add('completed');
+            });
         } else {
             Swal.fire({
                 icon: 'error',
@@ -400,280 +846,31 @@ function closePostSubmissionModal() {
 }
 
 function goToDashboard() {
-    window.location.href = 'USER_PROFILE/index.php'; // Replace as needed
+    window.location.href = 'USER_PROFILE/index.php';
 }
 
 function submitAnotherTransaction() {
-    window.location.href = '/new-transaction'; // Replace as needed
+    // Reset form and go back to step 1
+    document.getElementById('insuranceForm').reset();
+    document.querySelectorAll('.form-step').forEach(step => {
+        step.classList.remove('active');
+    });
+    document.getElementById('step1').classList.add('active');
+    currentStep = 1;
+    updateNextButtonState();
+    closePostSubmissionModal();
+    
+    // Clear file inputs (they don't reset with form.reset())
+    document.getElementById('or_picture').value = '';
+    document.getElementById('cr_picture').value = '';
+    
+    // Reset progress indicator
+    document.querySelectorAll('.step-progress .step').forEach(step => {
+        step.classList.remove('active', 'completed');
+    });
+    document.getElementById('progress-step1').classList.add('active');
 }
-
-// Event listeners for modal buttons
-document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById('submitBtn').addEventListener('click', function (e) {
-        e.preventDefault();
-        showDateModal();
-    });
-
-    document.getElementById('confirmSubmitBtn').addEventListener('click', function (e) {
-        e.preventDefault();
-        submitForm();
-    });
-
-    document.getElementById('cancelSubmitBtn').addEventListener('click', function (e) {
-        e.preventDefault();
-        closeConfirmationModal();
-    });
-});
 </script>
-
-
-
-</head>
-
-<body>
-
-<?php include 'nav.php'; ?>
-
-    <main class="form-section">
-        <div class="welcome-message">
-            <h2>Welcome!</h2>
-            <p>A quick step before we continue—please provide your information.</p>
-            <div class="step-progress">
-  <div class="step">
-    <div class="step-number">1</div>
-    <div class="step-title">Register</div>
-    <div class="step-description">Input all required information.</div>
-  </div>
-  <div class="step">
-    <div class="step-number">2</div>
-    <div class="step-title">Wait for Approval</div>
-    <div class="step-description">Admin will review and approve your requirements.</div>
-  </div>
-  <div class="step">
-    <div class="step-number">3</div>
-    <div class="step-title">Payment</div>
-    <div class="step-description">Admin will contact you to complete payment at the office.</div>
-  </div>
-  <div class="step">
-    <div class="step-number">4</div>
-    <div class="step-title">Claim</div>
-    <div class="step-description">You can now claim your insurance.</div>
-  </div>
-</div>
-
-        </div>
-
-        <div class="form-container">
-            <form id="insuranceForm" action="../../PHP_Files/User_View/register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
-            <div class="form-step">
-    <h3>Insurance Registration</h3>
-    <div class="form-grid">
-        <div class="form-group">
-            <label for="first_name">First Name</label>
-            <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($user_first_name); ?>" required readonly>
-        </div>
-
-        <div class="form-group">
-            <label for="first_name">Middle Initial</label>
-            <input type="text" id="middle_name" name="middle_name" value="<?php echo htmlspecialchars($user_middle_name); ?>" required readonly>
-        </div>
-
-        <div class="form-group">
-            <label for="last_name">Last Name</label>
-            <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($user_last_name); ?>" required readonly>
-        </div>
-
-        <div class="form-group">
-            <label for="mobile">Mobile Number</label>
-            <input type="text" id="mobile" name="mobile" value="<?php echo htmlspecialchars($user_mobile); ?>" required readonly>
-        </div>
-    </div>
-</div>
-
-
-                <div class="form-step">
-                    <h3>Vehicle Information</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="insurance_type">Type of Insurance</label>
-                            <select id="insurance_type" name="insurance_type" required onchange="showInsuranceInfo()">
-                                <option value="">Select Insurance Type</option>
-                                <option value="TPL">Third Party Liability (TPL)</option>
-                                <option value="TPPD">Third Party Property Damage (TPPD)</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="plate_number">Plate Number</label>
-                            <input type="text" id="plate_number" name="plate_number" placeholder="Enter plate number">
-                            <span class="error-message" id="plateError"></span>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="mv_file_number">MV File Number</label>
-                            <input type="text" id="mv_file_number" name="mv_file_number" maxlength="15" placeholder="15-character MV File">
-                            <span class="error-message" id="mvFileError"></span>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="brand">Brand</label>
-                            <input type="text" id="brand" name="brand" placeholder="e.g. Toyota" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="model">Model</label>
-                            <input type="text" id="model" name="model" placeholder="e.g. Vios" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="chassis_number">Chassis Number</label>
-                            <input type="text" id="chassis_number" name="chassis_number" required placeholder="Enter chassis number">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="vehicle_type">Vehicle Type</label>
-                            <select id="vehicle_type" name="vehicle_type" required>
-                                <option value="">Select Vehicle Type</option>
-                                <option value="Motorcycle">Motorcycle</option>
-                                <option value="4 Wheels">4 Wheels</option>
-                                <option value="Truck">Truck</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="year">Year</label>
-                            <input type="number" id="year" name="year" min="1980" max="2025" placeholder="e.g. 2020" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="color">Color</label>
-                            <input type="text" id="color" name="color" placeholder="e.g. Black" required>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-step">
-                    <h3>Document Upload</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="or_picture">OR Picture</label>
-                            <input type="file" id="or_picture" name="or_picture" accept="image/*" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="cr_picture">CR Picture</label>
-                            <input type="file" id="cr_picture" name="cr_picture" accept="image/*" required>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" class="submit-btn" onclick="showDateModal()">Register</button>
-                </div>
-            </form>
-        </div>
-    </main>
-
-    <footer>
-        <p>© 2025 NMG Insurance Agency. All Rights Reserved.</p>
-    </footer>
-
-   <!-- Modal for Insurance Info -->
-<div id="insuranceModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <div id="modalContent"></div>
-    </div>
-</div>
-
-<!-- Modal for Date Selection -->
-<div id="dateModal" class="modal">
-        <div class="modal-content animate__animated animate__fadeInDown">
-            <div class="modal-header">
-                <h2 class="modal-title">Select Start Date</h2>
-                <button class="close" onclick="closeDateModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="input-group">
-                    <label for="start_date">Insurance Start Date</label>
-                    <div class="date-input-container">
-                        <input type="date" id="start_date" name="start_date" required>
-                    </div>
-                    <small class="text-muted">Select the date when your insurance coverage should begin</small>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn cancel-btn" onclick="closeDateModal()">Cancel</button>
-                <button class="modal-btn confirm-btn" onclick="showConfirmationModal()">Continue</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for Confirmation -->
-    <div id="confirmModal" class="modal">
-        <div class="modal-content animate__animated animate__fadeInDown">
-            <div class="modal-header">
-                <h2 class="modal-title">Confirm Submission</h2>
-                <button class="close" onclick="closeConfirmationModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="confirmation-text" id="confirmationMessage"></div>
-                <p>Please review all information before submitting. You won't be able to make changes after submission.</p>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn cancel-btn" onclick="closeConfirmationModal()">Go Back</button>
-                <button class="modal-btn confirm-btn" onclick="submitForm()">Confirm Submission</button>
-            </div>
-        </div>
-    </div>
-
- <!-- Modal for Post-Submission Options -->
- <div id="postSubmissionModal" class="modal">
-        <div class="modal-content animate__animated animate__fadeInDown">
-            <div class="modal-header">
-                <h2 class="modal-title">Application Submitted</h2>
-                <button class="close" onclick="closePostSubmissionModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="success-icon">✓</div>
-                <p style="text-align: center;">Your insurance application has been successfully submitted!</p>
-                <p style="text-align: center;">Reference number: <strong id="referenceNumber"></strong></p>
-                <p style="text-align: center; font-size: 14px; color: #7f8c8d;">You'll receive a confirmation email shortly.</p>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn neutral-btn" onclick="goToDashboard()">View Dashboard</button>
-                <button class="modal-btn confirm-btn" onclick="submitAnotherTransaction()">New Application</button>
-            </div>
-        </div>
-    </div>
-
-<script>
-function fillMyInfo(checked) {
-  console.log("Checkbox checked:", checked);  // This will log true or false when the checkbox is checked/unchecked
-  if (checked) {
-    const firstName = "<?= htmlspecialchars($user_first_name ?? '') ?>";
-    const lastName = "<?= htmlspecialchars($user_last_name ?? '') ?>";
-    const userMobile = "<?= htmlspecialchars($user_mobile ?? '') ?>";
-
-    console.log("First Name:", firstName);  // Check if first name is correctly populated
-    console.log("Last Name:", lastName);    // Check if last name is correctly populated
-    console.log("Mobile:", userMobile);     // Check if mobile is correctly populated
-
-    document.getElementById('first_name').value = firstName;
-    document.getElementById('last_name').value = lastName;
-    document.getElementById('mobile').value = userMobile;
-  } else {
-    document.getElementById('first_name').value = '';
-    document.getElementById('last_name').value = '';
-    document.getElementById('mobile').value = '';
-  }
-}
-
-
-
-</script>
-
 
 </body>
-
 </html>
