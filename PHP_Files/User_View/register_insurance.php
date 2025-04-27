@@ -2,12 +2,24 @@
 session_start();
 require_once '../../DB_connection/db.php';
 
+header("Content-Type: application/json");
+
+// === CSRF Token Validation ===
+if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
+    echo json_encode(["success" => false, "message" => "Invalid CSRF token."]);
+    exit;
+}
+
+// Sanitize function for inputs
+function sanitize_input($data) {
+    return trim(strip_tags($data));
+}
+
 $allowed_roles = ['Client'];
 require '../../Logout_Login_USER/Restricted.php';
 
 $database = new Database();
 $conn = $database->getConnection();
-header("Content-Type: application/json");
 
 // Ensure the user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -46,29 +58,26 @@ if (!$user_name || !$mobile) {
     exit;
 }
 
-// Retrieve form data
-$plate_number = $_POST['plate_number'] ?? null;
-$mv_file_number = $_POST['mv_file_number'] ?? null;
-$insurance_type = $_POST['insurance_type'] ?? null;
-$chassis_number = $_POST['chassis_number'] ?? null;
-$vehicle_type = $_POST['vehicle_type'] ?? null;
-$brand = $_POST['brand'] ?? null;
-$model = $_POST['model'] ?? null;
-$year = $_POST['year'] ?? null;
-$color = $_POST['color'] ?? null;
-$start_date = $_POST['start_date'] ?? null; // Assuming the start date is passed in the form
+// Retrieve and sanitize form data
+$plate_number = isset($_POST['plate_number']) ? sanitize_input($_POST['plate_number']) : null;
+$mv_file_number = isset($_POST['mv_file_number']) ? sanitize_input($_POST['mv_file_number']) : null;
+$insurance_type = isset($_POST['insurance_type']) ? sanitize_input($_POST['insurance_type']) : null;
+$chassis_number = isset($_POST['chassis_number']) ? sanitize_input($_POST['chassis_number']) : null;
+$vehicle_type = isset($_POST['vehicle_type']) ? sanitize_input($_POST['vehicle_type']) : null;
+$brand = isset($_POST['brand']) ? sanitize_input($_POST['brand']) : null;
+$model = isset($_POST['model']) ? sanitize_input($_POST['model']) : null;
+$year = isset($_POST['year']) ? sanitize_input($_POST['year']) : null;
+$color = isset($_POST['color']) ? sanitize_input($_POST['color']) : null;
+$start_date = isset($_POST['start_date']) ? sanitize_input($_POST['start_date']) : null;
 
-// Validate start date
+// Validate start date (DD-MM-YYYY to YYYY-MM-DD)
 if ($start_date) {
     $current_date = date('Y-m-d'); // Current date in Y-m-d format
     $dateParts = explode('-', $start_date);
     if (count($dateParts) === 3) {
-        $day = $dateParts[0];
-        $month = $dateParts[1];
-        $year = $dateParts[2];
-        
-        if (checkdate($month, $day, $year)) {
-            $start_date = "$year-$month-$day"; // Convert to YYYY-MM-DD
+        [$day, $month, $year_part] = $dateParts;
+        if (checkdate((int)$month, (int)$day, (int)$year_part)) {
+            $start_date = "$year_part-$month-$day"; // Convert to YYYY-MM-DD
         } else {
             echo json_encode(["success" => false, "message" => "Invalid date format."]);
             exit;
@@ -78,7 +87,6 @@ if ($start_date) {
         exit;
     }
 
-    // Check if the start date is in the past
     if ($start_date < $current_date) {
         echo json_encode(["success" => false, "message" => "Start date must be today or a future date."]);
         exit;
@@ -100,6 +108,7 @@ if ($mv_file_number && !preg_match("/^\d{15}$/", $mv_file_number)) {
     exit;
 }
 
+// Check for existing insurance application for the vehicle by plate or chassis
 $stmt = $conn->prepare("
     SELECT 1 FROM insurance_registration ir
     JOIN vehicles v ON ir.vehicle_id = v.vehicle_id
@@ -124,7 +133,7 @@ if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0777, true);
 }
 
-// File Upload Function
+// File Upload Function with sanitization and validation
 function processFileUpload($file, $prefix, $uploadDir, $client_name) {
     if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
         return null;
@@ -137,15 +146,16 @@ function processFileUpload($file, $prefix, $uploadDir, $client_name) {
         throw new Exception("Invalid file type for $prefix. Only JPG, JPEG, PNG, and PDF are allowed.");
     }
 
+    // Sanitize client name for filename
     $safe_name = preg_replace('/[^a-zA-Z0-9-_]/', '_', $client_name);
     $filename = "{$safe_name}_{$prefix}_" . time() . "." . $fileExtension;
 
-    $subdir = ($prefix === 'OR') ? 'or' : 'cr'; 
-    $destination = $uploadDir . $subdir . '/' . $filename;
-
-    if (!is_dir($uploadDir . $subdir)) {
-        mkdir($uploadDir . $subdir, 0777, true);
+    $subdir = ($prefix === 'OR') ? 'or' : 'cr';
+    $destinationDir = $uploadDir . $subdir . '/';
+    if (!is_dir($destinationDir)) {
+        mkdir($destinationDir, 0777, true);
     }
+    $destination = $destinationDir . $filename;
 
     if (!move_uploaded_file($file['tmp_name'], $destination)) {
         throw new Exception("Failed to upload $prefix picture.");
@@ -156,8 +166,8 @@ function processFileUpload($file, $prefix, $uploadDir, $client_name) {
 
 // Process file uploads
 try {
-    $or_filename = processFileUpload($_FILES['or_picture'], "OR", $uploadDir, $user_name);
-    $cr_filename = processFileUpload($_FILES['cr_picture'], "CR", $uploadDir, $user_name);
+    $or_filename = processFileUpload($_FILES['or_picture'] ?? null, "OR", $uploadDir, $user_name);
+    $cr_filename = processFileUpload($_FILES['cr_picture'] ?? null, "CR", $uploadDir, $user_name);
 } catch (Exception $e) {
     echo json_encode(["success" => false, "message" => $e->getMessage()]);
     exit;
@@ -166,7 +176,7 @@ try {
 try {
     $conn->beginTransaction();
 
-    // Ensure vehicle entry exists
+    // Insert or update vehicle info
     $stmt = $conn->prepare("
         INSERT INTO vehicles (client_id, plate_number, mv_file_number, chassis_number, vehicle_type, brand, model, year, color)
         VALUES (:client_id, :plate_number, :mv_file_number, :chassis_number, :vehicle_type, :brand, :model, :year, :color)
@@ -182,9 +192,9 @@ try {
     ");
     $stmt->execute([
         'client_id' => $client_id,
-        'plate_number' => !empty($plate_number) ? $plate_number : null,
-        'mv_file_number' => !empty($mv_file_number) ? $mv_file_number : null,
-        'chassis_number' => !empty($chassis_number) ? $chassis_number : null,
+        'plate_number' => $plate_number ?: null,
+        'mv_file_number' => $mv_file_number ?: null,
+        'chassis_number' => $chassis_number ?: null,
         'vehicle_type' => $vehicle_type,
         'brand' => $brand,
         'model' => $model,
@@ -214,8 +224,9 @@ try {
             'vehicle_id' => $vehicle_id,
             'file_path' => $or_filename
         ]);
-        // Get the inserted document_id for OR
         $or_document_id = $conn->lastInsertId();
+    } else {
+        $or_document_id = null;
     }
 
     // Insert CR document if uploaded
@@ -229,30 +240,31 @@ try {
             'vehicle_id' => $vehicle_id,
             'file_path' => $cr_filename
         ]);
-        // Get the inserted document_id for CR
         $cr_document_id = $conn->lastInsertId();
+    } else {
+        $cr_document_id = null;
     }
 
     // Insert insurance registration data
     $stmt = $conn->prepare("
-    INSERT INTO insurance_registration (client_id, vehicle_id, type_of_insurance, or_picture, cr_picture, start_date, document_id)
-    VALUES (:client_id, :vehicle_id, :type_of_insurance, :or_picture, :cr_picture, :start_date, :document_id)
-");
-$stmt->execute([
-    'client_id' => $client_id,
-    'vehicle_id' => $vehicle_id,
-    'type_of_insurance' => $insurance_type, // Correct column name here
-    'or_picture' => $or_filename,
-    'cr_picture' => $cr_filename,
-    'start_date' => $start_date,
-    'document_id' => $or_document_id // Store document ID here
-]);
+        INSERT INTO insurance_registration (client_id, vehicle_id, type_of_insurance, or_picture, cr_picture, start_date, document_id)
+        VALUES (:client_id, :vehicle_id, :type_of_insurance, :or_picture, :cr_picture, :start_date, :document_id)
+    ");
+    $stmt->execute([
+        'client_id' => $client_id,
+        'vehicle_id' => $vehicle_id,
+        'type_of_insurance' => $insurance_type,
+        'or_picture' => $or_filename,
+        'cr_picture' => $cr_filename,
+        'start_date' => $start_date,
+        'document_id' => $or_document_id ?? null // You may want to adjust if multiple document IDs are needed
+    ]);
 
     $conn->commit();
-    echo json_encode(["success" => true, "message" => "Insurance registration successful."]);
+
+    echo json_encode(["success" => true, "message" => "Insurance application submitted successfully."]);
+
 } catch (Exception $e) {
     $conn->rollBack();
-    echo json_encode(["success" => false, "message" => "Error: " . $e->getMessage()]);
+    echo json_encode(["success" => false, "message" => "Failed to submit insurance application: " . $e->getMessage()]);
 }
-
-?>
