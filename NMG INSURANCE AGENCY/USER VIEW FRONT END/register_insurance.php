@@ -225,6 +225,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     
+    <style>
+        /* Additional CSS for proxy fields */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        #proxyFields {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            display: none;
+            width: 100%;
+        }
+
+        #otherRelationshipContainer {
+            display: none;
+        }
+        
+        .age-validation {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .valid {
+            color: green;
+        }
+        
+        .invalid {
+            color: red;
+        }
+    </style>
 </head>
 
 <body>
@@ -295,6 +327,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group">
                         <label for="mobile" class="required">Mobile Number</label>
                         <input type="text" id="mobile" name="mobile" value="<?php echo htmlspecialchars($user_mobile); ?>" required readonly>
+                    </div>
+                    
+                    <!-- Proxy Registration Section -->
+                    <div class="form-group full-width">
+                        <label for="is_proxy">Are you registering as a proxy?</label>
+                        <select id="is_proxy" name="is_proxy" onchange="toggleProxyFields()">
+                            <option value="no">No</option>
+                            <option value="yes">Yes</option>
+                        </select>
+                    </div>
+                    
+                    <div id="proxyFields" class="form-grid">
+                        <div class="form-group">
+                            <label for="proxy_first_name" class="required">First Name</label>
+                            <input type="text" id="proxy_first_name" name="proxy_first_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="proxy_middle_name">Middle Name (Optional)</label>
+                            <input type="text" id="proxy_middle_name" name="proxy_middle_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="proxy_last_name" class="required">Last Name</label>
+                            <input type="text" id="proxy_last_name" name="proxy_last_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="proxy_birthday" class="required">Birthday</label>
+                            <input type="date" id="proxy_birthday" name="proxy_birthday" onchange="checkProxyAge()">
+                            <div id="proxyAgeValidation" class="age-validation"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="proxy_relationship" class="required">Relationship</label>
+                            <select id="proxy_relationship" name="proxy_relationship" onchange="toggleOtherRelationship()">
+                                <option value="">Select Relationship</option>
+                                <option value="Relative">Relative</option>
+                                <option value="Friend">Friend</option>
+                                <option value="Representative">Representative</option>
+                                <option value="Other">Other (please specify)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="otherRelationshipContainer">
+                            <label for="other_relationship" class="required">Specify Relationship</label>
+                            <input type="text" id="other_relationship" name="other_relationship">
+                        </div>
+                        <div class="form-group">
+                            <label for="proxy_contact" class="required">Contact Number</label>
+                            <input type="text" id="proxy_contact" name="proxy_contact">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="authorization_letter" class="required">Authorization Letter (Image)</label>
+                            <input type="file" id="authorization_letter" name="authorization_letter" accept="image/*" onchange="validateAuthorizationLetter()">
+                            <small>Upload a clear image of the signed authorization letter</small>
+                            <span class="error-message" id="authorizationLetterError"></span>
+                        </div>
                     </div>
                 </div>
                 <div class="form-actions">
@@ -368,20 +453,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </main>
 
-    <!--<footer>
-        <p>© 2025 NMG Insurance Agency. All Rights Reserved.</p>
-    </footer>-->
-
-   <!-- Modal for Insurance Info -->
-<div id="insuranceModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <div id="modalContent"></div>
+    <!-- Modal for Insurance Info -->
+    <div id="insuranceModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
     </div>
-</div>
 
-<!-- Modal for Date Selection -->
-<div id="dateModal" class="modal">
+    <!-- Modal for Date Selection -->
+    <div id="dateModal" class="modal">
         <div class="modal-content animate__animated animate__fadeInDown">
             <div class="modal-header">
                 <h2 class="modal-title">Select Start Date</h2>
@@ -421,8 +502,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
- <!-- Modal for Post-Submission Options -->
- <div id="postSubmissionModal" class="modal">
+    <!-- Modal for Post-Submission Options -->
+    <div id="postSubmissionModal" class="modal">
         <div class="modal-content animate__animated animate__fadeInDown">
             <div class="modal-header">
                 <h2 class="modal-title">Application Submitted</h2>
@@ -445,11 +526,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Global variables
 let currentStep = 1;
 const totalSteps = 3;
+let isProxyAgeValid = false;
 
 // Initialize the form
 document.addEventListener("DOMContentLoaded", function() {
     updateNextButtonState();
     updateProgressIndicator();
+    
+    // Initialize proxy fields
+    toggleProxyFields();
+    toggleOtherRelationship();
+    
+    // Set maximum date for birthday (must be at least 18 years old)
+    const today = new Date();
+    const maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+    document.getElementById('proxy_birthday').max = maxDate.toISOString().split('T')[0];
 });
 
 // Navigation functions
@@ -506,7 +597,7 @@ function validateCurrentStep() {
         case 1:
             return validateStep1();
         case 2:
-            return true; // Step 2 fields are readonly
+            return validateStep2();
         case 3:
             return validateStep3();
         default:
@@ -525,6 +616,51 @@ function validateStep1() {
         });
         return false;
     }
+    return true;
+}
+
+function validateStep2() {
+    const isProxy = document.getElementById('is_proxy').value === 'yes';
+    
+    if (isProxy) {
+        // Validate proxy fields
+        const requiredFields = [
+            'proxy_first_name', 'proxy_last_name', 
+            'proxy_relationship', 'proxy_contact',
+            'proxy_birthday', 'authorization_letter'
+        ];
+        
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+            const element = document.getElementById(field);
+            if (!element.value.trim()) {
+                isValid = false;
+            }
+        });
+        
+        // Check if "Other" is selected but not specified
+        if (document.getElementById('proxy_relationship').value === 'Other' && 
+            !document.getElementById('other_relationship').value.trim()) {
+            isValid = false;
+        }
+        
+        // Check if age is valid
+        if (!isProxyAgeValid) {
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Missing Information',
+                text: 'Please fill all required proxy information fields and ensure the proxy is at least 18 years old.',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
+    }
+    
     return true;
 }
 
@@ -630,6 +766,65 @@ function validateFileUpload(input, type) {
     return true;
 }
 
+function validateAuthorizationLetter() {
+    const input = document.getElementById('authorization_letter');
+    const errorElement = document.getElementById('authorizationLetterError');
+    errorElement.textContent = '';
+    
+    if (input.files && input.files.length > 0) {
+        const file = input.files[0];
+        
+        // Check file type
+        if (!file.type.match('image.*')) {
+            errorElement.textContent = 'Authorization letter must be an image file';
+            input.value = '';
+            return false;
+        }
+        
+        // Check file size (5MB limit)
+        if (file.size > 5 * 1024 * 1024) {
+            errorElement.textContent = 'Authorization letter must be less than 5MB';
+            input.value = '';
+            return false;
+        }
+    } else {
+        errorElement.textContent = 'Authorization letter is required for proxy registration';
+        return false;
+    }
+    
+    return true;
+}
+
+function checkProxyAge() {
+    const birthdayInput = document.getElementById('proxy_birthday');
+    const ageValidation = document.getElementById('proxyAgeValidation');
+    
+    if (!birthdayInput.value) {
+        ageValidation.textContent = '';
+        isProxyAgeValid = false;
+        return;
+    }
+    
+    const birthday = new Date(birthdayInput.value);
+    const today = new Date();
+    let age = today.getFullYear() - birthday.getFullYear();
+    const monthDiff = today.getMonth() - birthday.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthday.getDate())) {
+        age--;
+    }
+    
+    if (age >= 18) {
+        ageValidation.textContent = `Age: ${age} (Valid)`;
+        ageValidation.className = 'age-validation valid';
+        isProxyAgeValid = true;
+    } else {
+        ageValidation.textContent = `Age: ${age} (Must be at least 18 years old)`;
+        ageValidation.className = 'age-validation invalid';
+        isProxyAgeValid = false;
+    }
+}
+
 // Update button states based on form validity
 function updateNextButtonState() {
     // Step 1 next button
@@ -726,6 +921,34 @@ function showInsuranceInfo() {
 
 function closeModal() {
     document.getElementById('insuranceModal').style.display = "none";
+}
+
+// Toggle proxy information fields
+function toggleProxyFields() {
+    const isProxy = document.getElementById('is_proxy').value === 'yes';
+    document.getElementById('proxyFields').style.display = isProxy ? 'grid' : 'none';
+    
+    // Clear fields when hiding
+    if (!isProxy) {
+        document.getElementById('proxy_first_name').value = '';
+        document.getElementById('proxy_middle_name').value = '';
+        document.getElementById('proxy_last_name').value = '';
+        document.getElementById('proxy_relationship').value = '';
+        document.getElementById('other_relationship').value = '';
+        document.getElementById('proxy_contact').value = '';
+        document.getElementById('proxy_birthday').value = '';
+        document.getElementById('authorization_letter').value = '';
+        document.getElementById('proxyAgeValidation').textContent = '';
+    }
+}
+
+// Toggle other relationship field
+function toggleOtherRelationship() {
+    const isOther = document.getElementById('proxy_relationship').value === 'Other';
+    document.getElementById('otherRelationshipContainer').style.display = isOther ? 'block' : 'none';
+    if (!isOther) {
+        document.getElementById('other_relationship').value = '';
+    }
 }
 
 function showDateModal() {
@@ -863,6 +1086,11 @@ function submitAnotherTransaction() {
     // Clear file inputs (they don't reset with form.reset())
     document.getElementById('or_picture').value = '';
     document.getElementById('cr_picture').value = '';
+    document.getElementById('authorization_letter').value = '';
+    
+    // Reset proxy fields
+    document.getElementById('is_proxy').value = 'no';
+    toggleProxyFields();
     
     // Reset progress indicator
     document.querySelectorAll('.step-progress .step').forEach(step => {
