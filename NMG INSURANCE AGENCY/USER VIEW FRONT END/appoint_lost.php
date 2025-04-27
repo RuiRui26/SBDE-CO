@@ -20,11 +20,8 @@ require '../../Logout_Login/Restricted.php';
 </head>
 
 <body>
-       <!-- Header with Logo -->
-    <header class="header">
-        <img src="img/NMG3.png" alt="NMG Insurance Logo" class="logo">
-        <h1 class="header-title">Retrieve Your Lost Documents</h1>
-    </header>
+       <!-- Navigation -->
+     <?php include 'nav.php'; ?>
     <!-- Main Form Section -->
     <div class="form-section">
    

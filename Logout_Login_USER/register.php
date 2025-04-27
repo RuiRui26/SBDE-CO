@@ -35,8 +35,8 @@
                 </div>
 
                 <div class="input-group small">
-                    <label for="middle_initial">M.I (Optional)</label>
-                    <input type="text" id="middle_initial" name="middle_initial" placeholder="M" maxlength="1" />
+                    <label for="middle_name">M.I (Optional)</label>
+                    <input type="text" id="middle_name" name="middle_name" placeholder="M" maxlength="1" />
                 </div>
             </div>
 

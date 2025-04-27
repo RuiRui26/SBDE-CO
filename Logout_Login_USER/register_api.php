@@ -11,6 +11,7 @@ try {
 
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $first_name = trim($_POST["first_name"] ?? "");
+        $middle_name = trim($_POST["middle_name"] ?? "");
         $last_name = trim($_POST["last_name"] ?? "");
         $email = trim($_POST["email"] ?? "");
         $contact_number = trim($_POST["contact_number"] ?? "");
@@ -24,7 +25,7 @@ try {
         $address = $street_address . ", " . $barangay . ", " . $city . " " . $zip_code;
 
         // Validate fields
-        if (empty($first_name) || empty($last_name) || empty($email) || empty($contact_number) || empty($address) || empty($password) || empty($birthday)) {
+        if (empty($first_name) || empty($middle_name) || empty($last_name) || empty($email) || empty($contact_number) || empty($address) || empty($password) || empty($birthday)) {
             $response["message"] = "All fields are required.";
             echo json_encode($response);
             exit;
@@ -83,30 +84,43 @@ try {
         $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
         // Insert into users table
-        $stmtUser = $db->prepare("INSERT INTO users (name, email, contact_number, password, role) 
-                                  VALUES (:name, :email, :contact_number, :password, 'Client')");
-        $stmtUser->execute([
-            ":name" => $first_name . " " . $last_name,
-            ":email" => $email,
-            ":contact_number" => $contact_number,
-            ":password" => $hashed_password
-        ]);
+$full_name = $first_name . ' ' . $middle_name . ' ' . $last_name;
 
-        $user_id = $db->lastInsertId();
+$stmtUser = $db->prepare("INSERT INTO users (first_name, middle_name, last_name, name, email, contact_number, password, role) 
+                          VALUES (:first_name, :middle_name, :last_name, :name, :email, :contact_number, :password, 'Client')");
+$stmtUser->execute([
+    ":first_name" => $first_name,
+    ":middle_name" => $middle_name,
+    ":last_name" => $last_name, 
+    ":name" => $full_name,  // Full name combining first, middle, last
+    ":email" => $email,
+    ":contact_number" => $contact_number,
+    ":password" => $hashed_password
+]);
 
-        if ($user_id) {
-            // Insert into clients table (now using separate first_name and last_name)
-            $stmtClient = $db->prepare("INSERT INTO clients (first_name, last_name, email, contact_number, address, birthday, user_id) 
-                                        VALUES (:first_name, :last_name, :email, :contact_number, :address, :birthday, :user_id)");
-            $stmtClient->execute([
-                ":first_name" => $first_name,
-                ":last_name" => $last_name,
-                ":email" => $email,
-                ":contact_number" => $contact_number,
-                ":address" => $address,
-                ":birthday" => $birthday,
-                ":user_id" => $user_id
-            ]);
+
+
+$user_id = $db->lastInsertId();
+
+if ($user_id) {
+    // Combine first, middle, and last name to make full name
+    $full_name = $first_name . ' ' . $middle_name . ' ' . $last_name;
+    
+    // Insert into clients table
+    $stmtClient = $db->prepare("INSERT INTO clients (first_name, middle_name, last_name, full_name, email, contact_number, address, birthday, user_id) 
+                                VALUES (:first_name, :middle_name, :last_name, :full_name, :email, :contact_number, :address, :birthday, :user_id)");
+    $stmtClient->execute([
+        ":first_name" => $first_name,
+        ":middle_name" => $middle_name,
+        ":last_name" => $last_name,
+        ":full_name" => $full_name,
+        ":email" => $email,
+        ":contact_number" => $contact_number,
+        ":address" => $address,
+        ":birthday" => $birthday,
+        ":user_id" => $user_id
+    ]);
+
 
             $db->commit();
 
