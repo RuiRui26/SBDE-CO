@@ -338,24 +338,90 @@ footer {
   color: #333;
 }
 
-
-#topBtn {
-position: fixed;
-bottom: 40px;
-right: 40px;
-font-size: 22px;
-width: 40px;
-height: 40px;
-background: var(--secondary-color);
-color: #fff;
-border: none;
-cursor: pointer;
-display: none;
+/* Fade in animation */
+@keyframes fadeInUp {
+  from {
+      opacity: 0;
+      transform: translateY(30px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 
-#topBtn ion-icon {
-color: #fff;
+/* ------------------ Responsive Styles for Mobile ------------------ */
+@media (max-width: 768px) {
+    .nav-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .nav-wrapper ul.nav-list {
+        flex-direction: column;
+        gap: 10px;
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .nav-wrapper ul.nav-list li {
+        margin-left: 0;
+        padding: 10px 0;
+    }
+
+    .hamberger {
+        display: block;
+        cursor: pointer;
+    }
+
+    .menu-container {
+        max-width: 100%;
+        padding: 0 1rem;
+    }
+
+    .landing .landing-container {
+        height: auto;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 2rem 1rem;
+    }
+
+    .landing-heading {
+        font-size: 2.5rem;
+        line-height: 1.4;
+    }
+
+    .inner-row {
+        justify-content: center;
+    }
+
+    .inner-col {
+        max-width: 100%;
+        flex: 1 1 100%;
+    }
+
+    .user-profile img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 0.8rem 1rem;
+    }
+
+    .modal-content.enhanced-modal {
+        width: 95%;
+        padding: 1.5rem;
+    }
+
+    .footer-container p {
+        font-size: 0.9rem;
+    }
 }
+
+
 /*----------------- Registration section styling ----------------*/
 .registration-section {
   background-color: #172d52fb;
@@ -375,6 +441,7 @@ color: #fff;
   justify-content: space-between;
   align-items: flex-start;
   gap: 40px;
+  flex-wrap: wrap; /* ✅ allow wrapping if needed on smaller screens */
 }
 
 /* Welcome message styling */
@@ -411,43 +478,26 @@ color: #fff;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .registration-content {
-    flex-direction: column;
-  }
-  
-  .registration-image {
-    text-align: center;
-    margin-top: 30px;
-  }
-  
-  .welcome-message {
-    max-width: 100%;
-  }
-}
-
-
-
-
-
+/* Form container */
 .form-container {
-  flex: 1.3; /* 👈 this gives it a bit more space to the right */
+  flex: 1.3;
   max-width: 700px;
 }
+
+/* Step Progress Bar */
 .step-progress {
   display: flex;
-  justify-content: space-between; /* Align to left */
+  justify-content: space-between;
   margin-top: 20px;
-  gap: 40px; /* Space between steps */
-  flex-wrap: nowrap; /* All inline */
-  background: none; /* Remove background if any */
+  gap: 40px;
+  flex-wrap: nowrap;
+  background: none;
   padding: 0;
   border: none;
 }
 
 .step {
-  flex: 1 1 200px; /* Responsive, minimum width of each step */
+  flex: 1 1 200px;
   max-width: 220px;
   text-align: center;
   display: flex;
@@ -484,8 +534,7 @@ color: #fff;
   line-height: 1.4;
 }
 
-
-/* Registration image on the right */
+/* Registration image again */
 .registration-image {
   flex: 1;
   text-align: right;
@@ -498,19 +547,61 @@ color: #fff;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* Responsive layout */
-@media (max-width: 768px) {
+/* ---------------- Responsive layout ---------------- */
+@media (max-width: 992px) {
   .registration-content {
     flex-direction: column;
     align-items: center;
+    gap: 30px;
   }
 
-  .registration-image {
+  .welcome-message {
+    padding: 0;
     text-align: center;
     margin-top: 30px;
   }
 
+  .registration-image {
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .form-container {
+    max-width: 100%;
+  }
+  
   .step-progress {
+    flex-wrap: wrap;
+    gap: 20px;
     justify-content: center;
+  }
+
+  .step {
+    flex: 1 1 150px;
+    max-width: 180px;
+  }
+}
+
+@media (max-width: 576px) {
+  .welcome-message h2 {
+    font-size: 32px;
+  }
+
+  .welcome-message p {
+    font-size: 16px;
+  }
+
+  .step-number {
+    width: 35px;
+    height: 35px;
+    font-size: 18px;
+  }
+
+  .step-title {
+    font-size: 14px;
+  }
+
+  .step-description {
+    font-size: 12px;
   }
 }
