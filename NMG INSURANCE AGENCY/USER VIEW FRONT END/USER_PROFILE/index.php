@@ -341,6 +341,14 @@ if ($client_id) {
             margin-top: 10px;
             grid-column: 1 / -1;
         }
+        .renew-button {
+        background-color: #e8f5e9;
+        color: #27ae60;
+    }
+    .renew-button:hover {
+        background-color: #d0f0d6;
+        color: #1e8449;
+    }
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
@@ -502,6 +510,10 @@ if ($client_id) {
                                                 <i class="fas fa-file-alt"></i> CR Copy
                                             </a>
                                         <?php endif; ?>
+                                        <!-- RENEW BUTTON -->
+        <a href="#" class="document-link renew-button">
+            <i class="fas fa-sync-alt"></i> Renew
+        </a>
                                     </div>
                                 </div>
                                 
