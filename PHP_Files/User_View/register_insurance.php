@@ -364,6 +364,9 @@ try {
     }
 
     // Insert insurance registration with proxy_id and expiration date
+    // [Previous code remains exactly the same until the insurance registration insert]
+
+    // Insert insurance registration with proxy_id and expiration date
     $stmt = $conn->prepare("
         INSERT INTO insurance_registration (
             client_id, 
@@ -382,7 +385,7 @@ try {
             :or_picture, 
             :cr_picture, 
             :start_date, 
-            :expired_at,
+            DATE_ADD(:start_date, INTERVAL 365 DAY),
             :document_id,
             :proxy_id
         )
@@ -394,10 +397,11 @@ try {
         'or_picture' => $or_filename,
         'cr_picture' => $cr_filename,
         'start_date' => $start_date,
-        'expired_at' => $expired_at->format('Y-m-d'),
         'document_id' => $or_document_id ?? null,
         'proxy_id' => $proxy_id
     ]);
+
+// [Rest of your original code remains exactly the same]
 
     $conn->commit();
 
