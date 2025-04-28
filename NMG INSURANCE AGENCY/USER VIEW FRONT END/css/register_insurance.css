@@ -655,6 +655,37 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     color: #d4d4d4;
 }
 
+/* Additional CSS for proxy fields */
+.full-width {
+    grid-column: 1 / -1;
+}
+
+#proxyFields {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    display: none;
+    width: 100%;
+}
+
+#otherRelationshipContainer {
+    display: none;
+}
+
+.age-validation {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.valid {
+    color: green;
+}
+
+.invalid {
+    color: red;
+}
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
