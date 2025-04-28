@@ -7,7 +7,7 @@ require '../../DB_connection/db.php';
 $database = new Database();
 $pdo = $database->getConnection();
 
-// Fetch cashier info from `users` table only
+// Fetch cashier info
 $cashier = null;
 if (isset($_SESSION['user_id'])) {
     $stmtCashier = $pdo->prepare("SELECT u.name, u.email
@@ -17,14 +17,14 @@ if (isset($_SESSION['user_id'])) {
     $cashier = $stmtCashier->fetch(PDO::FETCH_ASSOC);
 }
 
-// Fetch approved insurance with client and vehicle info
-$sql = "SELECT ir.created_at, ir.start_date, ir.expired_at, ir.type_of_insurance, ir.status, ir.is_paid, ir.is_claimed,
+// Fetch only Approved and Paid insurances with client, vehicle, and COC info
+$sql = "SELECT ir.created_at, ir.start_date, ir.expired_at, ir.type_of_insurance, ir.status, ir.is_paid, ir.is_claimed, ir.certificate_of_coverage,
         CONCAT(c.first_name, ' ', c.last_name) AS client_name,
         v.brand AS vehicle_brand, v.model AS vehicle_model
         FROM insurance_registration ir
         JOIN clients c ON ir.client_id = c.client_id
         JOIN vehicles v ON ir.vehicle_id = v.vehicle_id
-        WHERE ir.status = 'Approved'
+        WHERE ir.status = 'Approved' AND ir.is_paid = 'Paid'
         ORDER BY ir.expired_at ASC";
 
 $stmt = $pdo->prepare($sql);
@@ -72,7 +72,7 @@ $stmt->execute();
         </div>
 
         <div class="payment-history">
-            <h2>Approved Insurance Payment History</h2>
+            <h2>Approved & Paid Insurance Payment History</h2>
             <table id="insuranceTable" class="display responsive nowrap" style="width:100%">
                 <thead>
                     <tr>
@@ -85,6 +85,7 @@ $stmt->execute();
                         <th>Status</th>
                         <th>Payment Status</th>
                         <th>Claim Status</th>
+                        <th>Certificate of Coverage (COC)</th> <!-- Added COC column -->
                     </tr>
                 </thead>
                 <tbody>
@@ -101,6 +102,7 @@ $stmt->execute();
                         $status = htmlspecialchars($row['status']);
                         $paymentStatus = htmlspecialchars($row['is_paid']);
                         $claimStatus = htmlspecialchars($row['is_claimed']);
+                        $coc = !empty($row['certificate_of_coverage']) ? htmlspecialchars($row['certificate_of_coverage']) : '<span style="color:red;">NOT YET CLAIMED</span>';
 
                         // Expiration status
                         $expirationStatus = "N/A";
@@ -132,6 +134,7 @@ $stmt->execute();
                                 <td>$status</td>
                                 <td>$paymentStatus</td>
                                 <td>$claimStatus</td>
+                                <td>$coc</td>
                               </tr>";
                     }
                     ?>

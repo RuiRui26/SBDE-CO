@@ -3,6 +3,7 @@ session_start();
 $allowed_roles = ['Cashier'];
 require('../../Logout_Login/Restricted.php');
 require '../../DB_connection/db.php';
+include 'sidebar.php';
 
 // Initialize Database and get PDO connection
 $database = new Database();
@@ -36,7 +37,7 @@ if (!$insurance) {
     exit('Insurance record not found');
 }
 
-// Check if Paid and Claimed statuses for button visibility
+// Check if Paid and Claimed statuses
 $isPaid = strtolower($insurance['is_paid'] ?? '') === 'paid';
 $isClaimed = strtolower($insurance['is_claimed'] ?? '') === 'claimed';
 ?>
@@ -48,6 +49,7 @@ $isClaimed = strtolower($insurance['is_claimed'] ?? '') === 'claimed';
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Insurance Details</title>
   <link rel="stylesheet" href="css/dashboard.css" />
+  
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -110,13 +112,49 @@ $isClaimed = strtolower($insurance['is_claimed'] ?? '') === 'claimed';
       background-color: darkgreen;
     }
     button.unpaid-btn {
-  background-color: #cc0000; /* red */
-  margin-right: 10px;
-}
-button.unclaimed-btn {
-  background-color: #cc6600; /* orange-ish */
-}
+      background-color: #cc0000;
+      margin-right: 10px;
+    }
+    button.unclaimed-btn {
+      background-color: #cc6600;
+    }
 
+    /* Modal Styles */
+    #claimModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+    }
+    #claimModal .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      width: 300px;
+      margin: 100px auto;
+      position: relative;
+    }
+    #claimModal input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+    #claimModal button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    #claimModal button[type="submit"] {
+      background-color: darkgreen;
+      color: white;
+    }
+    #claimModal button[type="button"] {
+      background-color: red;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -134,29 +172,50 @@ button.unclaimed-btn {
     <tr><th>Paid</th><td><?=htmlspecialchars($insurance['is_paid'] ?? 'Unpaid')?></td></tr>
     <tr><th>Client Mobile</th><td><?=htmlspecialchars($insurance['contact_number'] ?? '-')?></td></tr>
     <tr><th>Client Email</th><td><?=htmlspecialchars($insurance['email'] ?? '-')?></td></tr>
-    <!-- Add more details as needed -->
   </table>
 
   <!-- Paid toggle -->
-<form method="POST" action="../../PHP_Files/CRUD_Functions/cashier_update_status.php"  style="display:inline-block;">
-  <input type="hidden" name="insurance_id" value="<?=htmlspecialchars($insurance['insurance_id'])?>">
-  <input type="hidden" name="action" value="<?= $isPaid ? 'mark_unpaid' : 'mark_paid' ?>">
-  <button type="submit" class="action-btn <?= $isPaid ? 'unpaid-btn' : 'paid-btn' ?>">
-    <?= $isPaid ? 'Mark as Unpaid' : 'Mark as Paid' ?>
-  </button>
-</form>
+  <form method="POST" action="../../PHP_Files/CRUD_Functions/cashier_update_status.php" style="display:inline-block;">
+    <input type="hidden" name="insurance_id" value="<?=htmlspecialchars($insurance['insurance_id'])?>">
+    <input type="hidden" name="action" value="<?= $isPaid ? 'mark_unpaid' : 'mark_paid' ?>">
+    <button type="submit" class="action-btn <?= $isPaid ? 'unpaid-btn' : 'paid-btn' ?>">
+      <?= $isPaid ? 'Mark as Unpaid' : 'Mark as Paid' ?>
+    </button>
+  </form>
 
-<!-- Claimed toggle -->
-<form method="POST" action="../../PHP_Files/CRUD_Functions/cashier_update_status.php" style="display:inline-block;">
-  <input type="hidden" name="insurance_id" value="<?=htmlspecialchars($insurance['insurance_id'])?>">
-  <input type="hidden" name="action" value="<?= $isClaimed ? 'mark_unclaimed' : 'mark_claimed' ?>">
-  <button type="submit" class="action-btn <?= $isClaimed ? 'unclaimed-btn' : 'claimed-btn' ?>">
+  <!-- Claimed toggle (now opens modal) -->
+  <button type="button" class="action-btn <?= $isClaimed ? 'unclaimed-btn' : 'claimed-btn' ?>"
+    onclick="openClaimModal('<?=htmlspecialchars($insurance['insurance_id'])?>')">
     <?= $isClaimed ? 'Mark as Unclaimed' : 'Mark as Claimed' ?>
   </button>
-</form>
 
   <a href="cashier.php" class="back-btn">Back to List</a>
 </div>
+
+<!-- Claim Modal -->
+<div id="claimModal">
+  <div class="modal-content">
+    <h2>Enter COC Number</h2>
+    <form method="POST" action="../../PHP_Files/CRUD_Functions/cashier_update_status.php">
+      <input type="hidden" name="insurance_id" id="modal_insurance_id">
+      <input type="hidden" name="action" value="mark_claimed">
+      <input type="text" name="certificate_of_coverage" placeholder="e.g., COC-123456" required>
+      <button type="submit">Submit</button>
+      <button type="button" onclick="closeClaimModal()">Cancel</button>
+    </form>
+  </div>
+</div>
+
+<script>
+function openClaimModal(insuranceId) {
+  document.getElementById('modal_insurance_id').value = insuranceId;
+  document.getElementById('claimModal').style.display = 'block';
+}
+
+function closeClaimModal() {
+  document.getElementById('claimModal').style.display = 'none';
+}
+</script>
 
 </body>
 </html>
