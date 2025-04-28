@@ -59,6 +59,76 @@ if (!$user_name || !$mobile) {
     exit;
 }
 
+// Check if this is a proxy registration
+$is_proxy = isset($_POST['is_proxy']) && $_POST['is_proxy'] === 'yes';
+$proxy_id = null;
+
+// Handle proxy registration if needed
+if ($is_proxy) {
+    // Validate proxy fields
+    $required_proxy_fields = [
+        'proxy_first_name' => 'First name',
+        'proxy_last_name' => 'Last name',
+        'proxy_birthday' => 'Birthday',
+        'proxy_relationship' => 'Relationship',
+        'proxy_contact' => 'Contact number'
+    ];
+    
+    foreach ($required_proxy_fields as $field => $name) {
+        if (empty($_POST[$field])) {
+            echo json_encode(["success" => false, "message" => "Proxy $name is required."]);
+            exit;
+        }
+    }
+    
+    // Validate proxy age (must be at least 18)
+    $birthday = new DateTime($_POST['proxy_birthday']);
+    $today = new DateTime();
+    $age = $birthday->diff($today)->y;
+    
+    if ($age < 18) {
+        echo json_encode(["success" => false, "message" => "Proxy must be at least 18 years old."]);
+        exit;
+    }
+    
+    // Handle relationship field
+    $relationship = sanitize_input($_POST['proxy_relationship']);
+    if ($relationship === 'Other') {
+        if (empty($_POST['other_relationship'])) {
+            echo json_encode(["success" => false, "message" => "Please specify relationship."]);
+            exit;
+        }
+        $relationship = sanitize_input($_POST['other_relationship']);
+    }
+    
+    // Process authorization letter upload
+    if (!isset($_FILES['authorization_letter']) || $_FILES['authorization_letter']['error'] !== UPLOAD_ERR_OK) {
+        echo json_encode(["success" => false, "message" => "Authorization letter is required for proxy registration."]);
+        exit;
+    }
+    
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
+    $fileExtension = strtolower(pathinfo($_FILES['authorization_letter']['name'], PATHINFO_EXTENSION));
+    if (!in_array($fileExtension, $allowedExtensions)) {
+        echo json_encode(["success" => false, "message" => "Invalid file type for authorization letter. Only JPG, JPEG, PNG, and PDF allowed."]);
+        exit;
+    }
+    
+    $uploadDir = '../../secured_uploads/proxy_auth/';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+    
+    $safe_name = preg_replace('/[^a-zA-Z0-9-_]/', '_', $user_name);
+    $auth_filename = "proxy_auth_{$safe_name}_" . time() . "." . $fileExtension;
+    $destination = $uploadDir . $auth_filename;
+    
+    if (!move_uploaded_file($_FILES['authorization_letter']['tmp_name'], $destination)) {
+        echo json_encode(["success" => false, "message" => "Failed to upload authorization letter."]);
+        exit;
+    }
+}
+
 // Retrieve and sanitize form data
 $plate_number = $_POST['plate_number'] ?? null;
 $mv_file_number = $_POST['mv_file_number'] ?? null;
@@ -77,22 +147,29 @@ foreach (['plate_number', 'mv_file_number', 'insurance_type', 'chassis_number', 
     }
 }
 
-// Validate start date (expecting DD-MM-YYYY)
+// Validate start date (expecting YYYY-MM-DD)
 if ($start_date) {
     $dateParts = explode('-', $start_date);
     if (count($dateParts) === 3) {
-        [$day, $month, $year_part] = $dateParts;
+        [$year_part, $month, $day] = $dateParts;
         if (!checkdate((int)$month, (int)$day, (int)$year_part)) {
             echo json_encode(["success" => false, "message" => "Invalid start date."]);
             exit;
         }
-        $start_date = "$year_part-$month-$day"; // Convert to YYYY-MM-DD for DB
-        if ($start_date < date('Y-m-d')) {
+        
+        $start_date_obj = new DateTime($start_date);
+        $today = new DateTime();
+        
+        if ($start_date_obj < $today) {
             echo json_encode(["success" => false, "message" => "Start date must not be in the past."]);
             exit;
         }
+        
+        // Calculate expiration date (365 days from start date)
+        $expired_at = clone $start_date_obj;
+        $expired_at->add(new DateInterval('P365D'));
     } else {
-        echo json_encode(["success" => false, "message" => "Invalid date format. Use DD-MM-YYYY."]);
+        echo json_encode(["success" => false, "message" => "Invalid date format. Use YYYY-MM-DD."]);
         exit;
     }
 } else {
@@ -130,7 +207,7 @@ if ($existingApplication) {
     exit;
 }
 
-// Upload directory
+// Upload directory for OR/CR
 $uploadDir = '../../secured_uploads/';
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
@@ -174,6 +251,50 @@ try {
 // Insert data transactionally
 try {
     $conn->beginTransaction();
+
+    // Register proxy first if needed
+    if ($is_proxy) {
+        $stmt = $conn->prepare("
+            INSERT INTO proxies (
+                user_id, 
+                client_id, 
+                first_name, 
+                middle_name, 
+                last_name, 
+                birthday, 
+                relationship, 
+                other_relationship, 
+                contact_number, 
+                authorization_letter_path
+            ) VALUES (
+                :user_id, 
+                :client_id, 
+                :first_name, 
+                :middle_name, 
+                :last_name, 
+                :birthday, 
+                :relationship, 
+                :other_relationship, 
+                :contact_number, 
+                :authorization_letter_path
+            )
+        ");
+        
+        $stmt->execute([
+            'user_id' => $user_id,
+            'client_id' => $client_id,
+            'first_name' => sanitize_input($_POST['proxy_first_name']),
+            'middle_name' => isset($_POST['proxy_middle_name']) ? sanitize_input($_POST['proxy_middle_name']) : null,
+            'last_name' => sanitize_input($_POST['proxy_last_name']),
+            'birthday' => $_POST['proxy_birthday'],
+            'relationship' => $relationship,
+            'other_relationship' => isset($_POST['other_relationship']) ? sanitize_input($_POST['other_relationship']) : null,
+            'contact_number' => sanitize_input($_POST['proxy_contact']),
+            'authorization_letter_path' => $auth_filename
+        ]);
+        
+        $proxy_id = $conn->lastInsertId();
+    }
 
     // Insert or update vehicle (Make sure unique key exists on vehicles table)
     $stmt = $conn->prepare("
@@ -242,10 +363,29 @@ try {
         $cr_document_id = $conn->lastInsertId();
     }
 
-    // Insert insurance registration
+    // Insert insurance registration with proxy_id and expiration date
     $stmt = $conn->prepare("
-        INSERT INTO insurance_registration (client_id, vehicle_id, type_of_insurance, or_picture, cr_picture, start_date, document_id)
-        VALUES (:client_id, :vehicle_id, :type_of_insurance, :or_picture, :cr_picture, :start_date, :document_id)
+        INSERT INTO insurance_registration (
+            client_id, 
+            vehicle_id, 
+            type_of_insurance, 
+            or_picture, 
+            cr_picture, 
+            start_date, 
+            expired_at,
+            document_id,
+            proxy_id
+        ) VALUES (
+            :client_id, 
+            :vehicle_id, 
+            :type_of_insurance, 
+            :or_picture, 
+            :cr_picture, 
+            :start_date, 
+            :expired_at,
+            :document_id,
+            :proxy_id
+        )
     ");
     $stmt->execute([
         'client_id' => $client_id,
@@ -254,7 +394,9 @@ try {
         'or_picture' => $or_filename,
         'cr_picture' => $cr_filename,
         'start_date' => $start_date,
-        'document_id' => $or_document_id ?? null
+        'expired_at' => $expired_at->format('Y-m-d'),
+        'document_id' => $or_document_id ?? null,
+        'proxy_id' => $proxy_id
     ]);
 
     $conn->commit();
