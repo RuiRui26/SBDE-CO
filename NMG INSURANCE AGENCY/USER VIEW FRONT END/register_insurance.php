@@ -65,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $brand = $_POST['brand'] ?? null;
         $model = $_POST['model'] ?? null;
         $color = $_POST['color'] ?? null;
+        $is_proxy = $_POST['is_proxy'] ?? 'no';
 
         // Validate required fields
         $errors = [];
@@ -87,6 +88,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if (empty($_FILES['cr_picture']['tmp_name'])) {
             $errors[] = "CR picture is required.";
+        }
+
+        // Validate proxy information if registering as proxy
+        if ($is_proxy === 'yes') {
+            if (empty($_POST['proxy_first_name'])) $errors[] = "Proxy first name is required.";
+            if (empty($_POST['proxy_last_name'])) $errors[] = "Proxy last name is required.";
+            if (empty($_POST['proxy_relationship'])) $errors[] = "Proxy relationship is required.";
+            if (empty($_POST['proxy_contact'])) $errors[] = "Proxy contact number is required.";
+            if (empty($_POST['proxy_birthday'])) $errors[] = "Proxy birthday is required.";
+            if (empty($_FILES['authorization_letter']['tmp_name'])) {
+                $errors[] = "Authorization letter is required for proxy registration.";
+            }
+            
+            // Validate relationship if "Other" is selected
+            if ($_POST['proxy_relationship'] === 'Other' && empty($_POST['other_relationship'])) {
+                $errors[] = "Please specify proxy relationship.";
+            }
         }
 
         if (!empty($errors)) {
@@ -144,7 +162,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Create upload directory if it doesn't exist
         if (!file_exists($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
+            if (!mkdir($upload_dir, 0777, true)) {
+                throw new Exception("Failed to create upload directory.");
+            }
         }
 
         // Process OR picture
@@ -156,6 +176,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!move_uploaded_file($_FILES['or_picture']['tmp_name'], $or_picture_path)) {
                 throw new Exception("Failed to upload OR picture.");
             }
+        } else {
+            throw new Exception("OR picture upload failed with error code: " . $_FILES['or_picture']['error']);
         }
 
         // Process CR picture
@@ -167,19 +189,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!move_uploaded_file($_FILES['cr_picture']['tmp_name'], $cr_picture_path)) {
                 throw new Exception("Failed to upload CR picture.");
             }
+        } else {
+            throw new Exception("CR picture upload failed with error code: " . $_FILES['cr_picture']['error']);
         }
+
+        // Process proxy information if registering as proxy
+$proxy_id = null;
+$authorization_letter_path = null;
+
+if ($is_proxy === 'yes') {
+    // Process authorization letter
+    if (isset($_FILES['authorization_letter']) && $_FILES['authorization_letter']['error'] === UPLOAD_ERR_OK) {
+        $auth_file_name = "AUTH_" . $client_id . "_" . time() . "." . pathinfo($_FILES['authorization_letter']['name'], PATHINFO_EXTENSION);
+        $authorization_letter_path = $upload_dir . $auth_file_name;
+        
+        if (!move_uploaded_file($_FILES['authorization_letter']['tmp_name'], $authorization_letter_path)) {
+            throw new Exception("Failed to upload authorization letter.");
+        }
+    } else {
+        throw new Exception("Authorization letter upload failed with error code: " . $_FILES['authorization_letter']['error']);
+    }
+    
+    // Insert proxy information - include BOTH user_id and client_id
+    $proxy_first_name = $_POST['proxy_first_name'];
+    $proxy_middle_name = $_POST['proxy_middle_name'] ?? null;
+    $proxy_last_name = $_POST['proxy_last_name'];
+    $proxy_birthday = $_POST['proxy_birthday'];
+    $proxy_relationship = $_POST['proxy_relationship'] === 'Other' ? $_POST['other_relationship'] : $_POST['proxy_relationship'];
+    $proxy_contact = $_POST['proxy_contact'];
+    
+    $stmt = $pdo->prepare("INSERT INTO proxies 
+                          (user_id, client_id, first_name, middle_name, last_name, birthday, relationship, contact_number, authorization_letter_path) 
+                          VALUES 
+                          (:user_id, :client_id, :first_name, :middle_name, :last_name, :birthday, :relationship, :contact_number, :auth_letter_path)");
+    
+    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+    $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
+    $stmt->bindParam(':first_name', $proxy_first_name);
+    $stmt->bindParam(':middle_name', $proxy_middle_name);
+    $stmt->bindParam(':last_name', $proxy_last_name);
+    $stmt->bindParam(':birthday', $proxy_birthday);
+    $stmt->bindParam(':relationship', $proxy_relationship);
+    $stmt->bindParam(':contact_number', $proxy_contact);
+    $stmt->bindParam(':auth_letter_path', $authorization_letter_path);
+    
+    if (!$stmt->execute()) {
+        throw new Exception("Failed to save proxy information: " . implode(" ", $stmt->errorInfo()));
+    }
+    
+    $proxy_id = $pdo->lastInsertId();
+}
 
         // Insert insurance registration
         $stmt = $pdo->prepare("INSERT INTO insurance_registration 
-                              (client_id, vehicle_id, type_of_insurance, or_picture, cr_picture, created_at) 
-                              VALUES 
-                              (:client_id, :vehicle_id, :type_of_insurance, :or_picture, :cr_picture, NOW())");
+        (client_id, vehicle_id, proxy_id, type_of_insurance, or_picture, cr_picture, start_date, created_at)
+        VALUES 
+        (:client_id, :vehicle_id, :proxy_id, :type_of_insurance, :or_picture, :cr_picture, :start_date, NOW())");
+    
         
         $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
         $stmt->bindParam(':vehicle_id', $vehicle_id, PDO::PARAM_INT);
+        $stmt->bindParam(':proxy_id', $proxy_id, PDO::PARAM_INT);
         $stmt->bindParam(':type_of_insurance', $insurance_type);
         $stmt->bindParam(':or_picture', $or_picture_path);
         $stmt->bindParam(':cr_picture', $cr_picture_path);
+        $stmt->bindParam(':start_date', $start_date);
         
         if (!$stmt->execute()) {
             throw new Exception("Failed to submit insurance registration.");
@@ -195,7 +269,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
     } catch (Exception $e) {
         // Rollback transaction on error
-        $pdo->rollBack();
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         
         // Delete uploaded files if transaction failed
         if (isset($or_picture_path) && file_exists($or_picture_path)) {
@@ -204,6 +280,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($cr_picture_path) && file_exists($cr_picture_path)) {
             @unlink($cr_picture_path);
         }
+        if (isset($authorization_letter_path) && file_exists($authorization_letter_path)) {
+            @unlink($authorization_letter_path);
+        }
+        
+        error_log("Insurance registration error: " . $e->getMessage());
         
         echo json_encode([
             'success' => false,
@@ -297,8 +378,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="text" id="mobile" name="mobile" value="<?php echo htmlspecialchars($user_mobile); ?>" required readonly>
                     </div>
                     
-                    <!-- Proxy Registration Section -->
-                    <div class="form-group full-width">
+                     <!-- Proxy Registration Section -->
+                     <div class="form-group full-width">
                         <label for="is_proxy">Are you registering as a proxy?</label>
                         <select id="is_proxy" name="is_proxy" onchange="toggleProxyFields()">
                             <option value="no">No</option>
@@ -306,7 +387,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </select>
                     </div>
                     
-                    <div id="proxyFields" class="form-grid">
+                    <div id="proxyFields" class="form-grid" style="display: none;">
                         <div class="form-group">
                             <label for="proxy_first_name" class="required">First Name</label>
                             <input type="text" id="proxy_first_name" name="proxy_first_name" onblur="validateInputForXSS(this)">
@@ -334,7 +415,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <option value="Other">Other (please specify)</option>
                             </select>
                         </div>
-                        <div class="form-group" id="otherRelationshipContainer">
+                        <div class="form-group" id="otherRelationshipContainer" style="display: none;">
                             <label for="other_relationship" class="required">Specify Relationship</label>
                             <input type="text" id="other_relationship" name="other_relationship" onblur="validateInputForXSS(this)">
                         </div>
@@ -1100,7 +1181,7 @@ function submitAnotherTransaction() {
     // Clear file inputs (they don't reset with form.reset())
     document.getElementById('or_picture').value = '';
     document.getElementById('cr_picture').value = '';
-    document.getElementById('authorization_letter').value = '';
+    document.getElementById('authorization_letter').value = ''; 
     
     // Reset proxy fields
     document.getElementById('is_proxy').value = 'no';
