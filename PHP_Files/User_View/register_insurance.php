@@ -147,31 +147,53 @@ foreach (['plate_number', 'mv_file_number', 'insurance_type', 'chassis_number', 
     }
 }
 
-// Validate start date (expecting YYYY-MM-DD)
+// Validate start date (accepts either DD-MM-YYYY or YYYY-MM-DD)
 if ($start_date) {
-    $dateParts = explode('-', $start_date);
-    if (count($dateParts) === 3) {
-        [$year_part, $month, $day] = $dateParts;
-        if (!checkdate((int)$month, (int)$day, (int)$year_part)) {
-            echo json_encode(["success" => false, "message" => "Invalid start date."]);
+    // Try to detect format
+    if (strpos($start_date, '-') !== false) {
+        $dateParts = explode('-', $start_date);
+        if (count($dateParts) === 3) {
+            // Check if it's DD-MM-YYYY format
+            if (strlen($dateParts[0]) === 2 && strlen($dateParts[1]) === 2 && strlen($dateParts[2]) === 4) {
+                $day = $dateParts[0];
+                $month = $dateParts[1];
+                $year_part = $dateParts[2];
+                if (checkdate($month, $day, $year_part)) {
+                    $start_date = "$year_part-$month-$day"; // Convert to YYYY-MM-DD
+                } else {
+                    echo json_encode(["success" => false, "message" => "Invalid date format."]);
+                    exit;
+                }
+            } 
+            // Else assume YYYY-MM-DD format
+            else {
+                [$year_part, $month, $day] = $dateParts;
+                if (!checkdate($month, $day, $year_part)) {
+                    echo json_encode(["success" => false, "message" => "Invalid date format."]);
+                    exit;
+                }
+            }
+        } else {
+            echo json_encode(["success" => false, "message" => "Invalid date format. Use DD-MM-YYYY or YYYY-MM-DD."]);
             exit;
         }
-
-        $start_date_obj = new DateTime($start_date);
-        $today = new DateTime();
-
-        if ($start_date_obj < $today) {
-            echo json_encode(["success" => false, "message" => "Start date must not be in the past."]);
-            exit;
-        }
-
-        // Calculate expiration date (365 days from start date)
-        $expired_at = clone $start_date_obj;
-        $expired_at->add(new DateInterval('P365D'));
     } else {
-        echo json_encode(["success" => false, "message" => "Invalid date format. Use YYYY-MM-DD."]);
+        echo json_encode(["success" => false, "message" => "Invalid date format. Use DD-MM-YYYY or YYYY-MM-DD."]);
         exit;
     }
+
+    $start_date_obj = new DateTime($start_date);
+    $today = new DateTime();
+
+    if ($start_date_obj < $today) {
+        echo json_encode(["success" => false, "message" => "Start date must not be in the past."]);
+        exit;
+    }
+
+    // Calculate expiration date (365 days from start date)
+    $expired_at = clone $start_date_obj;
+    $expired_at->add(new DateInterval('P365D'));
+    $expired_at = $expired_at->format('Y-m-d');
 } else {
     echo json_encode(["success" => false, "message" => "Start date is required."]);
     exit;
@@ -248,7 +270,7 @@ try {
     exit;
 }
 
-// Second Half - Insert data transactionally
+// Begin transaction for database operations
 try {
     $conn->beginTransaction();
 
@@ -290,7 +312,7 @@ try {
             'relationship' => $relationship,
             'other_relationship' => isset($_POST['other_relationship']) ? sanitize_input($_POST['other_relationship']) : null,
             'contact_number' => sanitize_input($_POST['proxy_contact']),
-            'authorization_letter_path' => $auth_filename // Authorization letter file path
+            'authorization_letter_path' => $auth_filename
         ]);
         
         $proxy_id = $conn->lastInsertId();
@@ -335,7 +357,37 @@ try {
     }
     $vehicle_id = $vehicle['vehicle_id'];
 
-    // Insert insurance registration with the filename for OR and CR
+    // Insert OR document if uploaded
+    $or_document_id = null;
+    if ($or_filename) {
+        $stmt = $conn->prepare("
+            INSERT INTO documents (client_id, vehicle_id, document_type, file_path)
+            VALUES (:client_id, :vehicle_id, 'OR', :file_path)
+        ");
+        $stmt->execute([
+            'client_id' => $client_id,
+            'vehicle_id' => $vehicle_id,
+            'file_path' => $or_filename
+        ]);
+        $or_document_id = $conn->lastInsertId();
+    }
+
+    // Insert CR document if uploaded
+    $cr_document_id = null;
+    if ($cr_filename) {
+        $stmt = $conn->prepare("
+            INSERT INTO documents (client_id, vehicle_id, document_type, file_path)
+            VALUES (:client_id, :vehicle_id, 'CR', :file_path)
+        ");
+        $stmt->execute([
+            'client_id' => $client_id,
+            'vehicle_id' => $vehicle_id,
+            'file_path' => $cr_filename
+        ]);
+        $cr_document_id = $conn->lastInsertId();
+    }
+
+    // Insert insurance registration data with document IDs
     $stmt = $conn->prepare("
         INSERT INTO insurance_registration (
             client_id, 
@@ -345,7 +397,9 @@ try {
             cr_picture, 
             start_date, 
             expired_at,
-            proxy_id
+            proxy_id,
+            or_document_id,
+            cr_document_id
         ) VALUES (
             :client_id, 
             :vehicle_id, 
@@ -353,8 +407,10 @@ try {
             :or_picture, 
             :cr_picture, 
             :start_date, 
-            DATE_ADD(:start_date, INTERVAL 365 DAY),
-            :proxy_id
+            :expired_at,
+            :proxy_id,
+            :or_document_id,
+            :cr_document_id
         )
     ");
     $stmt->execute([
@@ -364,7 +420,10 @@ try {
         'or_picture' => $or_filename,
         'cr_picture' => $cr_filename,
         'start_date' => $start_date,
-        'proxy_id' => $proxy_id
+        'expired_at' => $expired_at,
+        'proxy_id' => $proxy_id,
+        'or_document_id' => $or_document_id,
+        'cr_document_id' => $cr_document_id
     ]);
 
     // Commit transaction
