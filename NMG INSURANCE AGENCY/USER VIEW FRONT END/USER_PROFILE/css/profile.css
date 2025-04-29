@@ -1,0 +1,469 @@
+
+        /* Insurance Dashboard Styling */
+        /* Fix layout conflict with sidebar */
+        .container {
+            display: flex;
+            margin-top: 0; 
+            width: 4500px;
+            height: 100px;
+        }
+
+        .main-content {
+            margin-left: 80px; /* Matches sidebar width */
+            width: calc(100% - 80px); /* Adjusted width */
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #f4f6f8;
+            margin-top: 60px; /* Match the height of your top-bar */
+            min-height: calc(100vh - 60px); /* Full height minus top-bar */
+            overflow-y: auto; /* Enable scrolling only for content */
+        }
+        /* Top bar */
+        .top-bar {
+            display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: white;
+        padding: 15px 20px;
+        width: calc(100% - 80px); /* Adjusted for sidebar */
+        position: fixed;
+        top: 0;
+        left: 80px;
+        height: 60px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        z-index: 1000; /* Ensure it stays above other content */
+        }
+
+        /* Profile dropdown styles */
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-dropdown .profile {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-dropdown .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 999;
+            padding: 10px 0;
+            min-width: 150px;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu li {
+            list-style: none;
+        }
+
+        .dropdown-menu li a {
+            display: block;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: background 0.2s ease;
+        }
+
+        .dropdown-menu li a:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Enhanced Dashboard Styles */
+        .dashboard-container {
+            padding: 0;
+            margin-top: 0;
+            width: 100%;
+            position: relative;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color:rgb(10, 24, 37);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .insurance-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        
+        .insurance-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 25px;
+            transition: all 0.3s ease;
+            border-left: 4px solid #3498db;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .insurance-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .insurance-type {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .status-badge {
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background: #2ecc71;
+        }
+        
+        .status-expiring {
+            background: #f39c12;
+        }
+        
+        .status-expired {
+            background: #e74c3c;
+        }
+        
+        .card-body {
+            margin-bottom: 15px;
+        }
+        
+        .detail-group {
+            margin-bottom: 12px;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            color:rgb(35, 37, 37);
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.9rem;
+        }
+        
+        .detail-value {
+            color:rgb(55, 63, 71);
+            font-size: 1rem;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .vehicle-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .vehicle-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #3498db;
+            grid-column: 1 / -1;
+        }
+        
+        .documents-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            grid-column: 1 / -1;
+        }
+        
+        .documents-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+        
+        .document-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .document-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 15px;
+            background: #f1f8fe;
+            border-radius: 5px;
+            color: #3498db;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .document-link:hover {
+            background: #e1f0ff;
+            transform: translateY(-2px);
+        }
+        
+        .document-link i {
+            margin-right: 8px;
+        }
+        
+        .no-insurance {
+            text-align: center;
+            padding: 40px 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .no-insurance i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #bdc3c7;
+        }
+        
+        .action-buttons {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-renew {
+            background: #27ae60;
+        }
+        
+        .btn-renew:hover {
+            background: #219955;
+        }
+        
+        .registration-date {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            text-align: right;
+            margin-top: 10px;
+            grid-column: 1 / -1;
+        }
+        
+        .renewal-info {
+            grid-column: 1 / -1;
+            background: #fff8e1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .renewal-text {
+            font-weight: bold;
+        }
+        
+        .expiry-date {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .days-remaining {
+            font-weight: bold;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .insurance-card {
+                grid-template-columns: 1fr;
+            }
+            
+            .vehicle-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .renewal-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+
+
+
+        /* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+    body, html {
+      padding: 0 10px !important;
+    }
+  
+    .container {
+      padding: 10px !important;
+    }
+  
+    .top-bar h2 {
+      font-size: 1.2rem !important;
+    }
+  
+    .profile-dropdown {
+      position: relative !important;
+    }
+  
+    .profile-dropdown .profile {
+      cursor: pointer !important;
+    }
+  
+    /* Stack profile info vertically */
+    .profile-section {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      text-align: center !important;
+    }
+  
+    .profile-picture img {
+      width: 100px !important;
+      height: 100px !important;
+      object-fit: cover !important;
+      border-radius: 50% !important;
+      margin-bottom: 10px !important;
+    }
+  
+    .user-info h2 {
+      font-size: 1.3rem !important;
+    }
+  
+    .user-info p {
+      font-size: 0.9rem !important;
+      margin: 5px 0 !important;
+    }
+  
+    /* Insurance grid becomes a single column */
+    .insurance-grid {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 15px !important;
+    }
+  
+    .insurance-card {
+      padding: 15px !important;
+      font-size: 0.9rem !important;
+    }
+  
+    .card-header, 
+    .applicant-info, 
+    .card-body, 
+    .renewal-info, 
+    .vehicle-info, 
+    .documents-section {
+      margin-bottom: 10px !important;
+    }
+  
+    .detail-group {
+      display: flex !important;
+      justify-content: space-between !important;
+      padding: 5px 0 !important;
+    }
+  
+    .detail-label {
+      font-weight: 600 !important;
+      max-width: 40% !important;
+      text-align: left !important;
+    }
+  
+    .detail-value {
+      max-width: 55% !important;
+      text-align: right !important;
+      word-wrap: break-word !important;
+    }
+  
+    /* Buttons full width */
+    .btn-primary {
+      width: 100% !important;
+      padding: 10px 0 !important;
+      font-size: 1rem !important;
+    }
+  
+    /* Dropdown menu full width */
+    .dropdown-menu {
+      right: 10px !important;
+      width: 150px !important;
+    }
+  }
+  
+  /* Extra small screens */
+  @media (max-width: 400px) {
+    .profile-picture img {
+      width: 80px !important;
+      height: 80px !important;
+    }
+  
+    .top-bar h2 {
+      font-size: 1rem !important;
+    }
+  
+    .user-info h2 {
+      font-size: 1.1rem !important;
+    }
+  
+    .btn-primary {
+      font-size: 0.9rem !important;
+    }
+  
+    .detail-label, 
+    .detail-value {
+      font-size: 0.85rem !important;
+    }
+  }
+  

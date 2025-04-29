@@ -1,0 +1,208 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f5f5f5;
+    display: flex;
+}
+
+.main-content {
+    margin-left: 100px;
+    padding: 30px;
+    flex-grow: 1;
+    width: calc(100% - 250px);
+}
+
+h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.client-info {
+    background: #fff;
+    padding: 20px;
+    border-left: 5px solid #007bff;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.client-info p {
+    margin: 6px 0;
+    font-size: 15px;
+}
+
+.date-filter {
+    margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+table.dataTable thead {
+    background-color: #007bff;
+    color: white;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    font-weight: bold;
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-expired {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+@media print {
+    body {
+        background: white;
+        font-size: 14px;
+    }
+
+    .sidebar,
+    .date-filter,
+    .dataTables_length,
+    .dataTables_filter,
+    .dataTables_info,
+    .dataTables_paginate,
+    .dt-buttons {
+        display: none !important;
+    }
+
+    .main-content {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+
+    .client-info {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 22px;
+        margin-bottom: 20px;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 14px;
+    }
+
+    table, th, td {
+        border: 1px solid #333;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: center;
+    }
+
+    thead {
+        background-color: #eee;
+    }
+
+    .status-badge {
+        border-radius: 0;
+        padding: 0;
+        font-weight: normal;
+        background: none !important;
+        color: inherit !important;
+    }
+}
+
+
+
+/* MOBILE RESPONSIVE CSS with !important */
+@media (max-width: 768px) {
+    body, html {
+      padding: 0 10px !important;
+      font-size: 14px !important;
+    }
+  
+    .main-content {
+      padding: 10px !important;
+    }
+  
+    h2 {
+      font-size: 1.5rem !important;
+      text-align: center !important;
+      margin-bottom: 15px !important;
+    }
+  
+    .client-info p {
+      font-size: 0.9rem !important;
+      margin: 5px 0 !important;
+    }
+  
+    .date-filter {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+      margin-bottom: 15px !important;
+    }
+  
+    .date-filter label,
+    .date-filter input,
+    .date-filter button {
+      width: 100% !important;
+      font-size: 1rem !important;
+    }
+  
+    /* DataTables table responsive tweaks */
+    table#transactionsTable {
+      width: 100% !important;
+      overflow-x: auto !important;
+      display: block !important;
+    }
+  
+    table#transactionsTable thead th,
+    table#transactionsTable tbody td {
+      font-size: 0.85rem !important;
+      white-space: nowrap !important;
+    }
+  
+    /* Buttons full width on mobile */
+    .dt-buttons button {
+      width: 100% !important;
+      margin-bottom: 5px !important;
+      font-size: 0.9rem !important;
+    }
+  
+    /* Button inside table */
+    .btn.btn-info {
+      padding: 6px 10px !important;
+      font-size: 0.85rem !important;
+    }
+  }
+  
+  @media (max-width: 400px) {
+    h2 {
+      font-size: 1.3rem !important;
+    }
+  
+    .client-info p {
+      font-size: 0.8rem !important;
+    }
+  
+    .date-filter label,
+    .date-filter input,
+    .date-filter button {
+      font-size: 0.9rem !important;
+    }
+  
+    .btn.btn-info {
+      font-size: 0.75rem !important;
+      padding: 5px 8px !important;
+    }
+  }
+  
