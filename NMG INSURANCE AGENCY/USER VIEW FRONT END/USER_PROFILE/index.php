@@ -115,7 +115,6 @@ if ($client_id) {
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <ul class="dropdown-menu" id="dropdownMenu">
-                        <li><a href="#">Settings</a></li>
                         <li><a href="../../../Logout_Login_USER/Logout.php">Logout</a></li>
                     </ul>
                 </div>
