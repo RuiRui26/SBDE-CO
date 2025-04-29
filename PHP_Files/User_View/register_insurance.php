@@ -248,6 +248,8 @@ try {
     exit;
 }
 
+
+
 // Second Half - Insert data transactionally
 try {
     $conn->beginTransaction();
@@ -290,7 +292,7 @@ try {
             'relationship' => $relationship,
             'other_relationship' => isset($_POST['other_relationship']) ? sanitize_input($_POST['other_relationship']) : null,
             'contact_number' => sanitize_input($_POST['proxy_contact']),
-            'authorization_letter_path' => $auth_filename
+            'authorization_letter_path' => $auth_filename // Authorization letter file path
         ]);
         
         $proxy_id = $conn->lastInsertId();
@@ -337,7 +339,10 @@ try {
     }
     $vehicle_id = $vehicle['vehicle_id'];
 
-    // Insert documents if uploaded
+    // Upload documents and insert into `documents` table
+    $or_filename = processFileUpload($_FILES['or_picture'] ?? null, "OR", $uploadDir, $user_name);
+    $cr_filename = processFileUpload($_FILES['cr_picture'] ?? null, "CR", $uploadDir, $user_name);
+
     $or_document_id = null;
     if ($or_filename) {
         $stmt = $conn->prepare("
@@ -397,7 +402,7 @@ try {
         'or_picture' => $or_filename,
         'cr_picture' => $cr_filename,
         'start_date' => $start_date,
-        'document_id' => $or_document_id ?? null,
+        'document_id' => $or_document_id ?? null, // Reference OR document
         'proxy_id' => $proxy_id
     ]);
 
@@ -409,4 +414,3 @@ try {
     $conn->rollBack();
     echo json_encode(["success" => false, "message" => "Failed to submit insurance application: " . $e->getMessage()]);
 }
-?>
