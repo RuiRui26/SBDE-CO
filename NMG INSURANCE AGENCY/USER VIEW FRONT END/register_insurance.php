@@ -344,7 +344,7 @@ if ($is_proxy === 'yes') {
         </div>
 
         <div class="form-container">
-            <form id="insuranceForm" action="register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
+            <form id="insuranceForm" action="../../PHP_Files/User_View/register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
             
             <!-- First Step: Type of Insurance -->
             <div class="form-step active" id="step1">
