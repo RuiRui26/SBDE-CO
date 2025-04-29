@@ -2,35 +2,22 @@
 session_start();
 require_once '../../DB_connection/db.php';
 
-header("Content-Type: application/json");
-
-// === CSRF Token Validation ===
-if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
-    echo json_encode(["success" => false, "message" => "Invalid CSRF token."]);
-    exit;
-}
-
-// Sanitize input function
-function sanitize_input($data) {
-    return htmlspecialchars(trim(strip_tags($data)), ENT_QUOTES, 'UTF-8');
-}
-
-// Restrict to allowed role
 $allowed_roles = ['Client'];
 require '../../Logout_Login_USER/Restricted.php';
 
 $database = new Database();
 $conn = $database->getConnection();
+header("Content-Type: application/json");
 
-// Check if user is logged in
+// Ensure the user is logged in
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(["success" => false, "message" => "User not logged in."]);
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'] ?? null;
 
-// Verify user role from DB
+// Verify that the user is a Client
 $stmt = $conn->prepare("SELECT role FROM users WHERE user_id = :user_id");
 $stmt->execute(['user_id' => $user_id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -59,77 +46,7 @@ if (!$user_name || !$mobile) {
     exit;
 }
 
-// Check if this is a proxy registration
-$is_proxy = isset($_POST['is_proxy']) && $_POST['is_proxy'] === 'yes';
-$proxy_id = null;
-
-// Handle proxy registration if needed
-if ($is_proxy) {
-    // Validate proxy fields
-    $required_proxy_fields = [
-        'proxy_first_name' => 'First name',
-        'proxy_last_name' => 'Last name',
-        'proxy_birthday' => 'Birthday',
-        'proxy_relationship' => 'Relationship',
-        'proxy_contact' => 'Contact number'
-    ];
-
-    foreach ($required_proxy_fields as $field => $name) {
-        if (empty($_POST[$field])) {
-            echo json_encode(["success" => false, "message" => "Proxy $name is required."]);
-            exit;
-        }
-    }
-
-    // Validate proxy age (must be at least 18)
-    $birthday = new DateTime($_POST['proxy_birthday']);
-    $today = new DateTime();
-    $age = $birthday->diff($today)->y;
-
-    if ($age < 18) {
-        echo json_encode(["success" => false, "message" => "Proxy must be at least 18 years old."]);
-        exit;
-    }
-
-    // Handle relationship field
-    $relationship = sanitize_input($_POST['proxy_relationship']);
-    if ($relationship === 'Other') {
-        if (empty($_POST['other_relationship'])) {
-            echo json_encode(["success" => false, "message" => "Please specify relationship."]);
-            exit;
-        }
-        $relationship = sanitize_input($_POST['other_relationship']);
-    }
-
-    // Process authorization letter upload
-    if (!isset($_FILES['authorization_letter']) || $_FILES['authorization_letter']['error'] !== UPLOAD_ERR_OK) {
-        echo json_encode(["success" => false, "message" => "Authorization letter is required for proxy registration."]);
-        exit;
-    }
-
-    $allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
-    $fileExtension = strtolower(pathinfo($_FILES['authorization_letter']['name'], PATHINFO_EXTENSION));
-    if (!in_array($fileExtension, $allowedExtensions)) {
-        echo json_encode(["success" => false, "message" => "Invalid file type for authorization letter. Only JPG, JPEG, PNG, and PDF allowed."]);
-        exit;
-    }
-
-    $uploadDir = '../../secured_uploads/proxy_auth/';
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
-    }
-
-    $safe_name = preg_replace('/[^a-zA-Z0-9-_]/', '_', $user_name);
-    $auth_filename = "proxy_auth_{$safe_name}_" . time() . "." . $fileExtension;
-    $destination = $uploadDir . $auth_filename;
-
-    if (!move_uploaded_file($_FILES['authorization_letter']['tmp_name'], $destination)) {
-        echo json_encode(["success" => false, "message" => "Failed to upload authorization letter."]);
-        exit;
-    }
-}
-
-// Retrieve and sanitize form data
+// Retrieve form data
 $plate_number = $_POST['plate_number'] ?? null;
 $mv_file_number = $_POST['mv_file_number'] ?? null;
 $insurance_type = $_POST['insurance_type'] ?? null;
@@ -139,201 +56,110 @@ $brand = $_POST['brand'] ?? null;
 $model = $_POST['model'] ?? null;
 $year = $_POST['year'] ?? null;
 $color = $_POST['color'] ?? null;
-$start_date = $_POST['start_date'] ?? null;
+$start_date = $_POST['start_date'] ?? null; // Assuming the start date is passed in the form
 
-foreach (['plate_number', 'mv_file_number', 'insurance_type', 'chassis_number', 'vehicle_type', 'brand', 'model', 'year', 'color', 'start_date'] as $field) {
-    if (isset($$field)) {
-        $$field = sanitize_input($$field);
-    }
-}
+// Proxy Information
+$proxy_id = $_POST['proxy_id'] ?? null;  // Optional proxy ID if applicable
+$authorization_letter = $_FILES['authorization_letter'] ?? null;  // Optional proxy authorization letter
 
-// Validate start date (accepts either DD-MM-YYYY or YYYY-MM-DD)
+// Validate start date
 if ($start_date) {
-    // Try to detect format
-    if (strpos($start_date, '-') !== false) {
-        $dateParts = explode('-', $start_date);
-        if (count($dateParts) === 3) {
-            // Check if it's DD-MM-YYYY format
-            if (strlen($dateParts[0]) === 2 && strlen($dateParts[1]) === 2 && strlen($dateParts[2]) === 4) {
-                $day = $dateParts[0];
-                $month = $dateParts[1];
-                $year_part = $dateParts[2];
-                if (checkdate($month, $day, $year_part)) {
-                    $start_date = "$year_part-$month-$day"; // Convert to YYYY-MM-DD
-                } else {
-                    echo json_encode(["success" => false, "message" => "Invalid date format."]);
-                    exit;
-                }
-            } 
-            // Else assume YYYY-MM-DD format
-            else {
-                [$year_part, $month, $day] = $dateParts;
-                if (!checkdate($month, $day, $year_part)) {
-                    echo json_encode(["success" => false, "message" => "Invalid date format."]);
-                    exit;
-                }
-            }
+    $current_date = date('Y-m-d'); // Current date in Y-m-d format
+    $dateParts = explode('-', $start_date);
+    if (count($dateParts) === 3) {
+        $day = $dateParts[0];
+        $month = $dateParts[1];
+        $year = $dateParts[2];
+        
+        if (checkdate($month, $day, $year)) {
+            $start_date = "$year-$month-$day"; // Convert to YYYY-MM-DD
         } else {
-            echo json_encode(["success" => false, "message" => "Invalid date format. Use DD-MM-YYYY or YYYY-MM-DD."]);
+            echo json_encode(["success" => false, "message" => "Invalid date format."]);
             exit;
         }
     } else {
-        echo json_encode(["success" => false, "message" => "Invalid date format. Use DD-MM-YYYY or YYYY-MM-DD."]);
+        echo json_encode(["success" => false, "message" => "Invalid date format. Please use DD-MM-YYYY."]);
         exit;
     }
 
-    $start_date_obj = new DateTime($start_date);
-    $today = new DateTime();
-
-    if ($start_date_obj < $today) {
-        echo json_encode(["success" => false, "message" => "Start date must not be in the past."]);
+    // Check if the start date is in the past
+    if ($start_date < $current_date) {
+        echo json_encode(["success" => false, "message" => "Start date must be today or a future date."]);
         exit;
     }
-
-    // Calculate expiration date (365 days from start date)
-    $expired_at = clone $start_date_obj;
-    $expired_at->add(new DateInterval('P365D'));
-    $expired_at = $expired_at->format('Y-m-d');
 } else {
     echo json_encode(["success" => false, "message" => "Start date is required."]);
     exit;
 }
 
-// Validate plate_number or mv_file_number presence
+// Ensure at least one identifier (Plate Number or MV File Number) is given
 if (!$plate_number && !$mv_file_number) {
-    echo json_encode(["success" => false, "message" => "Either Plate Number or MV File Number is required."]);
+    echo json_encode(["success" => false, "message" => "Either MV File Number or Plate Number is required."]);
     exit;
 }
 
-// Validate mv_file_number length (15 digits)
+// Validate MV File Number format
 if ($mv_file_number && !preg_match("/^\d{15}$/", $mv_file_number)) {
     echo json_encode(["success" => false, "message" => "MV File Number must be exactly 15 digits."]);
     exit;
 }
 
-// Check for existing insurance application for the vehicle
-$stmt = $conn->prepare("
-    SELECT 1 FROM insurance_registration ir
-    JOIN vehicles v ON ir.vehicle_id = v.vehicle_id
-    WHERE ir.client_id = :client_id
-    AND (v.plate_number = :plate_number OR v.chassis_number = :chassis_number)
-");
-$stmt->execute([
-    'client_id' => $client_id,
-    'plate_number' => $plate_number ?: '',
-    'chassis_number' => $chassis_number ?: ''
-]);
-$existingApplication = $stmt->fetch(PDO::FETCH_ASSOC);
-if ($existingApplication) {
-    echo json_encode(["success" => false, "message" => "You already submitted an application for this vehicle."]);
-    exit;
-}
-
-// Upload directory for OR/CR
+// File upload directory
 $uploadDir = '../../secured_uploads/';
 if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0755, true);
+    mkdir($uploadDir, 0777, true);
 }
 
-function processFileUpload($file, $prefix, $uploadDir, $client_name) {
+// File Upload Function for Proxy's Authorization Letter
+function processAuthorizationLetter($file, $uploadDir, $client_name) {
     if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
         return null;
     }
 
     $allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
     $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
     if (!in_array($fileExtension, $allowedExtensions)) {
-        throw new Exception("Invalid file type for $prefix. Only JPG, JPEG, PNG, and PDF allowed.");
+        throw new Exception("Invalid file type for authorization letter. Only JPG, JPEG, PNG, and PDF are allowed.");
     }
 
     $safe_name = preg_replace('/[^a-zA-Z0-9-_]/', '_', $client_name);
-    $filename = "{$safe_name}_{$prefix}_" . time() . "." . $fileExtension;
+    $filename = "{$safe_name}_auth_" . time() . "." . $fileExtension;
 
-    $subdir = ($prefix === 'OR') ? 'or' : 'cr';
-    $destinationDir = $uploadDir . $subdir . '/';
-    if (!is_dir($destinationDir)) {
-        mkdir($destinationDir, 0755, true);
+    $destination = $uploadDir . 'authorization_letters/' . $filename;
+
+    if (!is_dir($uploadDir . 'authorization_letters')) {
+        mkdir($uploadDir . 'authorization_letters', 0777, true);
     }
-    $destination = $destinationDir . $filename;
 
     if (!move_uploaded_file($file['tmp_name'], $destination)) {
-        throw new Exception("Failed to upload $prefix document.");
+        throw new Exception("Failed to upload authorization letter.");
     }
+
     return $filename;
 }
 
+// Process proxy's authorization letter upload
 try {
-    $or_filename = processFileUpload($_FILES['or_picture'] ?? null, "OR", $uploadDir, $user_name);
-    $cr_filename = processFileUpload($_FILES['cr_picture'] ?? null, "CR", $uploadDir, $user_name);
+    $authorization_letter_filename = processAuthorizationLetter($authorization_letter, $uploadDir, $user_name);
 } catch (Exception $e) {
     echo json_encode(["success" => false, "message" => $e->getMessage()]);
     exit;
 }
 
-// Begin transaction for database operations
 try {
     $conn->beginTransaction();
 
-    // Register proxy first if needed
-    if ($is_proxy) {
-        $stmt = $conn->prepare("
-            INSERT INTO proxies (
-                user_id, 
-                client_id, 
-                first_name, 
-                middle_name, 
-                last_name, 
-                birthday, 
-                relationship, 
-                other_relationship, 
-                contact_number, 
-                authorization_letter_path
-            ) VALUES (
-                :user_id, 
-                :client_id, 
-                :first_name, 
-                :middle_name, 
-                :last_name, 
-                :birthday, 
-                :relationship, 
-                :other_relationship, 
-                :contact_number, 
-                :authorization_letter_path
-            )
-        ");
-        
-        $stmt->execute([
-            'user_id' => $user_id,
-            'client_id' => $client_id,
-            'first_name' => sanitize_input($_POST['proxy_first_name']),
-            'middle_name' => isset($_POST['proxy_middle_name']) ? sanitize_input($_POST['proxy_middle_name']) : null,
-            'last_name' => sanitize_input($_POST['proxy_last_name']),
-            'birthday' => $_POST['proxy_birthday'],
-            'relationship' => $relationship,
-            'other_relationship' => isset($_POST['other_relationship']) ? sanitize_input($_POST['other_relationship']) : null,
-            'contact_number' => sanitize_input($_POST['proxy_contact']),
-            'authorization_letter_path' => $auth_filename
-        ]);
-        
-        $proxy_id = $conn->lastInsertId();
-    }
-
-    // Insert or update vehicle
+    // Insert vehicle details
     $stmt = $conn->prepare("
         INSERT INTO vehicles (client_id, plate_number, mv_file_number, chassis_number, vehicle_type, brand, model, year, color)
         VALUES (:client_id, :plate_number, :mv_file_number, :chassis_number, :vehicle_type, :brand, :model, :year, :color)
-        ON DUPLICATE KEY UPDATE 
-            vehicle_type = VALUES(vehicle_type),
-            brand = VALUES(brand),
-            model = VALUES(model),
-            year = VALUES(year),
-            color = VALUES(color)
     ");
     $stmt->execute([
         'client_id' => $client_id,
-        'plate_number' => $plate_number ?: null,
-        'mv_file_number' => $mv_file_number ?: null,
-        'chassis_number' => $chassis_number ?: null,
+        'plate_number' => !empty($plate_number) ? $plate_number : null,
+        'mv_file_number' => !empty($mv_file_number) ? $mv_file_number : null,
+        'chassis_number' => !empty($chassis_number) ? $chassis_number : null,
         'vehicle_type' => $vehicle_type,
         'brand' => $brand,
         'model' => $model,
@@ -341,97 +167,36 @@ try {
         'color' => $color
     ]);
 
-    // Retrieve the vehicle id
-    $stmt = $conn->prepare("SELECT vehicle_id FROM vehicles WHERE client_id = :client_id 
-        AND (plate_number = :plate_number OR mv_file_number = :mv_file_number OR chassis_number = :chassis_number) LIMIT 1");
-    $stmt->execute([
-        'client_id' => $client_id,
-        'plate_number' => $plate_number ?: '',
-        'mv_file_number' => $mv_file_number ?: '',
-        'chassis_number' => $chassis_number ?: ''
-    ]);
+    // Retrieve the latest vehicle_id
+    $stmt = $conn->prepare("SELECT vehicle_id FROM vehicles WHERE client_id = :client_id ORDER BY vehicle_id DESC LIMIT 1");
+    $stmt->execute(['client_id' => $client_id]);
     $vehicle = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$vehicle) {
-        throw new Exception("Vehicle ID not found after insert.");
+        throw new Exception("Vehicle ID not found.");
     }
+
     $vehicle_id = $vehicle['vehicle_id'];
 
-    // Insert OR document if uploaded
-    $or_document_id = null;
-    if ($or_filename) {
-        $stmt = $conn->prepare("
-            INSERT INTO documents (client_id, vehicle_id, document_type, file_path)
-            VALUES (:client_id, :vehicle_id, 'OR', :file_path)
-        ");
-        $stmt->execute([
-            'client_id' => $client_id,
-            'vehicle_id' => $vehicle_id,
-            'file_path' => $or_filename
-        ]);
-        $or_document_id = $conn->lastInsertId();
-    }
-
-    // Insert CR document if uploaded
-    $cr_document_id = null;
-    if ($cr_filename) {
-        $stmt = $conn->prepare("
-            INSERT INTO documents (client_id, vehicle_id, document_type, file_path)
-            VALUES (:client_id, :vehicle_id, 'CR', :file_path)
-        ");
-        $stmt->execute([
-            'client_id' => $client_id,
-            'vehicle_id' => $vehicle_id,
-            'file_path' => $cr_filename
-        ]);
-        $cr_document_id = $conn->lastInsertId();
-    }
-
-    // Insert insurance registration data with document IDs
+    // Insert insurance registration data (with calculated expired_at)
     $stmt = $conn->prepare("
-        INSERT INTO insurance_registration (
-            client_id, 
-            vehicle_id, 
-            type_of_insurance, 
-            or_picture, 
-            cr_picture, 
-            start_date, 
-            expired_at,
-            proxy_id,
-            or_document_id,
-            cr_document_id
-        ) VALUES (
-            :client_id, 
-            :vehicle_id, 
-            :type_of_insurance, 
-            :or_picture, 
-            :cr_picture, 
-            :start_date, 
-            :expired_at,
-            :proxy_id,
-            :or_document_id,
-            :cr_document_id
-        )
+    INSERT INTO insurance_registration (client_id, vehicle_id, start_date, insurance_type, proxy_id, authorization_letter, expired_at)
+    VALUES (:client_id, :vehicle_id, :start_date, :insurance_type, :proxy_id, :authorization_letter, :expired_at)
     ");
     $stmt->execute([
         'client_id' => $client_id,
         'vehicle_id' => $vehicle_id,
-        'type_of_insurance' => $insurance_type,
-        'or_picture' => $or_filename,
-        'cr_picture' => $cr_filename,
         'start_date' => $start_date,
-        'expired_at' => $expired_at,
+        'insurance_type' => $insurance_type,
         'proxy_id' => $proxy_id,
-        'or_document_id' => $or_document_id,
-        'cr_document_id' => $cr_document_id
+        'authorization_letter' => $authorization_letter_filename ?? null,
+        'expired_at' => $expired_at // Add expired_at value here
     ]);
 
-    // Commit transaction
     $conn->commit();
-
-    echo json_encode(["success" => true, "message" => "Insurance application submitted successfully."]);
+    echo json_encode(["success" => true, "message" => "Insurance registration successful."]);
 } catch (Exception $e) {
     $conn->rollBack();
-    echo json_encode(["success" => false, "message" => "Failed to submit insurance application: " . $e->getMessage()]);
+    echo json_encode(["success" => false, "message" => "Error: " . $e->getMessage()]);
 }
 ?>
