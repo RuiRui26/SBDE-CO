@@ -248,8 +248,6 @@ try {
     exit;
 }
 
-
-
 // Second Half - Insert data transactionally
 try {
     $conn->beginTransaction();
@@ -298,7 +296,7 @@ try {
         $proxy_id = $conn->lastInsertId();
     }
 
-    // Insert or update vehicle (Make sure unique key exists on vehicles table)
+    // Insert or update vehicle
     $stmt = $conn->prepare("
         INSERT INTO vehicles (client_id, plate_number, mv_file_number, chassis_number, vehicle_type, brand, model, year, color)
         VALUES (:client_id, :plate_number, :mv_file_number, :chassis_number, :vehicle_type, :brand, :model, :year, :color)
@@ -321,11 +319,9 @@ try {
         'color' => $color
     ]);
 
-    // Retrieve the vehicle id by unique identifiers
-    $stmt = $conn->prepare("
-        SELECT vehicle_id FROM vehicles WHERE client_id = :client_id 
-        AND (plate_number = :plate_number OR mv_file_number = :mv_file_number OR chassis_number = :chassis_number) LIMIT 1
-    ");
+    // Retrieve the vehicle id
+    $stmt = $conn->prepare("SELECT vehicle_id FROM vehicles WHERE client_id = :client_id 
+        AND (plate_number = :plate_number OR mv_file_number = :mv_file_number OR chassis_number = :chassis_number) LIMIT 1");
     $stmt->execute([
         'client_id' => $client_id,
         'plate_number' => $plate_number ?: '',
@@ -339,39 +335,7 @@ try {
     }
     $vehicle_id = $vehicle['vehicle_id'];
 
-    // Upload documents and insert into `documents` table
-    $or_filename = processFileUpload($_FILES['or_picture'] ?? null, "OR", $uploadDir, $user_name);
-    $cr_filename = processFileUpload($_FILES['cr_picture'] ?? null, "CR", $uploadDir, $user_name);
-
-    $or_document_id = null;
-    if ($or_filename) {
-        $stmt = $conn->prepare("
-            INSERT INTO documents (client_id, vehicle_id, document_type, file_path)
-            VALUES (:client_id, :vehicle_id, 'OR', :file_path)
-        ");
-        $stmt->execute([
-            'client_id' => $client_id,
-            'vehicle_id' => $vehicle_id,
-            'file_path' => $or_filename
-        ]);
-        $or_document_id = $conn->lastInsertId();
-    }
-
-    $cr_document_id = null;
-    if ($cr_filename) {
-        $stmt = $conn->prepare("
-            INSERT INTO documents (client_id, vehicle_id, document_type, file_path)
-            VALUES (:client_id, :vehicle_id, 'CR', :file_path)
-        ");
-        $stmt->execute([
-            'client_id' => $client_id,
-            'vehicle_id' => $vehicle_id,
-            'file_path' => $cr_filename
-        ]);
-        $cr_document_id = $conn->lastInsertId();
-    }
-
-    // Insert insurance registration with proxy_id and expiration date
+    // Insert insurance registration with the filename for OR and CR
     $stmt = $conn->prepare("
         INSERT INTO insurance_registration (
             client_id, 
@@ -381,7 +345,6 @@ try {
             cr_picture, 
             start_date, 
             expired_at,
-            document_id,
             proxy_id
         ) VALUES (
             :client_id, 
@@ -391,7 +354,6 @@ try {
             :cr_picture, 
             :start_date, 
             DATE_ADD(:start_date, INTERVAL 365 DAY),
-            :document_id,
             :proxy_id
         )
     ");
@@ -402,7 +364,6 @@ try {
         'or_picture' => $or_filename,
         'cr_picture' => $cr_filename,
         'start_date' => $start_date,
-        'document_id' => $or_document_id ?? null, // Reference OR document
         'proxy_id' => $proxy_id
     ]);
 
@@ -414,3 +375,4 @@ try {
     $conn->rollBack();
     echo json_encode(["success" => false, "message" => "Failed to submit insurance application: " . $e->getMessage()]);
 }
+?>
