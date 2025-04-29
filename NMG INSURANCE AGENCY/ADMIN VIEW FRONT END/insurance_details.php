@@ -11,18 +11,28 @@ try {
     $database = new Database();
     $conn = $database->getConnection();
 
-    // Fetch the insurance details, including the birthday
+    // Fetch the insurance details, including the birthday and proxy info
     $query = "
-    SELECT ir.insurance_id, c.full_name, c.email, c.contact_number, 
-           c.birthday,
-           v.plate_number, v.chassis_number, v.mv_file_number,
-           v.brand, v.model, v.year, v.color,
-           ir.type_of_insurance, ir.created_at, ir.status, 
-           d_or.file_path AS or_picture, 
-           d_cr.file_path AS cr_picture
+    SELECT 
+        ir.insurance_id, c.full_name, c.email, c.contact_number, 
+        c.birthday,
+        v.plate_number, v.chassis_number, v.mv_file_number,
+        v.brand, v.model, v.year, v.color,
+        ir.type_of_insurance, ir.created_at, ir.status, 
+        d_or.file_path AS or_picture, 
+        d_cr.file_path AS cr_picture,
+        p.first_name AS proxy_first_name,
+        p.middle_name AS proxy_middle_name,
+        p.last_name AS proxy_last_name,
+        p.birthday AS proxy_birthday,
+        p.relationship AS proxy_relationship,
+        p.other_relationship AS proxy_other_relationship,
+        p.contact_number AS proxy_contact_number,
+        p.authorization_letter_path AS proxy_authorization_letter
     FROM nmg_insurance.insurance_registration ir
     JOIN nmg_insurance.clients c ON ir.client_id = c.client_id
     JOIN nmg_insurance.vehicles v ON ir.vehicle_id = v.vehicle_id
+    LEFT JOIN nmg_insurance.proxies p ON p.client_id = ir.client_id
     LEFT JOIN nmg_insurance.documents d_or ON d_or.client_id = ir.client_id 
         AND d_or.vehicle_id = ir.vehicle_id 
         AND d_or.document_type = 'OR'
@@ -40,6 +50,9 @@ try {
     if (!$insurance_data) {
         die("No insurance record found for this ID.");
     }
+
+    // Check if proxy exists
+    $has_proxy = !empty($insurance_data['proxy_first_name']);
 
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
@@ -298,6 +311,30 @@ try {
         color: white; 
     }
     
+    /* Proxy button style */
+    .proxy-btn {
+        background-color: #607d8b;
+        color: white;
+    }
+    
+    /* Proxy details styles */
+    .proxy-details p {
+        margin: 10px 0;
+    }
+    
+    .proxy-details strong {
+        display: inline-block;
+        min-width: 160px;
+        color: #555;
+    }
+    
+    .proxy-details img {
+        max-width: 100%;
+        margin-top: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .image-box {
@@ -317,7 +354,10 @@ try {
 
 <div class="main-content">
     <h1 class="page-title">Customer Details</h1>
+    
     <div class="details-section">
+    <button type="button" class="btn btn-secondary" onclick="window.history.back()">← Back</button>
+
         <p><strong>Name:</strong> <?php echo htmlspecialchars($insurance_data['full_name']); ?></p>
         <p><strong>Email:</strong> <?php echo htmlspecialchars($insurance_data['email']); ?></p>
         <p><strong>Phone:</strong> <?php echo htmlspecialchars($insurance_data['contact_number']); ?></p>
@@ -354,6 +394,7 @@ try {
         <p><strong>Transaction Type:</strong> <?php echo htmlspecialchars($insurance_data['type_of_insurance']); ?></p>
         <p><strong>Applied Date:</strong> <?php echo htmlspecialchars($insurance_data['created_at']); ?></p>
         <p><strong>Status:</strong> <span id="current-status"><?php echo htmlspecialchars($insurance_data['status']); ?></span></p>
+        
 
         <div class="status-buttons">
             <button id="approveBtn" class="status-btn green-btn <?php echo ($insurance_data['status'] == 'Approved') ? 'active' : ''; ?>">Approved</button>
@@ -387,6 +428,9 @@ try {
         <div class="buttons">
             <button class="print-or-btn" id="printOrBtn" <?php echo empty($insurance_data['or_picture']) ? 'disabled' : ''; ?>>Print OR Image</button>
             <button class="print-cr-btn" id="printCrBtn" <?php echo empty($insurance_data['cr_picture']) ? 'disabled' : ''; ?>>Print CR Image</button>
+            <?php if ($has_proxy): ?>
+                <button class="proxy-btn" id="viewProxyBtn">View Proxy Details</button>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -403,6 +447,57 @@ try {
                     <button type="submit" class="btn-submit">Submit</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Proxy Details Modal -->
+    <div id="proxyModal" class="modal">
+        <div class="modal-content">
+            <h2>Proxy Details</h2>
+            <div class="proxy-details">
+                <?php if ($has_proxy): ?>
+                    <p><strong>Proxy Name:</strong> 
+    <?php 
+        echo htmlspecialchars($insurance_data['proxy_first_name'] . ' ');
+        if (!empty($insurance_data['proxy_middle_name'])) {
+            echo htmlspecialchars($insurance_data['proxy_middle_name'] . ' ');
+        }
+        echo htmlspecialchars($insurance_data['proxy_last_name']);
+    ?>
+</p>
+
+                    <p><strong>Birthday:</strong> 
+                        <?php 
+                            if (!empty($insurance_data['proxy_birthday'])) {
+                                $proxyBirthday = new DateTime($insurance_data['proxy_birthday']);
+                                echo $proxyBirthday->format('Y / m / d');
+                            } else {
+                                echo 'N/A';
+                            }
+                        ?>
+                    </p>
+                    <p><strong>Relationship:</strong> 
+                        <?php 
+                            echo htmlspecialchars($insurance_data['proxy_relationship']);
+                            if (!empty($insurance_data['proxy_other_relationship'])) {
+                                echo ' (' . htmlspecialchars($insurance_data['proxy_other_relationship']) . ')';
+                            }
+                        ?>
+                    </p>
+                    <p><strong>Contact Number:</strong> <?php echo htmlspecialchars($insurance_data['proxy_contact_number']); ?></p>
+                    
+                    <?php if (!empty($insurance_data['proxy_authorization_letter'])): ?>
+                        <p><strong>Authorization Letter:</strong></p>
+                        <img src="../../secured_uploads/proxy_docs/<?php echo htmlspecialchars($insurance_data['proxy_authorization_letter']); ?>" 
+                             alt="Authorization Letter" />
+                    <?php endif; ?>
+                <?php else: ?>
+                    <p>No proxy details available for this transaction.</p>
+                <?php endif; ?>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" id="closeProxyModal">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -442,10 +537,10 @@ try {
     const scheduleDateInput = document.getElementById('scheduleDate');
     const errorMsg = document.getElementById('errorMsg');
 
-    // Disable past dates and set min date 7 days from today
+    // Disable past dates and set min date 3 days from today
     function setMinDate() {
         const today = new Date();
-        const minDate = new Date(today.setDate(today.getDate() + 7));
+        const minDate = new Date(today.setDate(today.getDate() + 3));
         const yyyy = minDate.getFullYear();
         const mm = String(minDate.getMonth() + 1).padStart(2, '0');
         const dd = String(minDate.getDate()).padStart(2, '0');
@@ -543,10 +638,11 @@ try {
             return;
         }
 
-        const minDate = new Date(scheduleDateInput.min);
+        const minDate = new Date();
+        minDate.setDate(minDate.getDate() + 3); // 3 days from today
         const chosenDate = new Date(selectedDate);
         if (chosenDate < minDate) {
-            errorMsg.textContent = "Appointment date must be at least 7 days from today.";
+            errorMsg.textContent = "Appointment date must be at least 3 days from today.";
             errorMsg.style.display = 'block';
             return;
         }
@@ -554,13 +650,31 @@ try {
         updateStatus('Approved', selectedDate);
     });
 
-    // Close modal if clicking outside modal content
-    window.addEventListener('click', function(event) {
-        if (event.target === modal) {
+    // Proxy Modal Logic
+    const viewProxyBtn = document.getElementById('viewProxyBtn');
+    const proxyModal = document.getElementById('proxyModal');
+    const closeProxyModal = document.getElementById('closeProxyModal');
+
+    if (viewProxyBtn) {
+        viewProxyBtn.addEventListener('click', () => {
+            proxyModal.style.display = 'block';
+        });
+    }
+
+    closeProxyModal.addEventListener('click', () => {
+        proxyModal.style.display = 'none';
+    });
+
+    // Close modals when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
             modal.style.display = 'none';
             approvalForm.reset();
             errorMsg.style.display = 'none';
             errorMsg.textContent = '';
+        }
+        if (e.target === proxyModal) {
+            proxyModal.style.display = 'none';
         }
     });
 </script>

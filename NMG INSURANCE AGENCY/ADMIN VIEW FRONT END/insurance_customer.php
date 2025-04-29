@@ -1,8 +1,82 @@
+
 <?php
 require_once '../../DB_connection/db.php';
 
 $db = new Database();
 $conn = $db->getConnection();
+
+// Handle Delete Action
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_insurance'])) {
+    $insurance_id = $_POST['insurance_id'];
+    
+    try {
+        // First delete from insurance_registration
+        $delete_stmt = $conn->prepare("DELETE FROM insurance_registration WHERE insurance_id = ?");
+        $delete_stmt->execute([$insurance_id]);
+        
+        $_SESSION['success_message'] = "Insurance application deleted successfully!";
+    } catch (PDOException $e) {
+        $_SESSION['error_message'] = "Error deleting insurance application: " . $e->getMessage();
+    }
+    
+    header("Location: ".$_SERVER['PHP_SELF']);
+    exit();
+}
+
+// Handle Edit Action
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_insurance'])) {
+  $insurance_id = $_POST['insurance_id'];
+  $client_id = $_POST['client_id'];
+  $plate_number = $_POST['plate_number'];
+  $mv_file_number = $_POST['mv_file_number'];
+  $chassis_number = $_POST['chassis_number'];
+  $brand = $_POST['brand'];
+  $model = $_POST['model'];
+  $color = $_POST['color'];
+  $type_of_insurance = $_POST['type_of_insurance'];
+  
+  try {
+      // First update the vehicle information
+      $vehicle_stmt = $conn->prepare("
+          UPDATE vehicles SET 
+              plate_number = ?,
+              mv_file_number = ?,
+              chassis_number = ?,
+              brand = ?,
+              model = ?,
+              color = ?
+          WHERE vehicle_id = (SELECT vehicle_id FROM insurance_registration WHERE insurance_id = ?)
+      ");
+      $vehicle_stmt->execute([
+          $plate_number,
+          $mv_file_number,
+          $chassis_number,
+          $brand,
+          $model,
+          $color,
+          $insurance_id
+      ]);
+      
+      // Then update the insurance registration
+      $insurance_stmt = $conn->prepare("
+          UPDATE insurance_registration SET 
+              type_of_insurance = ?
+          WHERE insurance_id = ?
+      ");
+      $insurance_stmt->execute([
+          $type_of_insurance,
+          $insurance_id
+      ]);
+      
+      $_SESSION['success_message'] = "Insurance application updated successfully!";
+  } catch (PDOException $e) {
+      $_SESSION['error_message'] = "Error updating insurance application: " . $e->getMessage();
+  }
+  
+  header("Location: " . $_SERVER['PHP_SELF']);
+  exit();
+}
+
 
 // Fetch data including client and proxy details
 $query = "
@@ -133,6 +207,17 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
             padding: 8px;
             vertical-align: top;
         }
+        
+        /* Add button styles */
+        .add-btn-container {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        
+        /* Alert messages */
+        .alert {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -141,6 +226,30 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <main class="content">
         <h2>Insurance Applications</h2>
+        
+        <!-- Add New Button -->
+        <div class="add-btn-container">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="fas fa-plus"></i> Add New Application
+            </button>
+        </div>
+        
+        <!-- Success/Error Messages -->
+        <?php if (isset($_SESSION['success_message'])): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <?= $_SESSION['success_message'] ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php unset($_SESSION['success_message']); ?>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['error_message'])): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= $_SESSION['error_message'] ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php unset($_SESSION['error_message']); ?>
+        <?php endif; ?>
 
         <table id="applicationsTable" class="display table">
             <thead>
@@ -356,59 +465,71 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
       </div>
     </div>
 
-    <!-- Edit Modal -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <!-- Add Modal -->
+    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
-        <form id="editForm" method="POST" action="edit_insurance.php">
+        <form id="addForm" method="POST" action="add_insurance.php">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="editModalLabel">Edit Insurance Application</h5>
+              <h5 class="modal-title" id="addModalLabel">Add New Insurance Application</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <input type="hidden" name="insurance_id" id="edit_insurance_id" />
-              <input type="hidden" name="client_id" id="edit_client_id" />
-
               <div class="row mb-3">
-                <div class="col-md-3">
-                  <label for="edit_mv_file_number" class="form-label">MV File Number</label>
-                  <input type="text" class="form-control" id="edit_mv_file_number" name="mv_file_number" />
-                </div>
-                <div class="col-md-3">
-                  <label for="edit_plate_number" class="form-label">Plate Number</label>
-                  <input type="text" class="form-control" id="edit_plate_number" name="plate_number" />
-                </div>
-                <div class="col-md-3">
-                  <label for="edit_chassis_number" class="form-label">Chassis Number</label>
-                  <input type="text" class="form-control" id="edit_chassis_number" name="chassis_number" />
-                </div>
-                <div class="col-md-3">
-                  <label for="edit_brand" class="form-label">Brand</label>
-                  <input type="text" class="form-control" id="edit_brand" name="brand" />
-                </div>
-              </div>
-
-              <div class="row mb-3">
-                <div class="col-md-3">
-                  <label for="edit_model" class="form-label">Model</label>
-                  <input type="text" class="form-control" id="edit_model" name="model" />
-                </div>
-                <div class="col-md-3">
-                  <label for="edit_color" class="form-label">Color</label>
-                  <input type="text" class="form-control" id="edit_color" name="color" />
-                </div>
-                <div class="col-md-3">
-                  <label for="edit_type_of_insurance" class="form-label">Transaction Type</label>
-                  <select name="type_of_insurance" id="edit_type_of_insurance" class="form-select" required>
-                    <option value="TPL">TPL</option>
-                    <option value="TPPD">TPPD</option>
-                    <option value="OD">OD</option>
-                    <option value="UPA">UPA</option>
+                <div class="col-md-6">
+                  <label for="add_client_id" class="form-label">Client</label>
+                  <select name="client_id" id="add_client_id" class="form-select" required>
+                    <option value="">Select Client</option>
+                    <?php
+                    $client_stmt = $conn->query("SELECT client_id, first_name, last_name FROM clients ORDER BY last_name, first_name");
+                    while ($client = $client_stmt->fetch(PDO::FETCH_ASSOC)) {
+                        echo "<option value='{$client['client_id']}'>{$client['last_name']}, {$client['first_name']}</option>";
+                    }
+                    ?>
                   </select>
                 </div>
-                <div class="col-md-3">
-                  <label for="edit_status" class="form-label">Status</label>
-                  <select name="status" id="edit_status" class="form-select" required>
+                <div class="col-md-6">
+                  <label for="add_vehicle_id" class="form-label">Vehicle</label>
+                  <select name="vehicle_id" id="add_vehicle_id" class="form-select" required>
+                    <option value="">Select Vehicle</option>
+                    <?php
+                    $vehicle_stmt = $conn->query("SELECT vehicle_id, plate_number, mv_file_number, brand, model FROM vehicles ORDER BY plate_number, brand");
+                    while ($vehicle = $vehicle_stmt->fetch(PDO::FETCH_ASSOC)) {
+                        $display = !empty($vehicle['plate_number']) ? $vehicle['plate_number'] : $vehicle['mv_file_number'];
+                        $display .= " - {$vehicle['brand']} {$vehicle['model']}";
+                        echo "<option value='{$vehicle['vehicle_id']}'>$display</option>";
+                    }
+                    ?>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="add_proxy_id" class="form-label">Proxy (Optional)</label>
+                  <select name="proxy_id" id="add_proxy_id" class="form-select">
+                    <option value="">No Proxy</option>
+                    <?php
+                    $proxy_stmt = $conn->query("SELECT proxy_id, first_name, last_name FROM proxies ORDER BY last_name, first_name");
+                    while ($proxy = $proxy_stmt->fetch(PDO::FETCH_ASSOC)) {
+                        echo "<option value='{$proxy['proxy_id']}'>{$proxy['last_name']}, {$proxy['first_name']}</option>";
+                    }
+                    ?>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="add_type_of_insurance" class="form-label">Transaction Type</label>
+                  <select name="type_of_insurance" id="add_type_of_insurance" class="form-select" required>
+                    <option value="TPL">TPL</option>
+                    <option value="TPPD">TPPD</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="add_status" class="form-label">Status</label>
+                  <select name="status" id="add_status" class="form-select" required>
                     <option value="Pending">Pending</option>
                     <option value="Approved">Approved</option>
                     <option value="Rejected">Rejected</option>
@@ -417,7 +538,7 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
               </div>
             </div>
             <div class="modal-footer">
-              <button type="submit" class="btn btn-success">Save Changes</button>
+              <button type="submit" class="btn btn-success">Add Application</button>
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>
           </div>
@@ -425,10 +546,73 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
       </div>
     </div>
 
+    <!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form id="editForm" method="POST" action="">
+      <input type="hidden" name="edit_insurance" value="1">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editModalLabel">Edit Insurance Application</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="insurance_id" id="edit_insurance_id" />
+          <input type="hidden" name="client_id" id="edit_client_id" />
+
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label for="edit_mv_file_number" class="form-label">MV File Number</label>
+              <input type="text" class="form-control" id="edit_mv_file_number" name="mv_file_number" />
+            </div>
+            <div class="col-md-3">
+              <label for="edit_plate_number" class="form-label">Plate Number</label>
+              <input type="text" class="form-control" id="edit_plate_number" name="plate_number" />
+            </div>
+            <div class="col-md-3">
+              <label for="edit_chassis_number" class="form-label">Chassis Number</label>
+              <input type="text" class="form-control" id="edit_chassis_number" name="chassis_number" />
+            </div>
+            <div class="col-md-3">
+              <label for="edit_brand" class="form-label">Brand</label>
+              <input type="text" class="form-control" id="edit_brand" name="brand" />
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label for="edit_model" class="form-label">Model</label>
+              <input type="text" class="form-control" id="edit_model" name="model" />
+            </div>
+            <div class="col-md-3">
+              <label for="edit_color" class="form-label">Color</label>
+              <input type="text" class="form-control" id="edit_color" name="color" />
+            </div>
+            <div class="col-md-3">
+              <label for="edit_type_of_insurance" class="form-label">Transaction Type</label>
+              <select name="type_of_insurance" id="edit_type_of_insurance" class="form-select" required>
+                <option value="TPL">TPL</option>
+                <option value="TPPD">TPPD</option>
+                <option value="OD">OD</option>
+                <option value="UPA">UPA</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Save Changes</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
     <!-- Delete Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
       <div class="modal-dialog">
-        <form id="deleteForm" method="POST" action="delete_insurance.php">
+        <form id="deleteForm" method="POST" action="">
+          <input type="hidden" name="delete_insurance" value="1">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
@@ -451,6 +635,7 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 
     <script>
       $(document).ready(function () {
@@ -513,23 +698,38 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
           });
 
           // Edit button handler
-          $('.editBtn').on('click', function () {
-              const btn = $(this);
-              $('#edit_insurance_id').val(btn.data('insurance_id'));
-              $('#edit_client_id').val(btn.data('client_id'));
-              $('#edit_plate_number').val(btn.data('plate_number'));
-              $('#edit_mv_file_number').val(btn.data('mv_file_number'));
-              $('#edit_chassis_number').val(btn.data('chassis_number'));
-              $('#edit_brand').val(btn.data('brand'));
-              $('#edit_model').val(btn.data('model'));
-              $('#edit_color').val(btn.data('color'));
-              $('#edit_type_of_insurance').val(btn.data('type_of_insurance'));
-              $('#edit_status').val(btn.data('status'));
-          });
+$('.editBtn').on('click', function () {
+    const btn = $(this);
+    $('#edit_insurance_id').val(btn.data('insurance_id'));
+    $('#edit_client_id').val(btn.data('client_id'));
+    $('#edit_plate_number').val(btn.data('plate_number'));
+    $('#edit_mv_file_number').val(btn.data('mv_file_number'));
+    $('#edit_chassis_number').val(btn.data('chassis_number'));
+    $('#edit_brand').val(btn.data('brand'));
+    $('#edit_model').val(btn.data('model'));
+    $('#edit_color').val(btn.data('color'));
+    $('#edit_type_of_insurance').val(btn.data('type_of_insurance'));
+    // $('#edit_status').val(btn.data('status')); <-- removed since field no longer exists
+});
 
           // Delete button handler
           $('.deleteBtn').on('click', function () {
               $('#delete_insurance_id').val($(this).data('id'));
+          });
+          
+          // When client is selected in add form, update vehicles dropdown
+          $('#add_client_id').on('change', function() {
+              const clientId = $(this).val();
+              if (clientId) {
+                  $.ajax({
+                      url: 'get_client_vehicles.php',
+                      method: 'GET',
+                      data: { client_id: clientId },
+                      success: function(response) {
+                          $('#add_vehicle_id').html(response);
+                      }
+                  });
+              }
           });
       });
     </script>
