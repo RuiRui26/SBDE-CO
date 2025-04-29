@@ -334,6 +334,11 @@ if ($is_proxy === 'yes') {
                     <div class="step-title">Submit</div>
                 </div>
             </div>
+            <div class="back-button-container">
+    <button type="button" class="back-button" onclick="goBack()">
+        &larr; Back to Previous Page
+    </button>
+</div>
         </div>
 
         <div class="form-container">
@@ -641,6 +646,15 @@ function goToStep(step) {
     // Update button states
     updateNextButtonState();
     updateProgressIndicator();
+}
+
+function goBack() {
+    // Use the referrer if available, otherwise fall back to a default page
+    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+        window.location.href = document.referrer;
+    } else {
+        window.location.href = 'index.php'; // Fallback to your homepage or dashboard
+    }
 }
 
 // Update the progress indicator to highlight current step

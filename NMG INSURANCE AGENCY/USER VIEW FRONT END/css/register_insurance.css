@@ -686,6 +686,48 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     color: red;
 }
 
+/* Back button styling */
+.back-button-container {
+    margin: 20px 0 30px;
+    text-align: left;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: #f8f8f8;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 8px 15px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.back-button:hover {
+    background-color: #2561c2;
+    transform: translateX(-3px);
+}
+
+.back-button:active {
+    transform: translateX(0);
+}
+
+/* Make it more visible on mobile */
+@media (max-width: 768px) {
+    .back-button-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .back-button {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 10px 20px;
+    }
+}
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
