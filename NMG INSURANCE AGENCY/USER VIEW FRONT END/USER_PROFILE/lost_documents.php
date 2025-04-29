@@ -190,29 +190,11 @@ include 'sidebar.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apply for Lost Document</title>
     <link rel="stylesheet" href="../css/sidebar.css">
-    <link rel="stylesheet" href="css/lost_document.css">
-    <style>
-        .loading { color: blue; }
-        .success { color: green; }
-        .error { color: red; }
-        #coc-list { display: none; }
-        .form-group { margin-bottom: 1rem; }
-        small { display: block; color: #666; margin-top: 0.25rem; }
-        .debug-info { 
-            background-color: #f8f9fa; 
-            padding: 10px; 
-            margin: 10px 0; 
-            border: 1px solid #ddd;
-            font-family: monospace;
-        }
-        #submitBtn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/lost_document.css">
+    
 </head>
 <body>
-    <div class="main-content">
+    <div class="form-wrapper">
         <h2>Apply for Lost Document</h2>
         
         <?php if (isset($_SESSION['user_id']) && !empty($cocs)): ?>
