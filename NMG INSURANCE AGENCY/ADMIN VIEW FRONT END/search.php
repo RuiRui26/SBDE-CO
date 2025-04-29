@@ -77,7 +77,7 @@ require_once '../../DB_connection/db.php';
                 }
                 ?>
             </tbody>
-        </table>
+        </table>y
     </div>
 
     <!-- Scripts -->

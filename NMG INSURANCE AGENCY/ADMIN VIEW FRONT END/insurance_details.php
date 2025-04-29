@@ -16,6 +16,7 @@ try {
     SELECT ir.insurance_id, c.full_name, c.email, c.contact_number, 
            c.birthday,
            v.plate_number, v.chassis_number, v.mv_file_number,
+           v.brand, v.model, v.year, v.color,
            ir.type_of_insurance, ir.created_at, ir.status, 
            d_or.file_path AS or_picture, 
            d_cr.file_path AS cr_picture
@@ -55,116 +56,259 @@ try {
 <link rel="stylesheet" href="css/dashboard.css" />
 <link rel="stylesheet" href="css/insurance_details.css" />
 <style>
+    /* Main container styles */
+    .main-content {
+        padding: 20px;
+        background-color: #f9f9f9;
+        min-height: 100vh;
+    }
+    
+    .page-title {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 24px;
+    }
+    
+    .details-section {
+        background-color: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .details-section p {
+        margin: 12px 0;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+    
+    .details-section strong {
+        color: #444;
+        min-width: 180px;
+        display: inline-block;
+    }
+    
     /* Button and status styles */
     .status-buttons {
-        margin-top: 20px;
+        margin: 25px 0;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
     }
+    
     .status-btn {
         padding: 10px 20px;
         border: none;
         color: white;
         font-size: 16px;
         cursor: pointer;
-        transition: background-color 0.3s ease;
-        margin-right: 10px;
+        transition: all 0.3s ease;
         border-radius: 4px;
+        font-weight: 500;
     }
-    .green-btn { background-color: #4caf50; }
-    .yellow-btn { background-color: #ffeb3b; color: black; }
-    .red-btn { background-color: #f44336; }
-    .status-btn:hover { opacity: 0.8; }
+    
+    .green-btn { 
+        background-color: #4caf50; 
+    }
+    
+    .yellow-btn { 
+        background-color: #ffc107; 
+        color: #333;
+    }
+    
+    .red-btn { 
+        background-color: #f44336; 
+    }
+    
+    .status-btn:hover { 
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+    
     .status-btn.active {
         font-weight: bold;
-        border: 2px solid black;
+        box-shadow: 0 0 0 2px #333;
     }
+    
+    /* Image container styles */
     .image-container {
         display: flex;
-        justify-content: space-between;
-        margin-top: 20px;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin: 25px 0;
     }
+    
     .image-box {
-        width: 45%;
+        flex: 1 1 45%;
+        min-width: 300px;
     }
+    
     .image-box img {
         width: 100%;
+        max-height: 400px;
+        object-fit: contain;
         border-radius: 6px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        border: 1px solid #ddd;
     }
+    
+    .image-box p strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 18px;
+    }
+    
     /* Modal Styles */
     .modal {
         display: none;
         position: fixed;
         z-index: 1000;
-        left: 0; top: 0;
-        width: 100%; height: 100%;
+        left: 0; 
+        top: 0;
+        width: 100%; 
+        height: 100%;
         overflow: auto;
         background-color: rgba(0,0,0,0.5);
     }
+    
     .modal-content {
         background-color: #fefefe;
         margin: 10% auto;
-        padding: 20px 30px;
-        border: 1px solid #888;
-        width: 400px;
+        padding: 25px;
         border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        width: 90%;
+        max-width: 450px;
         position: relative;
+        animation: modalopen 0.3s;
     }
+    
+    @keyframes modalopen {
+        from {opacity: 0; transform: translateY(-50px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
+    
     .modal-content h2 {
         margin-top: 0;
+        color: #333;
+        font-size: 22px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
     }
+    
     .modal-content label {
         display: block;
-        margin-bottom: 8px;
+        margin: 15px 0 8px;
         font-weight: 600;
+        color: #555;
     }
+    
     .modal-content input[type="date"] {
         width: 100%;
-        padding: 8px 10px;
+        padding: 10px;
         margin-bottom: 15px;
         border-radius: 4px;
-        border: 1px solid #ccc;
+        border: 1px solid #ddd;
         font-size: 16px;
+        transition: border 0.3s;
     }
+    
+    .modal-content input[type="date"]:focus {
+        border-color: #4caf50;
+        outline: none;
+    }
+    
     .modal-buttons {
-        text-align: right;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
     }
+    
     .modal-buttons button {
-        padding: 8px 16px;
+        padding: 10px 20px;
         font-size: 16px;
         border: none;
         border-radius: 4px;
-        margin-left: 10px;
         cursor: pointer;
+        transition: all 0.3s;
     }
+    
     .btn-submit {
         background-color: #4caf50;
         color: white;
     }
+    
+    .btn-submit:hover {
+        background-color: #3d8b40;
+    }
+    
     .btn-cancel {
         background-color: #f44336;
         color: white;
     }
+    
+    .btn-cancel:hover {
+        background-color: #d32f2f;
+    }
+    
     .error-message {
-        color: red;
+        color: #f44336;
         font-size: 14px;
-        margin-bottom: 10px;
+        margin: -10px 0 15px;
         display: none;
     }
+    
     /* Print buttons container */
     .buttons {
-        margin-top: 20px;
+        margin: 20px 0;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
     }
+    
     .buttons button {
-        padding: 8px 16px;
-        margin-right: 10px;
-        font-size: 14px;
+        padding: 10px 20px;
+        font-size: 15px;
         border: none;
         border-radius: 4px;
         cursor: pointer;
+        transition: all 0.3s;
     }
-    .print-or-btn { background-color: #2196F3; color: white; }
-    .print-cr-btn { background-color: #673AB7; color: white; }
+    
+    .buttons button:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+    
+    .buttons button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .print-or-btn { 
+        background-color: #2196F3; 
+        color: white; 
+    }
+    
+    .print-cr-btn { 
+        background-color: #673AB7; 
+        color: white; 
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .image-box {
+            flex: 1 1 100%;
+        }
+        
+        .modal-content {
+            width: 95%;
+            margin: 20% auto;
+        }
+    }
 </style>
 </head>
 <body>
@@ -203,6 +347,10 @@ try {
         <p><strong>MV File Number:</strong> <?php echo !empty($insurance_data['mv_file_number']) ? htmlspecialchars($insurance_data['mv_file_number']) : 'N/A'; ?></p>
         <p><strong>Plate Number:</strong> <?php echo htmlspecialchars($insurance_data['plate_number']); ?></p>
         <p><strong>Chassis Number:</strong> <?php echo htmlspecialchars($insurance_data['chassis_number']); ?></p>
+        <p><strong>Vehicle Brand:</strong> <?php echo htmlspecialchars($insurance_data['brand']); ?></p>
+        <p><strong>Vehicle Model:</strong> <?php echo htmlspecialchars($insurance_data['model']); ?></p>
+        <p><strong>Vehicle Year:</strong> <?php echo htmlspecialchars($insurance_data['year']); ?></p>
+        <p><strong>Vehicle Color:</strong> <?php echo htmlspecialchars($insurance_data['color']); ?></p>
         <p><strong>Transaction Type:</strong> <?php echo htmlspecialchars($insurance_data['type_of_insurance']); ?></p>
         <p><strong>Applied Date:</strong> <?php echo htmlspecialchars($insurance_data['created_at']); ?></p>
         <p><strong>Status:</strong> <span id="current-status"><?php echo htmlspecialchars($insurance_data['status']); ?></span></p>
@@ -225,37 +373,38 @@ try {
                 <?php endif; ?>
             </div>
             <div class="image-box">
-            <p><strong>CR Image:</strong></p>
-            <?php if (!empty($insurance_data['cr_picture'])): ?>
-                <a href="../../secured_uploads/cr/<?php echo htmlspecialchars($insurance_data['cr_picture']); ?>" target="_blank">
-                    <img src="../../secured_uploads/cr/<?php echo htmlspecialchars($insurance_data['cr_picture']); ?>" alt="CR Image" />
-                </a>
-            <?php else: ?>
-                <p>No CR image available</p>
-            <?php endif; ?>
+                <p><strong>CR Image:</strong></p>
+                <?php if (!empty($insurance_data['cr_picture'])): ?>
+                    <a href="../../secured_uploads/cr/<?php echo htmlspecialchars($insurance_data['cr_picture']); ?>" target="_blank">
+                        <img src="../../secured_uploads/cr/<?php echo htmlspecialchars($insurance_data['cr_picture']); ?>" alt="CR Image" />
+                    </a>
+                <?php else: ?>
+                    <p>No CR image available</p>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="print-or-btn" id="printOrBtn" <?php echo empty($insurance_data['or_picture']) ? 'disabled' : ''; ?>>Print OR Image</button>
+            <button class="print-cr-btn" id="printCrBtn" <?php echo empty($insurance_data['cr_picture']) ? 'disabled' : ''; ?>>Print CR Image</button>
         </div>
     </div>
 
-    <div class="buttons">
-    <button class="print-or-btn" id="printOrBtn" <?php echo empty($insurance_data['or_picture']) ? 'disabled' : ''; ?>>Print OR Image</button>
-    <button class="print-cr-btn" id="printCrBtn" <?php echo empty($insurance_data['cr_picture']) ? 'disabled' : ''; ?>>Print CR Image</button>
-</div>
-
-<!-- Appointment Schedule Modal -->
-<div id="approvalModal" class="modal">
-    <div class="modal-content">
-        <h2>Schedule Appointment Date</h2>
-        <div class="error-message" id="errorMsg"></div>
-        <form id="approvalForm">
-            <label for="scheduleDate">Appointment Date:</label>
-            <input type="date" id="scheduleDate" name="scheduleDate" required />
-            <div class="modal-buttons">
-                <button type="submit" class="btn-submit">Submit</button>
-                <button type="button" class="btn-cancel" id="cancelModalBtn">Cancel</button>
-            </div>
-        </form>
+    <!-- Appointment Schedule Modal -->
+    <div id="approvalModal" class="modal">
+        <div class="modal-content">
+            <h2>Schedule Appointment Date</h2>
+            <div class="error-message" id="errorMsg"></div>
+            <form id="approvalForm">
+                <label for="scheduleDate">Appointment Date:</label>
+                <input type="date" id="scheduleDate" name="scheduleDate" required />
+                <div class="modal-buttons">
+                    <button type="button" class="btn-cancel" id="cancelModalBtn">Cancel</button>
+                    <button type="submit" class="btn-submit">Submit</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 </div>
 
 <script>

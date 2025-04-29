@@ -1,0 +1,124 @@
+/* General Styles */
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    display: flex;
+    background: #f9f9f9;
+    color: #333;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: #023451;
+    color: white;
+    height: 100vh;
+    padding-top: 20px;
+    position: fixed;
+    /* You may already have sidebar styles, keep consistent */
+}
+
+/* Main Content */
+main.content {
+    margin-left: 250px;
+    flex-grow: 1;
+    padding: 20px;
+}
+
+/* Heading */
+main.content h2 {
+    color: #023451;
+    font-size: 36px;
+    margin-bottom: 25px;
+}
+
+/* DataTables Table Styles */
+#applicationsTable {
+    width: 100% !important;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(2, 52, 81, 0.3);
+    overflow: hidden;
+}
+
+#applicationsTable thead tr {
+    background-color: #023451;
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+#applicationsTable th,
+#applicationsTable td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+    vertical-align: middle;
+    font-size: 15px;
+}
+
+#applicationsTable tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Action Button */
+.view-btn {
+    background-color: #0366a1;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.view-btn:hover {
+    background-color: #023451;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+    main.content {
+        margin-left: 200px;
+        padding: 15px;
+    }
+    #applicationsTable th,
+    #applicationsTable td {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: fixed;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+    }
+    main.content {
+        margin-left: 0;
+        padding-top: 80px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    #applicationsTable th,
+    #applicationsTable td {
+        font-size: 13px;
+        padding: 8px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    #applicationsTable th,
+    #applicationsTable td {
+        font-size: 12px;
+        padding: 6px 8px;
+    }
+}

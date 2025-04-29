@@ -1,27 +1,40 @@
 <?php
-session_start(); 
+session_start();
 $allowed_roles = ['Admin'];
 require '../../Logout_Login/Restricted.php';
 require_once '../../DB_connection/db.php';
 
-// Fetching updated stats
+// Fetching updated stats and logged-in user's name
 try {
     $database = new Database();
     $conn = $database->getConnection();
 
+    // Fetch insurance stats
     $totalInsuranceApplied = $conn->query("SELECT COUNT(*) FROM insurance_registration")->fetchColumn();
     $pendingInsurance = $conn->query("SELECT COUNT(*) FROM insurance_registration WHERE status = 'Pending'")->fetchColumn();
     $approvedInsurance = $conn->query("SELECT COUNT(*) FROM insurance_registration WHERE status = 'Approved'")->fetchColumn();
 
+    // Fetch logged-in user's name
+    $userId = $_SESSION['user_id']; // Assuming user_id is stored in session after login
+    $stmt = $conn->prepare("SELECT first_name, middle_name, last_name FROM users WHERE user_id = ?");
+    $stmt->execute([$userId]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user) {
+        $fullName = htmlspecialchars($user['first_name'] . ' ' . 
+                    (!empty($user['middle_name']) ? $user['middle_name'] . ' ' : '') . 
+                    $user['last_name']);
+    } else {
+        $fullName = "Admin"; // fallback
+    }
+
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
 }
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,14 +45,14 @@ try {
 </head>
 
 <body>
-   <!-- Sidebar -->
-   <?php include 'sidebar.php'; ?>
+    <!-- Sidebar -->
+    <?php include 'sidebar.php'; ?>
 
     <!-- Admin Profile Dropdown -->
     <div class="profile-dropdown">
         <img src="img2/samplepic.png" alt="Admin Avatar" class="avatar" onclick="toggleProfileMenu()">
         <div class="profile-menu" id="profileMenu">
-            <p>Admin</p>
+            <p><?= $fullName ?></p> <!-- Display dynamic full name -->
             <a href="admin.php">Manage Account</a>
             <a href="#">Change Account</a>
             <a href="../../Logout_Login/Logout.php">Logout</a>
@@ -51,7 +64,7 @@ try {
     <!-- Main Content -->
     <div class="main-content">
         <div class="welcome-container">
-            <h1>Welcome, Admin</h1>
+            <h1>Welcome, <?= $fullName ?></h1> <!-- Dynamic Welcome -->
         </div>
 
         <!-- Stats Container -->
@@ -82,7 +95,7 @@ try {
             }
             ?>
 
-            <!-- Enhanced Total Sales Table -->
+            <!-- Total Sales Table -->
             <div class="sales-table-container">
                 <h3>Total Sales</h3>
                 <table class="sales-table">
@@ -142,7 +155,5 @@ try {
             });
         });
     </script>
-
 </body>
-
 </html>
