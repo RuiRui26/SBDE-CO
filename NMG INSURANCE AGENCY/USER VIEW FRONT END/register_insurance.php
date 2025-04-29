@@ -336,20 +336,10 @@ if ($is_proxy === 'yes') {
                     <div class="step-title">Submit</div>
                 </div>
             </div>
-            <div class="back-button-container">
-    <button type="button" class="back-button" onclick="goBack()">
-        &larr; Back to Previous Page
-    </button>
-</div>
         </div>
 
         <div class="form-container">
-<<<<<<< HEAD
         <form id="insuranceForm" action="../../PHP_Files/User_View/register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
-=======
-            <form id="insuranceForm" action="../../PHP_Files/User_View/register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
-            
->>>>>>> parent of e35ccbf (s)
             <!-- First Step: Type of Insurance -->
             <div class="form-step active" id="step1">
                 <h3>Step 1: Insurance Type</h3>
@@ -471,12 +461,6 @@ if ($is_proxy === 'yes') {
                         <label for="model" class="required">Model</label>
                         <input type="text" id="model" name="model" placeholder="e.g. Corolla" required oninput="updateNextButtonState()" onblur="validateInputForXSS(this)">
                         <span class="error-message" id="modelError"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="year" class="required">Year</label>
-                        <input type="number" id="year" name="year" placeholder="e.g. 2023" min="1900" max="2099" required oninput="updateNextButtonState()" onblur="validateInputForXSS(this)">
-                        <span class="error-message" id="yearError"></span>
                     </div>
                     <div class="form-group">
                         <label for="year" class="required">Year</label>
@@ -663,15 +647,6 @@ function goToStep(step) {
     // Update button states
     updateNextButtonState();
     updateProgressIndicator();
-}
-
-function goBack() {
-    // Use the referrer if available, otherwise fall back to a default page
-    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
-        window.location.href = document.referrer;
-    } else {
-        window.location.href = 'index.php'; // Fallback to your homepage or dashboard
-    }
 }
 
 // Update the progress indicator to highlight current step
