@@ -36,84 +36,80 @@ $renewalList = $insurance->getExpiringInsurances(); // You must create this meth
 
     <style>
         body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background: #f5f5f5;
-            display: flex;
-            margin-left: 250px; /* Adjust this if needed for your sidebar width */
-        }
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+    padding: 0;
+}
 
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            background-color: #fff;
-            margin-left: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+/* Main Content */
+.main-content {
+    margin-left: 270px;
+    padding: 40px;
+    width: calc(100% - 270px);
+    background-color: #fff;
+    min-height: 100vh;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-        h1 {
-            color: #333;
-        }
+/* Page Title */
+h1 {
+    font-size: 48px;
+    color: #023451f3;
+    margin-bottom: 40px;
+}
 
-        table.dataTable {
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+/* Table Container */
+.table-container {
+    overflow-x: auto;
+    width: 100%;
+}
 
-        .renew-btn {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-        .renew-btn:hover {
-            background-color: #218838;
-        }
+/* Table Header */
+thead {
+    background-color: #023451f3;
+    color: white;
+}
 
-        .sidebar {
-            position: fixed;
-            width: 250px;
-            height: 100%;
-            top: 0;
-            left: 0;
-            background: #023451;
-            color: white;
-            padding-top: 20px;
-            z-index: 1000;
-        }
+th, td {
+    padding: 20px 30px;
+    text-align: left;
+    font-size: 20px;
+}
 
-        .sidebar .logo {
-            display: block;
-            width: 80%;
-            margin: 0 auto 30px;
-        }
+/* Alternating Rows */
+tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
 
-        .sidebar .menu {
-            list-style: none;
-            padding: 0;
-        }
+tbody tr:hover {
+    background-color: #e1f0ff;
+}
 
-        .sidebar .menu li {
-            padding: 15px;
-            cursor: pointer;
-        }
+/* Renew Button */
+.renew-btn {
+    padding: 12px 24px;
+    font-size: 16px;
+    color: white;
+    background-color: #28a745;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
 
-        .sidebar .menu li a {
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-        }
-
-        .sidebar .menu li img {
-            width: 20px;
-            margin-right: 15px;
-        }
+.renew-btn:hover {
+    background-color: #218838;
+}
     </style>
 
     <script>
@@ -130,37 +126,39 @@ $renewalList = $insurance->getExpiringInsurances(); // You must create this meth
 <div class="main-content">
     <h1>Renewal Insurance</h1>
 
-    <table id="renewalTable" class="display" style="width:100%">
-        <thead>
-            <tr>
-                <th>Customer Name</th>
-                <th>Insurance Type</th>
-                <th>Renewal Date</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (!empty($renewalList)): ?>
-                <?php foreach ($renewalList as $item): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($item['full_name']); ?></td>
-                        <td><?= htmlspecialchars($item['type_of_insurance']); ?></td>
-                        <td><?= htmlspecialchars($item['expiry_date']); ?></td>
-                        <td><?= htmlspecialchars($item['status']); ?></td>
-                        <td>
-                            <form method="POST" style="margin: 0;">
-                                <input type="hidden" name="renew_id" value="<?= $item['insurance_id']; ?>">
-                                <button type="submit" class="renew-btn">Renew</button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <tr><td colspan="5">No insurances found for renewal.</td></tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+    <div class="table-container">
+        <table id="renewalTable" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Customer Name</th>
+                    <th>Insurance Type</th>
+                    <th>Renewal Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($renewalList)): ?>
+                    <?php foreach ($renewalList as $item): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($item['full_name']); ?></td>
+                            <td><?= htmlspecialchars($item['type_of_insurance']); ?></td>
+                            <td><?= htmlspecialchars($item['expiry_date']); ?></td>
+                            <td><?= htmlspecialchars($item['status']); ?></td>
+                            <td>
+                                <form method="POST" style="margin: 0;">
+                                    <input type="hidden" name="renew_id" value="<?= $item['insurance_id']; ?>">
+                                    <button type="submit" class="renew-btn">Renew</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr><td colspan="5">No insurances found for renewal.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 </body>
