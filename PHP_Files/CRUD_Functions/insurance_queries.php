@@ -52,6 +52,45 @@ class InsuranceTransactions {
             return false;
         }
     }
+
+    public function getExpiringInsurances() {
+        try {
+            $query = "
+                SELECT ir.insurance_id, c.full_name, ir.type_of_insurance, ir.expiry_date, ir.status
+                FROM nmg_insurance.insurance_registration ir
+                JOIN nmg_insurance.clients c ON ir.client_id = c.client_id
+                WHERE ir.expiry_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+                  AND ir.status != 'renewed'
+                ORDER BY ir.expiry_date ASC
+            ";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error fetching expiring insurances: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function renewInsurance($insurance_id) {
+        try {
+            $query = "
+                UPDATE nmg_insurance.insurance_registration 
+                SET expiry_date = DATE_ADD(expiry_date, INTERVAL 1 YEAR),
+                    status = 'renewed'
+                WHERE insurance_id = :insurance_id
+            ";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':insurance_id', $insurance_id, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Error renewing insurance: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    
+    
 }
 ?>
 

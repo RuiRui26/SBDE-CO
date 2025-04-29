@@ -4,7 +4,6 @@ require_once '../../DB_connection/db.php'; // Adjust path if needed
 $db = new Database();
 $conn = $db->getConnection();
 
-include 'sidebar.php';
 
 // Fetch data including brand, model, color for vehicles
 $query = "
@@ -97,7 +96,8 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </style>
 </head>
 <body>
-    <!-- Sidebar included by PHP -->
+    <!-- Sidebar -->
+<?php include 'sidebar.php'; ?>
 
     <main class="content">
         <h2>Insurance Applications</h2>

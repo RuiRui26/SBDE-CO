@@ -5,6 +5,7 @@
     background: #023451;
     color: white;
     padding-top: 20px;
+    position: fixed;
 }
 
 .sidebar .logo {

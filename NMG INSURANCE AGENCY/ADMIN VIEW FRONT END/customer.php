@@ -43,6 +43,13 @@ require '../../Logout_Login/Restricted.php';
                 <h2>Lost Documents</h2>
                 <button class="view-btn" onclick="viewAllLto()">View</button>
             </div>
+
+            <!-- Renewal Container -->
+            <div class="info-box">
+                 <img src="img2/logo.png" alt="Renewal" class="box-logo">
+                <h2>Renewal</h2>
+                <button class="view-btn" onclick="viewAllRenewal()">View</button>
+            </div>
         </div>
 
     </div>
@@ -55,6 +62,10 @@ require '../../Logout_Login/Restricted.php';
         function viewAllLto() {
             window.location.href = 'lost_customer.php';
         }
+        function viewAllRenewal() {
+            window.location.href = 'renewal_customer.php';
+        }
+
 
         function handleSearch() {
             alert("Searching for client information...");
