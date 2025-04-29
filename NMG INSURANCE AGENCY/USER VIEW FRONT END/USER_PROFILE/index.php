@@ -1,9 +1,8 @@
 <?php 
 include 'sidebar.php';
 
-// Allow only client role (or add more roles as needed)
-$allowed_roles = ['Client']; 
-
+// Allow the Client role to access this page
+$allowed_roles = ['Client'];
 require '../../../Logout_Login/Restricted.php';
 
 // Connect to database and fetch user information
@@ -11,7 +10,7 @@ require_once '../../../DB_connection/db.php';
 $database = new Database();
 $pdo = $database->getConnection();
 
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'] ?? null;
 
 // Get client information
 $stmt = $pdo->prepare("SELECT client_id, full_name, contact_number, email, address FROM clients WHERE user_id = :user_id");
@@ -25,7 +24,7 @@ $contact = $client['contact_number'] ?? '';
 $address = $client['address'] ?? '';
 $client_id = $client['client_id'] ?? null;
 
-// Get all insurance registration data for this client
+// Get insurance registration data for this client (Approved and Paid)
 $insurance_data = [];
 if ($client_id) {
     $stmt = $pdo->prepare("
@@ -39,11 +38,22 @@ if ($client_id) {
             v.brand,
             v.model,
             v.year,
-            v.color
+            v.color,
+            DATE_ADD(ir.start_date, INTERVAL 1 YEAR) as expiry_date,
+            DATEDIFF(DATE_ADD(ir.start_date, INTERVAL 1 YEAR), CURDATE()) as days_remaining,
+            DATEDIFF(ir.start_date, CURDATE()) as start_in_days
         FROM insurance_registration ir
         JOIN vehicles v ON ir.vehicle_id = v.vehicle_id
         WHERE ir.client_id = :client_id
-        ORDER BY ir.created_at DESC
+        AND ir.status = 'Approved' 
+        AND ir.is_paid = 'Paid'
+        ORDER BY 
+            CASE 
+                WHEN ir.start_date > CURDATE() THEN 1  # Not yet started first
+                WHEN ir.expired_at < CURDATE() THEN 3  # Expired last
+                ELSE 2                                # Active policies in middle
+            END,
+            ir.start_date DESC
     ");
     $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
     $stmt->execute();
@@ -51,326 +61,54 @@ if ($client_id) {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Policy Holder Profile</title>
     <link rel="stylesheet" href="../css/profile.css">
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/profile_view.css">
+    <link rel="stylesheet" href="css/profile.css">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
-        /* Insurance Dashboard Styling */
-        /* Fix layout conflict with sidebar */
-        .container {
-            display: flex;
-            margin-top: 0; 
-            width: 4500px;
-            height: 100px;
-        }
-
-        .main-content {
-            margin-left: 80px; /* Matches sidebar width */
-            width: calc(100% - 80px); /* Adjusted width */
-            padding: 20px;
-            box-sizing: border-box;
-            background-color: #f4f6f8;
-            margin-top: 60px; /* Match the height of your top-bar */
-            min-height: calc(100vh - 60px); /* Full height minus top-bar */
-            overflow-y: auto; /* Enable scrolling only for content */
-        }
-        /* Top bar */
-        .top-bar {
-            display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: white;
-        padding: 15px 20px;
-        width: calc(100% - 80px); /* Adjusted for sidebar */
-        position: fixed;
-        top: 0;
-        left: 80px;
-        height: 60px;
-        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-        z-index: 1000; /* Ensure it stays above other content */
-        }
-
-        /* Profile dropdown styles */
-        .profile-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .profile-dropdown .profile {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .profile-dropdown .profile img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            display: none;
-            z-index: 999;
-            padding: 10px 0;
-            min-width: 150px;
-        }
-
-        .dropdown-menu.show {
-            display: block;
-        }
-
-        .dropdown-menu li {
-            list-style: none;
-        }
-
-        .dropdown-menu li a {
-            display: block;
-            padding: 10px 20px;
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: background 0.2s ease;
-        }
-
-        .dropdown-menu li a:hover {
-            background-color: #f0f0f0;
-        }
-
-        /* Enhanced Dashboard Styles */
-        .dashboard-container {
-            padding: 0;
-            margin-top: 0;
-            width: 100%;
-            position: relative;
-        }
-        
-        .section-title {
-            font-size: 1.5rem;
-            color:rgb(10, 24, 37);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #3498db;
-        }
-        
-        .insurance-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 25px;
-        }
-        
-        .insurance-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            padding: 25px;
-            transition: all 0.3s ease;
-            border-left: 4px solid #3498db;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .insurance-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-        
-        .card-header {
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .insurance-type {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #3498db;
-        }
-        
-        .status-badge {
-            background: #2ecc71;
+        .status-not-started {
+            background-color: #FFA500; /* Orange */
             color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
         }
-        
-        .card-body {
-            margin-bottom: 15px;
-        }
-        
-        .detail-group {
-            margin-bottom: 12px;
-        }
-        
-        .detail-label {
-            font-weight: bold;
-            color:rgb(35, 37, 37);
-            display: block;
-            margin-bottom: 3px;
-            font-size: 0.9rem;
-        }
-        
-        .detail-value {
-            color:rgb(55, 63, 71);
-            font-size: 1rem;
-            padding: 8px 12px;
-            background: #f8f9fa;
+        .claim-badge {
+            background-color: #6A5ACD; /* Slate blue */
+            color: white;
+            padding: 3px 8px;
             border-radius: 4px;
-            display: inline-block;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        .vehicle-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            grid-column: 1 / -1;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-        
-        .vehicle-title {
+            font-size: 12px;
             font-weight: bold;
-            margin-bottom: 10px;
-            color: #3498db;
-            grid-column: 1 / -1;
         }
-        
-        .documents-section {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            grid-column: 1 / -1;
-        }
-        
-        .documents-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #3498db;
-        }
-        
-        .document-links {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .document-link {
-            display: inline-flex;
-            align-items: center;
-            padding: 8px 15px;
-            background: #f1f8fe;
-            border-radius: 5px;
-            color: #3498db;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-        
-        .document-link:hover {
-            background: #e1f0ff;
-            transform: translateY(-2px);
-        }
-        
-        .document-link i {
-            margin-right: 8px;
-        }
-        
-        .no-insurance {
-            text-align: center;
-            padding: 40px 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            color: #7f8c8d;
-            font-size: 1.1rem;
-        }
-        
-        .no-insurance i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: #bdc3c7;
-        }
-        
-        .action-buttons {
-            margin-top: 30px;
-            text-align: center;
-        }
-        
-        .btn-primary {
-            display: inline-block;
-            background: #3498db;
+        .btn-claim-benefits {
+            background-color: #4CAF50;
             color: white;
-            padding: 12px 25px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background 0.3s;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
         }
-        
-        .btn-primary:hover {
-            background: #2980b9;
+        .btn-claim-benefits:hover {
+            background-color: #45a049;
         }
-        
-        .registration-date {
-            font-size: 0.9rem;
-            color: #7f8c8d;
-            text-align: right;
-            margin-top: 10px;
-            grid-column: 1 / -1;
-        }
-        .renew-button {
-        background-color: #e8f5e9;
-        color: #27ae60;
-    }
-    .renew-button:hover {
-        background-color: #d0f0d6;
-        color: #1e8449;
-    }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .insurance-card {
-                grid-template-columns: 1fr;
-            }
-            
-            .vehicle-info {
-                grid-template-columns: 1fr;
-            }
+        .benefits-status {
+            margin-top: 5px;
+            font-size: 14px;
+            color: #555;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- Top Navigation Bar -->
             <header class="top-bar">
                 <h2>Welcome, <?php echo htmlspecialchars($full_name); ?>!</h2>
-                
-                <!-- Profile Section with Dropdown -->
                 <div class="profile-dropdown">
                     <div class="profile" onclick="toggleDropdown()">
                         <img src="../img/userprofile.png" alt="User">
@@ -383,152 +121,163 @@ if ($client_id) {
             </header>
 
             <div class="profile-section">
-            <div class="profile-picture">
-                <img src="../img/userprofile.png" alt="User Picture">
+                <div class="profile-picture">
+                    <img src="../img/userprofile.png" alt="User Picture">
+                </div>
+                <div class="user-info">
+                    <h2><?php echo htmlspecialchars($full_name); ?></h2>
+                    <p><strong>Email:</strong> <?php echo htmlspecialchars($email); ?></p>
+                    <p><strong>Phone:</strong> <?php echo htmlspecialchars($contact); ?></p>
+                    <p><strong>Address:</strong> <?php echo htmlspecialchars($address); ?></p>
+                </div>
             </div>
-            <div class="user-info">
-                <h2><?php echo htmlspecialchars($full_name); ?></h2>
-                <p><strong>Email:</strong> <?php echo htmlspecialchars($email); ?></p>
-                <p><strong>Phone:</strong> <?php echo htmlspecialchars($contact); ?></p>
-                <p><strong>Address:</strong> <?php echo htmlspecialchars($address); ?></p>
-            </div>
-        </div>
             
-            <!-- Insurance Dashboard Section -->
             <div class="dashboard-container">
                 <h3 class="section-title">My Insurance Policies</h3>
-                
+
                 <?php if (empty($insurance_data)): ?>
                     <div class="no-insurance">
                         <i class="fas fa-folder-open"></i>
-                        <p>You don't have any registered insurance policies yet.</p>
+                        <p>You don't have any approved insurance policies at this time.</p>
                         <div class="action-buttons">
-                            <a href="../register_insurance.php" class="btn-primary">
+                            <a href="register_insurance.php" class="btn-primary">
                                 <i class="fas fa-plus"></i> Register New Insurance
                             </a>
                         </div>
                     </div>
                 <?php else: ?>
                     <div class="insurance-grid">
-                        <?php foreach ($insurance_data as $policy): ?>
+                        <?php foreach ($insurance_data as $policy): 
+                            // Determine policy status
+                            $days_remaining = $policy['days_remaining'];
+                            $start_in_days = $policy['start_in_days'];
+                            
+                            if ($start_in_days > 0) {
+                                $status = 'Not Yet Started';
+                                $badge_class = 'status-not-started';
+                            } elseif ($days_remaining <= 0) {
+                                $status = 'Expired';
+                                $badge_class = 'status-expired';
+                            } elseif ($days_remaining <= 30) {
+                                $status = 'Active (Expiring Soon)';
+                                $badge_class = 'status-expiring';
+                            } else {
+                                $status = 'Active';
+                                $badge_class = 'status-active';
+                            }
+                            
+                            // Claim status
+                            $is_claimed = $policy['is_claimed'] === 'Claimed';
+                        ?>
                             <div class="insurance-card">
                                 <div class="card-header">
                                     <span class="insurance-type">
                                         <?php 
-                                            echo htmlspecialchars($policy['type_of_insurance'] == 'TPL' ? 
-                                                'Third Party Liability' : 'Third Party Property Damage'); 
+                                            $typeText = '';
+                                            if ($policy['type_of_insurance'] == 'TPL') {
+                                                $typeText = 'Third Party Liability';
+                                            } elseif ($policy['type_of_insurance'] == 'TPPD') {
+                                                $typeText = 'Third Party Property Damage';
+                                            } else {
+                                                $typeText = htmlspecialchars($policy['type_of_insurance']);
+                                            }
+                                            echo $typeText;
                                         ?>
                                     </span>
-                                    <span class="status-badge">Active</span>
+                                    <span class="status-badge <?php echo $badge_class; ?>"><?php echo $status; ?></span>
+                                    <?php if ($is_claimed): ?>
+                                        <span class="claim-badge">Claimed</span>
+                                    <?php endif; ?>
                                 </div>
-                               
-                                <div class="applicant-info">
-    
-                                <div class="detail-group">
-                                <span class="detail-label">Full Name</span>
-                                <span class="detail-value"><?php echo htmlspecialchars($full_name); ?></span>
-                                </div>
-    
-                                <div class="detail-group">
-                                <span class="detail-label">Contact Number</span>
-                                <span class="detail-value"><?php echo htmlspecialchars($client['contact_number'] ?? 'N/A'); ?></span>
-                                </div>
+
+                                <div class="policy-period">
+                                    <div class="detail-group">
+                                        <span class="detail-label">Coverage Period:</span>
+                                        <span class="detail-value">
+                                            <?php 
+                                                echo $policy['start_date'] ? date('M j, Y', strtotime($policy['start_date'])) : 'Not Set';
+                                                echo ' to ';
+                                                echo $policy['expiry_date'] ? date('M j, Y', strtotime($policy['expiry_date'])) : 'Not Set';
+                                            ?>
+                                        </span>
+                                    </div>
+                                    <?php if ($start_in_days > 0): ?>
+                                        <div class="starts-in">
+                                            Starts in <?php echo $start_in_days; ?> days
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
 
                                 <div class="card-body">
                                     <div class="detail-group">
-                                        <span class="detail-label">Policy Reference</span>
-                                        <span class="detail-value"><?php echo htmlspecialchars($policy['registration_id'] ?? 'N/A'); ?></span>
+                                        <span class="detail-label">Policy ID</span>
+                                        <span class="detail-value"><?php echo htmlspecialchars($policy['insurance_id']); ?></span>
                                     </div>
-                                    
                                     <div class="detail-group">
-                                        <span class="detail-label">Registration Date</span>
-                                        <span class="detail-value"><?php echo date('F j, Y', strtotime($policy['created_at'])); ?></span>
+                                        <span class="detail-label">Payment Status</span>
+                                        <span class="detail-value"><?php echo htmlspecialchars($policy['is_paid']); ?></span>
                                     </div>
                                 </div>
-                                
+
                                 <div class="vehicle-info">
                                     <div class="vehicle-title">Vehicle Details</div>
-                                    
-                                    <?php if (!empty($policy['plate_number'])): ?>
-                                        <div class="detail-group">
-                                            <span class="detail-label">Plate Number</span>
-                                            <span class="detail-value"><?php echo htmlspecialchars($policy['plate_number']); ?></span>
-                                        </div>
-                                    <?php endif; ?>
-                                    
-                                    <?php if (!empty($policy['mv_file_number'])): ?>
-                                        <div class="detail-group">
-                                            <span class="detail-label">MV File Number</span>
-                                            <span class="detail-value"><?php echo htmlspecialchars($policy['mv_file_number']); ?></span>
-                                        </div>
-                                    <?php endif; ?>
-                                    
                                     <div class="detail-group">
-                                        <span class="detail-label">Chassis Number</span>
-                                        <span class="detail-value"><?php echo htmlspecialchars($policy['chassis_number']); ?></span>
+                                        <span class="detail-label"><?php echo !empty($policy['plate_number']) ? 'Plate Number' : 'MV File Number'; ?></span>
+                                        <span class="detail-value">
+                                            <?php echo !empty($policy['plate_number']) 
+                                                ? htmlspecialchars($policy['plate_number']) 
+                                                : htmlspecialchars($policy['mv_file_number']); ?>
+                                        </span>
                                     </div>
-                                    
                                     <div class="detail-group">
-                                        <span class="detail-label">Vehicle Type</span>
-                                        <span class="detail-value"><?php echo htmlspecialchars($policy['vehicle_type']); ?></span>
+                                        <span class="detail-label">Brand/Model</span>
+                                        <span class="detail-value"><?php echo htmlspecialchars($policy['brand']); ?> <?php echo htmlspecialchars($policy['model']); ?></span>
                                     </div>
-                                    
                                     <div class="detail-group">
-                                        <span class="detail-label">Brand</span>
-                                        <span class="detail-value"><?php echo htmlspecialchars($policy['brand']); ?></span>
-                                    </div>
-                                    
-                                    <div class="detail-group">
-                                        <span class="detail-label">Model</span>
-                                        <span class="detail-value"><?php echo htmlspecialchars($policy['model']); ?></span>
-                                    </div>
-                                    
-                                    <div class="detail-group">
-                                        <span class="detail-label">Year</span>
-                                        <span class="detail-value"><?php echo htmlspecialchars($policy['year']); ?></span>
-                                    </div>
-                                    
-                                    <div class="detail-group">
-                                        <span class="detail-label">Color</span>
-                                        <span class="detail-value"><?php echo htmlspecialchars($policy['color']); ?></span>
+                                        <span class="detail-label">Year/Color</span>
+                                        <span class="detail-value"><?php echo htmlspecialchars($policy['year']); ?> • <?php echo htmlspecialchars($policy['color']); ?></span>
                                     </div>
                                 </div>
-                                
-                                <div class="documents-section">
-                                    <div class="documents-title">Policy Documents</div>
-                                    <div class="document-links">
-                                        <?php if (!empty($policy['or_picture'])): ?>
-                                            <a href="<?php echo htmlspecialchars($policy['or_picture']); ?>" class="document-link" target="_blank">
-                                                <i class="fas fa-file-alt"></i> OR Copy
-                                            </a>
+
+                                <div class="action-buttons">
+                                    <?php if ($status === 'Active' || $status === 'Active (Expiring Soon)'): ?>
+                                        <?php if (!$is_claimed): ?>
+                                            <button class="btn-claim" onclick="window.location.href='file_claim.php?id=<?php echo $policy['insurance_id']; ?>'">
+                                                <i class="fas fa-file-claim"></i> File Claim
+                                            </button>
+                                        <?php else: ?>
+                                            <div class="claim-details">
+                                                <span class="benefits-status">Claim Benefits: <?php echo htmlspecialchars($policy['benefits_status'] ?? 'Processing'); ?></span>
+                                                <?php if (($policy['benefits_status'] ?? '') === 'Unclaimed'): ?>
+                                                    <button class="btn-claim-benefits" onclick="window.location.href='claim_benefits.php?id=<?php echo $policy['insurance_id']; ?>'">
+                                                        <i class="fas fa-hand-holding-usd"></i> Claim Benefits
+                                                    </button>
+                                                <?php endif; ?>
+                                            </div>
                                         <?php endif; ?>
                                         
-                                        <?php if (!empty($policy['cr_picture'])): ?>
-                                            <a href="<?php echo htmlspecialchars($policy['cr_picture']); ?>" class="document-link" target="_blank">
-                                                <i class="fas fa-file-alt"></i> CR Copy
-                                            </a>
-                                        <?php endif; ?>
-                                        <!-- RENEW BUTTON -->
-        <a href="#" class="document-link renew-button">
-            <i class="fas fa-sync-alt"></i> Renew
-        </a>
-                                    </div>
-                                </div>
-                                
-                                <div class="registration-date">
-                                    Registered on <?php echo date('M d, Y \a\t H:i', strtotime($policy['created_at'])); ?>
+                                        <button class="btn-renew" onclick="window.location.href='renew_insurance.php?id=<?php echo $policy['insurance_id']; ?>'">
+                                            <i class="fas fa-sync-alt"></i> Renew
+                                        </button>
+                                    <?php elseif ($status === 'Not Yet Started'): ?>
+                                        <button class="btn-view" onclick="window.location.href='policy_details.php?id=<?php echo $policy['insurance_id']; ?>'">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </button>
+                                    <?php elseif ($status === 'Expired'): ?>
+                                        <button class="btn-renew" onclick="window.location.href='renew_insurance.php?id=<?php echo $policy['insurance_id']; ?>'">
+                                            <i class="fas fa-sync-alt"></i> Renew Now
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    
-                    <div class="action-buttons">
-                     <button class="btn-primary" onclick="window.location.href='../register_insurance.php';">
-                     <i class="fas fa-plus"></i> Register Another Insurance
-                    </button>
-                    </div>
 
+                    <div class="action-buttons">
+                        <button class="btn-primary" onclick="window.location.href='register_insurance.php';">
+                            <i class="fas fa-plus"></i> Register Another Insurance
+                        </button>
+                    </div>
                 <?php endif; ?>
             </div>
         </main>
