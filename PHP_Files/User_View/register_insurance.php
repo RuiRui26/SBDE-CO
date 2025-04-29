@@ -73,24 +73,24 @@ if ($is_proxy) {
         'proxy_relationship' => 'Relationship',
         'proxy_contact' => 'Contact number'
     ];
-    
+
     foreach ($required_proxy_fields as $field => $name) {
         if (empty($_POST[$field])) {
             echo json_encode(["success" => false, "message" => "Proxy $name is required."]);
             exit;
         }
     }
-    
+
     // Validate proxy age (must be at least 18)
     $birthday = new DateTime($_POST['proxy_birthday']);
     $today = new DateTime();
     $age = $birthday->diff($today)->y;
-    
+
     if ($age < 18) {
         echo json_encode(["success" => false, "message" => "Proxy must be at least 18 years old."]);
         exit;
     }
-    
+
     // Handle relationship field
     $relationship = sanitize_input($_POST['proxy_relationship']);
     if ($relationship === 'Other') {
@@ -100,29 +100,29 @@ if ($is_proxy) {
         }
         $relationship = sanitize_input($_POST['other_relationship']);
     }
-    
+
     // Process authorization letter upload
     if (!isset($_FILES['authorization_letter']) || $_FILES['authorization_letter']['error'] !== UPLOAD_ERR_OK) {
         echo json_encode(["success" => false, "message" => "Authorization letter is required for proxy registration."]);
         exit;
     }
-    
+
     $allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
     $fileExtension = strtolower(pathinfo($_FILES['authorization_letter']['name'], PATHINFO_EXTENSION));
     if (!in_array($fileExtension, $allowedExtensions)) {
         echo json_encode(["success" => false, "message" => "Invalid file type for authorization letter. Only JPG, JPEG, PNG, and PDF allowed."]);
         exit;
     }
-    
+
     $uploadDir = '../../secured_uploads/proxy_auth/';
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0755, true);
     }
-    
+
     $safe_name = preg_replace('/[^a-zA-Z0-9-_]/', '_', $user_name);
     $auth_filename = "proxy_auth_{$safe_name}_" . time() . "." . $fileExtension;
     $destination = $uploadDir . $auth_filename;
-    
+
     if (!move_uploaded_file($_FILES['authorization_letter']['tmp_name'], $destination)) {
         echo json_encode(["success" => false, "message" => "Failed to upload authorization letter."]);
         exit;
@@ -156,15 +156,15 @@ if ($start_date) {
             echo json_encode(["success" => false, "message" => "Invalid start date."]);
             exit;
         }
-        
+
         $start_date_obj = new DateTime($start_date);
         $today = new DateTime();
-        
+
         if ($start_date_obj < $today) {
             echo json_encode(["success" => false, "message" => "Start date must not be in the past."]);
             exit;
         }
-        
+
         // Calculate expiration date (365 days from start date)
         $expired_at = clone $start_date_obj;
         $expired_at->add(new DateInterval('P365D'));
@@ -248,7 +248,7 @@ try {
     exit;
 }
 
-// Insert data transactionally
+// Second Half - Insert data transactionally
 try {
     $conn->beginTransaction();
 
@@ -320,7 +320,10 @@ try {
     ]);
 
     // Retrieve the vehicle id by unique identifiers
-    $stmt = $conn->prepare("SELECT vehicle_id FROM vehicles WHERE client_id = :client_id AND (plate_number = :plate_number OR mv_file_number = :mv_file_number OR chassis_number = :chassis_number) LIMIT 1");
+    $stmt = $conn->prepare("
+        SELECT vehicle_id FROM vehicles WHERE client_id = :client_id 
+        AND (plate_number = :plate_number OR mv_file_number = :mv_file_number OR chassis_number = :chassis_number) LIMIT 1
+    ");
     $stmt->execute([
         'client_id' => $client_id,
         'plate_number' => $plate_number ?: '',
@@ -364,9 +367,6 @@ try {
     }
 
     // Insert insurance registration with proxy_id and expiration date
-    // [Previous code remains exactly the same until the insurance registration insert]
-
-    // Insert insurance registration with proxy_id and expiration date
     $stmt = $conn->prepare("
         INSERT INTO insurance_registration (
             client_id, 
@@ -401,12 +401,10 @@ try {
         'proxy_id' => $proxy_id
     ]);
 
-// [Rest of your original code remains exactly the same]
-
+    // Commit transaction
     $conn->commit();
 
     echo json_encode(["success" => true, "message" => "Insurance application submitted successfully."]);
-
 } catch (Exception $e) {
     $conn->rollBack();
     echo json_encode(["success" => false, "message" => "Failed to submit insurance application: " . $e->getMessage()]);
