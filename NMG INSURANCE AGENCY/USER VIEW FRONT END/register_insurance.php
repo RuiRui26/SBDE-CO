@@ -64,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $start_date = $_POST['start_date'] ?? null;
         $brand = $_POST['brand'] ?? null;
         $model = $_POST['model'] ?? null;
+        $year = $_POST['year'] ?? null;
         $color = $_POST['color'] ?? null;
         $is_proxy = $_POST['is_proxy'] ?? 'no';
 
@@ -136,9 +137,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // If vehicle doesn't exist, create new vehicle record
         if (!$vehicle_id) {
             $stmt = $pdo->prepare("INSERT INTO vehicles 
-                                  (client_id, plate_number, vehicle_type, chassis_number, mv_file_number, type_of_insurance, brand, model, color) 
+                                  (client_id, plate_number, vehicle_type, chassis_number, mv_file_number, type_of_insurance, brand, model, year, color) 
                                   VALUES 
-                                  (:client_id, :plate_number, :vehicle_type, :chassis_number, :mv_file_number, :insurance_type, :brand, :model, :color)");
+                                  (:client_id, :plate_number, :vehicle_type, :chassis_number, :mv_file_number, :insurance_type, :brand, :model, :year, :color)");
             
             $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
             $stmt->bindParam(':plate_number', $plate_number);
@@ -148,6 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bindParam(':insurance_type', $insurance_type);
             $stmt->bindParam(':brand', $brand);
             $stmt->bindParam(':model', $model);
+            $stmt->bindParam(':year', $year);
             $stmt->bindParam(':color', $color);
             
             if (!$stmt->execute()) {
@@ -337,8 +339,7 @@ if ($is_proxy === 'yes') {
         </div>
 
         <div class="form-container">
-            <form id="insuranceForm" action="register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
-            
+        <form id="insuranceForm" action="../../PHP_Files/User_View/register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
             <!-- First Step: Type of Insurance -->
             <div class="form-step active" id="step1">
                 <h3>Step 1: Insurance Type</h3>
@@ -460,6 +461,11 @@ if ($is_proxy === 'yes') {
                         <label for="model" class="required">Model</label>
                         <input type="text" id="model" name="model" placeholder="e.g. Corolla" required oninput="updateNextButtonState()" onblur="validateInputForXSS(this)">
                         <span class="error-message" id="modelError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="year" class="required">Year</label>
+                        <input type="number" id="year" name="year" placeholder="e.g. 2020" min="1900" max="2099" step="1" required oninput="updateNextButtonState()" onblur="validateYear()">
+                        <span class="error-message" id="yearError"></span>
                     </div>
                     <div class="form-group">
                         <label for="vehicle_type" class="required">Vehicle Type</label>

@@ -1,11 +1,84 @@
+
 <?php
-require_once '../../DB_connection/db.php'; // Adjust path if needed
+require_once '../../DB_connection/db.php';
 
 $db = new Database();
 $conn = $db->getConnection();
 
+// Handle Delete Action
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_insurance'])) {
+    $insurance_id = $_POST['insurance_id'];
+    
+    try {
+        // First delete from insurance_registration
+        $delete_stmt = $conn->prepare("DELETE FROM insurance_registration WHERE insurance_id = ?");
+        $delete_stmt->execute([$insurance_id]);
+        
+        $_SESSION['success_message'] = "Insurance application deleted successfully!";
+    } catch (PDOException $e) {
+        $_SESSION['error_message'] = "Error deleting insurance application: " . $e->getMessage();
+    }
+    
+    header("Location: ".$_SERVER['PHP_SELF']);
+    exit();
+}
 
-// Fetch data including brand, model, color for vehicles
+// Handle Edit Action
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_insurance'])) {
+  $insurance_id = $_POST['insurance_id'];
+  $client_id = $_POST['client_id'];
+  $plate_number = $_POST['plate_number'];
+  $mv_file_number = $_POST['mv_file_number'];
+  $chassis_number = $_POST['chassis_number'];
+  $brand = $_POST['brand'];
+  $model = $_POST['model'];
+  $color = $_POST['color'];
+  $type_of_insurance = $_POST['type_of_insurance'];
+  
+  try {
+      // First update the vehicle information
+      $vehicle_stmt = $conn->prepare("
+          UPDATE vehicles SET 
+              plate_number = ?,
+              mv_file_number = ?,
+              chassis_number = ?,
+              brand = ?,
+              model = ?,
+              color = ?
+          WHERE vehicle_id = (SELECT vehicle_id FROM insurance_registration WHERE insurance_id = ?)
+      ");
+      $vehicle_stmt->execute([
+          $plate_number,
+          $mv_file_number,
+          $chassis_number,
+          $brand,
+          $model,
+          $color,
+          $insurance_id
+      ]);
+      
+      // Then update the insurance registration
+      $insurance_stmt = $conn->prepare("
+          UPDATE insurance_registration SET 
+              type_of_insurance = ?
+          WHERE insurance_id = ?
+      ");
+      $insurance_stmt->execute([
+          $type_of_insurance,
+          $insurance_id
+      ]);
+      
+      $_SESSION['success_message'] = "Insurance application updated successfully!";
+  } catch (PDOException $e) {
+      $_SESSION['error_message'] = "Error updating insurance application: " . $e->getMessage();
+  }
+  
+  header("Location: " . $_SERVER['PHP_SELF']);
+  exit();
+}
+
+
+// Fetch data including client and proxy details
 $query = "
     SELECT 
         ir.insurance_id,
@@ -14,18 +87,36 @@ $query = "
         c.last_name,
         c.middle_name,
         c.birthday,
+        c.contact_number,
+        c.email,
+        c.street_address,
+        c.barangay,
+        c.city,
+        c.zip_code,
+        v.vehicle_id,
         v.plate_number,
         v.mv_file_number,
+        v.vehicle_type,
         v.chassis_number,
         v.brand,
         v.model,
+        v.year,
         v.color,
         ir.type_of_insurance,
         ir.created_at AS applied_date,
-        ir.status
+        ir.status,
+        p.proxy_id,
+        p.first_name AS proxy_first_name,
+        p.middle_name AS proxy_middle_name,
+        p.last_name AS proxy_last_name,
+        p.birthday AS proxy_birthday,
+        p.relationship,
+        p.other_relationship,
+        p.contact_number AS proxy_contact_number
     FROM insurance_registration ir
     INNER JOIN clients c ON c.client_id = ir.client_id
     INNER JOIN vehicles v ON v.vehicle_id = ir.vehicle_id
+    LEFT JOIN proxies p ON p.proxy_id = ir.proxy_id
     ORDER BY ir.created_at DESC
 ";
 
@@ -39,7 +130,7 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Insurance Applications - Edit Customer Details</title>
+    <title>Insurance Applications</title>
 
     <!-- CSS -->
     <link rel="stylesheet" href="css/dashboard.css" />
@@ -78,7 +169,6 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-size: 15px;
         }
 
-        /* Custom search box styling */
         .dataTables_filter {
             float: none !important;
             text-align: left !important;
@@ -93,28 +183,79 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border: 1px solid #ddd !important;
             box-shadow: none !important;
         }
+
+        .client-details-btn, .vehicle-details-btn {
+            background: none;
+            border: none;
+            color: #023451;
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .detail-table {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .detail-table th {
+            width: 30%;
+            text-align: left;
+            padding: 8px;
+            vertical-align: top;
+        }
+        .detail-table td {
+            padding: 8px;
+            vertical-align: top;
+        }
+        
+        /* Add button styles */
+        .add-btn-container {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        
+        /* Alert messages */
+        .alert {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <!-- Sidebar -->
-<?php include 'sidebar.php'; ?>
+    <?php include 'sidebar.php'; ?>
 
     <main class="content">
         <h2>Insurance Applications</h2>
+        
+        <!-- Add New Button -->
+        <div class="add-btn-container">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="fas fa-plus"></i> Add New Application
+            </button>
+        </div>
+        
+        <!-- Success/Error Messages -->
+        <?php if (isset($_SESSION['success_message'])): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <?= $_SESSION['success_message'] ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php unset($_SESSION['success_message']); ?>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['error_message'])): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= $_SESSION['error_message'] ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php unset($_SESSION['error_message']); ?>
+        <?php endif; ?>
 
         <table id="applicationsTable" class="display table">
             <thead>
                 <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Middle Name</th>
-                    <th>Birthday</th>
-                    <th>Plate Number</th>
-                    <th>MV File Number</th>
-                    <th>Chassis Number</th>
-                    <th>Brand</th>
-                    <th>Model</th>
-                    <th>Color</th>
+                    <th>Client</th>
+                    <th>Vehicle</th>
                     <th>Transaction Type</th>
                     <th>Applied Date</th>
                     <th>Status</th>
@@ -124,29 +265,66 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <tbody>
                 <?php foreach ($records as $row): ?>
                     <tr>
-                        <td data-label="First Name"><?= htmlspecialchars($row['first_name']) ?></td>
-                        <td data-label="Last Name"><?= htmlspecialchars($row['last_name']) ?></td>
-                        <td data-label="Middle Name"><?= htmlspecialchars($row['middle_name']) ?></td>
-                        <td data-label="Birthday"><?= htmlspecialchars($row['birthday']) ?></td>
-                        <td data-label="Plate Number"><?= htmlspecialchars($row['plate_number']) ?></td>
-                        <td data-label="MV File Number"><?= htmlspecialchars($row['mv_file_number']) ?></td>
-                        <td data-label="Chassis Number"><?= htmlspecialchars($row['chassis_number']) ?></td>
-                        <td data-label="Brand"><?= htmlspecialchars($row['brand']) ?></td>
-                        <td data-label="Model"><?= htmlspecialchars($row['model']) ?></td>
-                        <td data-label="Color"><?= htmlspecialchars($row['color']) ?></td>
+                        <td data-label="Client">
+                            <button class="client-details-btn" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#clientDetailsModal"
+                                data-first_name="<?= htmlspecialchars($row['first_name']) ?>"
+                                data-last_name="<?= htmlspecialchars($row['last_name']) ?>"
+                                data-middle_name="<?= htmlspecialchars($row['middle_name']) ?>"
+                                data-birthday="<?= $row['birthday'] ?>"
+                                data-contact="<?= htmlspecialchars($row['contact_number']) ?>"
+                                data-email="<?= htmlspecialchars($row['email']) ?>"
+                                data-address="<?= htmlspecialchars($row['street_address'] . ', ' . $row['barangay'] . ', ' . $row['city'] . ', ' . $row['zip_code']) ?>"
+                                data-proxy_id="<?= $row['proxy_id'] ?>"
+                                data-proxy_first_name="<?= htmlspecialchars($row['proxy_first_name'] ?? '') ?>"
+                                data-proxy_middle_name="<?= htmlspecialchars($row['proxy_middle_name'] ?? '') ?>"
+                                data-proxy_last_name="<?= htmlspecialchars($row['proxy_last_name'] ?? '') ?>"
+                                data-proxy_birthday="<?= $row['proxy_birthday'] ?? '' ?>"
+                                data-proxy_relationship="<?= htmlspecialchars($row['relationship'] ?? '') ?>"
+                                data-proxy_other_relationship="<?= htmlspecialchars($row['other_relationship'] ?? '') ?>"
+                                data-proxy_contact="<?= htmlspecialchars($row['proxy_contact_number'] ?? '') ?>"
+                            >
+                                <?= htmlspecialchars($row['last_name']) ?>, <?= htmlspecialchars($row['first_name']) ?>
+                            </button>
+                        </td>
+                        <td data-label="Vehicle">
+                            <button class="vehicle-details-btn" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#vehicleDetailsModal"
+                                data-plate_number="<?= htmlspecialchars($row['plate_number'] ?? '') ?>"
+                                data-mv_file_number="<?= htmlspecialchars($row['mv_file_number'] ?? '') ?>"
+                                data-vehicle_type="<?= htmlspecialchars($row['vehicle_type']) ?>"
+                                data-chassis_number="<?= htmlspecialchars($row['chassis_number']) ?>"
+                                data-brand="<?= htmlspecialchars($row['brand']) ?>"
+                                data-model="<?= htmlspecialchars($row['model']) ?>"
+                                data-year="<?= htmlspecialchars($row['year']) ?>"
+                                data-color="<?= htmlspecialchars($row['color']) ?>"
+                            >
+                                <?php if (!empty($row['plate_number'])): ?>
+                                    <?= htmlspecialchars($row['plate_number']) ?>
+                                <?php else: ?>
+                                    <?= htmlspecialchars($row['mv_file_number']) ?>
+                                <?php endif; ?>
+                                <br>
+                                <small><?= htmlspecialchars($row['brand']) ?> <?= htmlspecialchars($row['model']) ?></small>
+                            </button>
+                        </td>
                         <td data-label="Transaction Type"><?= htmlspecialchars($row['type_of_insurance']) ?></td>
                         <td data-label="Applied Date"><?= htmlspecialchars(date('M d, Y', strtotime($row['applied_date']))) ?></td>
-                        <td data-label="Status"><?= htmlspecialchars($row['status']) ?></td>
+                        <td data-label="Status">
+                            <span class="badge 
+                                <?= $row['status'] == 'Approved' ? 'bg-success' : 
+                                   ($row['status'] == 'Rejected' ? 'bg-danger' : 'bg-warning') ?>">
+                                <?= htmlspecialchars($row['status']) ?>
+                            </span>
+                        </td>
                         <td data-label="Action">
                             <a href="insurance_details.php?id=<?= $row['insurance_id'] ?>" class="btn btn-primary btn-sm mb-1">View</a>
                             <button 
                                 class="btn btn-warning btn-sm mb-1 editBtn"
                                 data-insurance_id="<?= $row['insurance_id'] ?>"
                                 data-client_id="<?= $row['client_id'] ?>"
-                                data-first_name="<?= htmlspecialchars($row['first_name']) ?>"
-                                data-last_name="<?= htmlspecialchars($row['last_name']) ?>"
-                                data-middle_name="<?= htmlspecialchars($row['middle_name']) ?>"
-                                data-birthday="<?= $row['birthday'] ?>"
                                 data-plate_number="<?= htmlspecialchars($row['plate_number']) ?>"
                                 data-mv_file_number="<?= htmlspecialchars($row['mv_file_number']) ?>"
                                 data-chassis_number="<?= htmlspecialchars($row['chassis_number']) ?>"
@@ -175,80 +353,183 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </table>
     </main>
 
-    <!-- Edit Modal: Edit Customer Details -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <!-- Client Details Modal -->
+    <div class="modal fade" id="clientDetailsModal" tabindex="-1" aria-labelledby="clientDetailsModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
-        <form id="editForm" method="POST" action="edit_insurance.php">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="clientDetailsModalLabel">Client Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <h6>Client Information</h6>
+            <table class="detail-table">
+                <tr>
+                    <th>Full Name:</th>
+                    <td id="client_full_name"></td>
+                </tr>
+                <tr>
+                    <th>Birthday:</th>
+                    <td id="client_birthday"></td>
+                </tr>
+                <tr>
+                    <th>Contact Number:</th>
+                    <td id="client_contact"></td>
+                </tr>
+                <tr>
+                    <th>Email:</th>
+                    <td id="client_email"></td>
+                </tr>
+                <tr>
+                    <th>Address:</th>
+                    <td id="client_address"></td>
+                </tr>
+            </table>
+
+            <h6 id="proxyHeader" style="display: none;">Proxy Information</h6>
+            <table class="detail-table" id="proxyDetailsTable" style="display: none;">
+                <tr>
+                    <th>Full Name:</th>
+                    <td id="proxy_full_name"></td>
+                </tr>
+                <tr>
+                    <th>Birthday:</th>
+                    <td id="proxy_birthday"></td>
+                </tr>
+                <tr>
+                    <th>Relationship:</th>
+                    <td id="proxy_relationship"></td>
+                </tr>
+                <tr>
+                    <th>Contact Number:</th>
+                    <td id="proxy_contact"></td>
+                </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vehicle Details Modal -->
+    <div class="modal fade" id="vehicleDetailsModal" tabindex="-1" aria-labelledby="vehicleDetailsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="vehicleDetailsModalLabel">Vehicle Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <h6>Vehicle Information</h6>
+            <table class="detail-table">
+                <tr>
+                    <th>Plate Number:</th>
+                    <td id="vehicle_plate_number"></td>
+                </tr>
+                <tr>
+                    <th>MV File Number:</th>
+                    <td id="vehicle_mv_file_number"></td>
+                </tr>
+                <tr>
+                    <th>Vehicle Type:</th>
+                    <td id="vehicle_type"></td>
+                </tr>
+                <tr>
+                    <th>Chassis Number:</th>
+                    <td id="vehicle_chassis_number"></td>
+                </tr>
+                <tr>
+                    <th>Brand:</th>
+                    <td id="vehicle_brand"></td>
+                </tr>
+                <tr>
+                    <th>Model:</th>
+                    <td id="vehicle_model"></td>
+                </tr>
+                <tr>
+                    <th>Year:</th>
+                    <td id="vehicle_year"></td>
+                </tr>
+                <tr>
+                    <th>Color:</th>
+                    <td id="vehicle_color"></td>
+                </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Modal -->
+    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <form id="addForm" method="POST" action="add_insurance.php">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="editModalLabel">Edit Customer Details</h5>
+              <h5 class="modal-title" id="addModalLabel">Add New Insurance Application</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <!-- Hidden Fields -->
-              <input type="hidden" name="insurance_id" id="edit_insurance_id" />
-              <input type="hidden" name="client_id" id="edit_client_id" />
-
               <div class="row mb-3">
-                <div class="col-md-4">
-                  <label for="edit_first_name" class="form-label">First Name</label>
-                  <input type="text" class="form-control" id="edit_first_name" name="first_name" required />
-                </div>
-                <div class="col-md-4">
-                  <label for="edit_middle_name" class="form-label">Middle Name</label>
-                  <input type="text" class="form-control" id="edit_middle_name" name="middle_name" />
-                </div>
-                <div class="col-md-4">
-                  <label for="edit_last_name" class="form-label">Last Name</label>
-                  <input type="text" class="form-control" id="edit_last_name" name="last_name" required />
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label for="edit_birthday" class="form-label">Birthday</label>
-                <input type="date" class="form-control" id="edit_birthday" name="birthday" />
-              </div>
-
-              <div class="row mb-3">
-                <div class="col-md-3">
-                  <label for="edit_mv_file_number" class="form-label">MV File Number</label>
-                  <input type="text" class="form-control" id="edit_mv_file_number" name="mv_file_number" />
-                </div>
-                <div class="col-md-3">
-                  <label for="edit_plate_number" class="form-label">Plate Number</label>
-                  <input type="text" class="form-control" id="edit_plate_number" name="plate_number" />
-                </div>
-                <div class="col-md-3">
-                  <label for="edit_chassis_number" class="form-label">Chassis Number</label>
-                  <input type="text" class="form-control" id="edit_chassis_number" name="chassis_number" />
-                </div>
-                <div class="col-md-3">
-                  <label for="edit_brand" class="form-label">Brand</label>
-                  <input type="text" class="form-control" id="edit_brand" name="brand" />
-                </div>
-              </div>
-
-              <div class="row mb-3">
-                <div class="col-md-3">
-                  <label for="edit_model" class="form-label">Model</label>
-                  <input type="text" class="form-control" id="edit_model" name="model" />
-                </div>
-                <div class="col-md-3">
-                  <label for="edit_color" class="form-label">Color</label>
-                  <input type="text" class="form-control" id="edit_color" name="color" />
-                </div>
-                <div class="col-md-3">
-                  <label for="edit_type_of_insurance" class="form-label">Transaction Type</label>
-                  <select name="type_of_insurance" id="edit_type_of_insurance" class="form-select" required>
-                    <option value="TPL">TPL</option>
-                    <option value="TPPD">TPPD</option>
-                    <option value="OD">OD</option>
-                    <option value="UPA">UPA</option>
+                <div class="col-md-6">
+                  <label for="add_client_id" class="form-label">Client</label>
+                  <select name="client_id" id="add_client_id" class="form-select" required>
+                    <option value="">Select Client</option>
+                    <?php
+                    $client_stmt = $conn->query("SELECT client_id, first_name, last_name FROM clients ORDER BY last_name, first_name");
+                    while ($client = $client_stmt->fetch(PDO::FETCH_ASSOC)) {
+                        echo "<option value='{$client['client_id']}'>{$client['last_name']}, {$client['first_name']}</option>";
+                    }
+                    ?>
                   </select>
                 </div>
-                <div class="col-md-3">
-                  <label for="edit_status" class="form-label">Status</label>
-                  <select name="status" id="edit_status" class="form-select" required>
+                <div class="col-md-6">
+                  <label for="add_vehicle_id" class="form-label">Vehicle</label>
+                  <select name="vehicle_id" id="add_vehicle_id" class="form-select" required>
+                    <option value="">Select Vehicle</option>
+                    <?php
+                    $vehicle_stmt = $conn->query("SELECT vehicle_id, plate_number, mv_file_number, brand, model FROM vehicles ORDER BY plate_number, brand");
+                    while ($vehicle = $vehicle_stmt->fetch(PDO::FETCH_ASSOC)) {
+                        $display = !empty($vehicle['plate_number']) ? $vehicle['plate_number'] : $vehicle['mv_file_number'];
+                        $display .= " - {$vehicle['brand']} {$vehicle['model']}";
+                        echo "<option value='{$vehicle['vehicle_id']}'>$display</option>";
+                    }
+                    ?>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="add_proxy_id" class="form-label">Proxy (Optional)</label>
+                  <select name="proxy_id" id="add_proxy_id" class="form-select">
+                    <option value="">No Proxy</option>
+                    <?php
+                    $proxy_stmt = $conn->query("SELECT proxy_id, first_name, last_name FROM proxies ORDER BY last_name, first_name");
+                    while ($proxy = $proxy_stmt->fetch(PDO::FETCH_ASSOC)) {
+                        echo "<option value='{$proxy['proxy_id']}'>{$proxy['last_name']}, {$proxy['first_name']}</option>";
+                    }
+                    ?>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="add_type_of_insurance" class="form-label">Transaction Type</label>
+                  <select name="type_of_insurance" id="add_type_of_insurance" class="form-select" required>
+                    <option value="TPL">TPL</option>
+                    <option value="TPPD">TPPD</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="add_status" class="form-label">Status</label>
+                  <select name="status" id="add_status" class="form-select" required>
                     <option value="Pending">Pending</option>
                     <option value="Approved">Approved</option>
                     <option value="Rejected">Rejected</option>
@@ -257,7 +538,7 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
               </div>
             </div>
             <div class="modal-footer">
-              <button type="submit" class="btn btn-success">Save Changes</button>
+              <button type="submit" class="btn btn-success">Add Application</button>
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>
           </div>
@@ -265,10 +546,73 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
       </div>
     </div>
 
+    <!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form id="editForm" method="POST" action="">
+      <input type="hidden" name="edit_insurance" value="1">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editModalLabel">Edit Insurance Application</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="insurance_id" id="edit_insurance_id" />
+          <input type="hidden" name="client_id" id="edit_client_id" />
+
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label for="edit_mv_file_number" class="form-label">MV File Number</label>
+              <input type="text" class="form-control" id="edit_mv_file_number" name="mv_file_number" />
+            </div>
+            <div class="col-md-3">
+              <label for="edit_plate_number" class="form-label">Plate Number</label>
+              <input type="text" class="form-control" id="edit_plate_number" name="plate_number" />
+            </div>
+            <div class="col-md-3">
+              <label for="edit_chassis_number" class="form-label">Chassis Number</label>
+              <input type="text" class="form-control" id="edit_chassis_number" name="chassis_number" />
+            </div>
+            <div class="col-md-3">
+              <label for="edit_brand" class="form-label">Brand</label>
+              <input type="text" class="form-control" id="edit_brand" name="brand" />
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label for="edit_model" class="form-label">Model</label>
+              <input type="text" class="form-control" id="edit_model" name="model" />
+            </div>
+            <div class="col-md-3">
+              <label for="edit_color" class="form-label">Color</label>
+              <input type="text" class="form-control" id="edit_color" name="color" />
+            </div>
+            <div class="col-md-3">
+              <label for="edit_type_of_insurance" class="form-label">Transaction Type</label>
+              <select name="type_of_insurance" id="edit_type_of_insurance" class="form-select" required>
+                <option value="TPL">TPL</option>
+                <option value="TPPD">TPPD</option>
+                <option value="OD">OD</option>
+                <option value="UPA">UPA</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Save Changes</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
     <!-- Delete Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
       <div class="modal-dialog">
-        <form id="deleteForm" method="POST" action="delete_insurance.php">
+        <form id="deleteForm" method="POST" action="">
+          <input type="hidden" name="delete_insurance" value="1">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
@@ -291,39 +635,101 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 
     <script>
       $(document).ready(function () {
-          // Initialize DataTables with all features
+          // Initialize DataTables
           $('#applicationsTable').DataTable({
-              dom: '<"top"f>rt<"bottom"lip><"clear">', // Layout control
+              dom: '<"top"f>rt<"bottom"lip><"clear">',
               pageLength: 10,
               lengthMenu: [10, 25, 50, 100],
               responsive: true
           });
 
-          // Edit button handler
-          $('.editBtn').on('click', function () {
+          // Client details button handler
+          $('.client-details-btn').on('click', function () {
               const btn = $(this);
-              $('#edit_insurance_id').val(btn.data('insurance_id'));
-              $('#edit_client_id').val(btn.data('client_id'));
-              $('#edit_first_name').val(btn.data('first_name'));
-              $('#edit_middle_name').val(btn.data('middle_name'));
-              $('#edit_last_name').val(btn.data('last_name'));
-              $('#edit_birthday').val(btn.data('birthday'));
-              $('#edit_plate_number').val(btn.data('plate_number'));
-              $('#edit_mv_file_number').val(btn.data('mv_file_number'));
-              $('#edit_chassis_number').val(btn.data('chassis_number'));
-              $('#edit_brand').val(btn.data('brand'));
-              $('#edit_model').val(btn.data('model'));
-              $('#edit_color').val(btn.data('color'));
-              $('#edit_type_of_insurance').val(btn.data('type_of_insurance'));
-              $('#edit_status').val(btn.data('status'));
+              
+              // Set client details
+              const middleInitial = btn.data('middle_name') ? btn.data('middle_name').charAt(0) + '.' : '';
+              $('#client_full_name').text(btn.data('first_name') + ' ' + middleInitial + ' ' + btn.data('last_name'));
+              $('#client_birthday').text(btn.data('birthday') || 'N/A');
+              $('#client_contact').text(btn.data('contact') || 'N/A');
+              $('#client_email').text(btn.data('email') || 'N/A');
+              $('#client_address').text(btn.data('address') || 'N/A');
+              
+              // Check if proxy exists
+              if (btn.data('proxy_id')) {
+                  $('#proxyHeader').show();
+                  $('#proxyDetailsTable').show();
+                  
+                  // Set proxy details
+                  const proxyMiddleInitial = btn.data('proxy_middle_name') ? btn.data('proxy_middle_name').charAt(0) + '.' : '';
+                  $('#proxy_full_name').text(btn.data('proxy_first_name') + ' ' + proxyMiddleInitial + ' ' + btn.data('proxy_last_name'));
+                  $('#proxy_birthday').text(btn.data('proxy_birthday') || 'N/A');
+                  
+                  let relationship = btn.data('proxy_relationship');
+                  if (relationship === 'Other' && btn.data('proxy_other_relationship')) {
+                      relationship = btn.data('proxy_other_relationship');
+                  }
+                  $('#proxy_relationship').text(relationship || 'N/A');
+                  
+                  $('#proxy_contact').text(btn.data('proxy_contact') || 'N/A');
+              } else {
+                  $('#proxyHeader').hide();
+                  $('#proxyDetailsTable').hide();
+              }
           });
+
+          // Vehicle details button handler
+          $('.vehicle-details-btn').on('click', function () {
+              const btn = $(this);
+              
+              // Set vehicle details
+              $('#vehicle_plate_number').text(btn.data('plate_number') || 'N/A');
+              $('#vehicle_mv_file_number').text(btn.data('mv_file_number') || 'N/A');
+              $('#vehicle_type').text(btn.data('vehicle_type') || 'N/A');
+              $('#vehicle_chassis_number').text(btn.data('chassis_number') || 'N/A');
+              $('#vehicle_brand').text(btn.data('brand') || 'N/A');
+              $('#vehicle_model').text(btn.data('model') || 'N/A');
+              $('#vehicle_year').text(btn.data('year') || 'N/A');
+              $('#vehicle_color').text(btn.data('color') || 'N/A');
+          });
+
+          // Edit button handler
+$('.editBtn').on('click', function () {
+    const btn = $(this);
+    $('#edit_insurance_id').val(btn.data('insurance_id'));
+    $('#edit_client_id').val(btn.data('client_id'));
+    $('#edit_plate_number').val(btn.data('plate_number'));
+    $('#edit_mv_file_number').val(btn.data('mv_file_number'));
+    $('#edit_chassis_number').val(btn.data('chassis_number'));
+    $('#edit_brand').val(btn.data('brand'));
+    $('#edit_model').val(btn.data('model'));
+    $('#edit_color').val(btn.data('color'));
+    $('#edit_type_of_insurance').val(btn.data('type_of_insurance'));
+    // $('#edit_status').val(btn.data('status')); <-- removed since field no longer exists
+});
 
           // Delete button handler
           $('.deleteBtn').on('click', function () {
               $('#delete_insurance_id').val($(this).data('id'));
+          });
+          
+          // When client is selected in add form, update vehicles dropdown
+          $('#add_client_id').on('change', function() {
+              const clientId = $(this).val();
+              if (clientId) {
+                  $.ajax({
+                      url: 'get_client_vehicles.php',
+                      method: 'GET',
+                      data: { client_id: clientId },
+                      success: function(response) {
+                          $('#add_vehicle_id').html(response);
+                      }
+                  });
+              }
           });
       });
     </script>

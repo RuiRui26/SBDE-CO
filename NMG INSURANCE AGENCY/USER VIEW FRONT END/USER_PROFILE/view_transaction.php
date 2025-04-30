@@ -1,4 +1,6 @@
 <?php
+include 'sidebar.php';
+
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
@@ -236,7 +238,29 @@ function statusClass($status) {
         <p><strong>Insurance Type:</strong> <?= htmlspecialchars($transaction['type_of_insurance']) ?></p>
         <p><strong>Insurance Start Date:</strong> <?= date('Y-m-d', strtotime($transaction['start_date'])) ?></p>
         <p><strong>Registration Date (Applied):</strong> <?= date('Y-m-d', strtotime($transaction['registered_at'])) ?></p>
-        <p><strong>Expiration Date:</strong> <?= $transaction['expiration_date'] ? date('Y-m-d', strtotime($transaction['expiration_date'])) : 'N/A' ?></p>
+        <p><strong>Expiration Date:</strong> 
+            <?php 
+            if ($transaction['expiration_date']) {
+                $expirationDate = date('Y-m-d', strtotime($transaction['expiration_date']));
+                echo $expirationDate;
+                
+                // Calculate days until expiration
+                $today = new DateTime();
+                $expiryDate = new DateTime($transaction['expiration_date']);
+                $interval = $today->diff($expiryDate);
+                $daysLeft = $interval->days;
+                
+                // Check if expiration is within 30 days and in the future
+                if ($daysLeft <= 30 && $interval->invert == 0) {
+                    echo ' <span class="expiration-warning" style="color: #d9534f; font-weight: bold;">(Expires in ' . $daysLeft . ' days)</span>';
+                } elseif ($interval->invert == 1) {
+                    echo ' <span class="expiration-warning" style="color: #d9534f; font-weight: bold;">(Expired)</span>';
+                }
+            } else {
+                echo 'N/A';
+            }
+            ?>
+        </p>
         <p>
             <strong>Status:</strong> 
             <span class="status-badge status-<?= statusClass($live_status) ?>">

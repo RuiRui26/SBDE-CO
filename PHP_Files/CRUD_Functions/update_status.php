@@ -39,14 +39,15 @@ if ($new_status === 'Approved') {
         exit;
     }
 
-    // Check appointment date is at least 7 days from today
-    $today = new DateTime('today');
-    $minDate = (clone $today)->modify('+7 days');
-    if ($date_check < $minDate) {
-        http_response_code(400);
-        echo "Appointment date must be at least 7 days from today";
-        exit;
-    }
+    // Check appointment date is at least 3 days from today
+$today = new DateTime('today');
+$minDate = (clone $today)->modify('+3 days');
+if ($date_check < $minDate) {
+    http_response_code(400);
+    echo "Appointment date must be at least 3 days from today";
+    exit;
+}
+
 }
 
 try {

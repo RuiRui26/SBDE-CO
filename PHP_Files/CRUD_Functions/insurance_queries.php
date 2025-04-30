@@ -53,17 +53,18 @@ class InsuranceTransactions {
         }
     }
 
-    public function getExpiringInsurances() {
+    public function getExpiringInsurances($days = 30) {
         try {
-            $query = "
-                SELECT ir.insurance_id, c.full_name, ir.type_of_insurance, ir.expiry_date, ir.status
-                FROM nmg_insurance.insurance_registration ir
-                JOIN nmg_insurance.clients c ON ir.client_id = c.client_id
-                WHERE ir.expiry_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
-                  AND ir.status != 'renewed'
-                ORDER BY ir.expiry_date ASC
+            $sql = "
+                SELECT i.insurance_id, c.full_name, i.type_of_insurance, i.status, i.expired_at AS expiry_date
+                FROM nmg_insurance.insurance_registration i
+                JOIN nmg_insurance.clients c ON i.client_id = c.client_id
+                WHERE i.expired_at IS NOT NULL
+                  AND i.expired_at BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL ? DAY)
             ";
-            $stmt = $this->conn->prepare($query);
+    
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(1, $days, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -71,23 +72,68 @@ class InsuranceTransactions {
             return [];
         }
     }
-
-    public function renewInsurance($insurance_id) {
+    
+    
+    public function renewInsurance($insurance_id, $adminName = 'System') {
         try {
-            $query = "
+            // Get current expiry
+            $selectQuery = "SELECT expired_at FROM nmg_insurance.insurance_registration WHERE insurance_id = :insurance_id";
+            $selectStmt = $this->conn->prepare($selectQuery);
+            $selectStmt->bindParam(':insurance_id', $insurance_id, PDO::PARAM_INT);
+            $selectStmt->execute();
+            $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+    
+            if (!$row) return false;
+    
+            $old_expiry = $row['expired_at'];
+            $new_expiry = date('Y-m-d', strtotime($old_expiry . ' +1 year'));
+    
+            // Insert into renewal log
+            $logQuery = "
+                INSERT INTO nmg_insurance.insurance_renewals (insurance_id, old_expiry_date, new_expiry_date, renewed_by)
+                VALUES (:insurance_id, :old_expiry, :new_expiry, :renewed_by)
+            ";
+            $logStmt = $this->conn->prepare($logQuery);
+            $logStmt->bindParam(':insurance_id', $insurance_id, PDO::PARAM_INT);
+            $logStmt->bindParam(':old_expiry', $old_expiry);
+            $logStmt->bindParam(':new_expiry', $new_expiry);
+            $logStmt->bindParam(':renewed_by', $adminName);
+            $logStmt->execute();
+    
+            // Update insurance record
+            $updateQuery = "
                 UPDATE nmg_insurance.insurance_registration 
-                SET expiry_date = DATE_ADD(expiry_date, INTERVAL 1 YEAR),
-                    status = 'renewed'
+                SET expired_at = :new_expiry, status = 'active'
                 WHERE insurance_id = :insurance_id
             ";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':insurance_id', $insurance_id, PDO::PARAM_INT);
-            return $stmt->execute();
+            $updateStmt = $this->conn->prepare($updateQuery);
+            $updateStmt->bindParam(':new_expiry', $new_expiry);
+            $updateStmt->bindParam(':insurance_id', $insurance_id, PDO::PARAM_INT);
+            return $updateStmt->execute();
+    
         } catch (PDOException $e) {
             error_log("Error renewing insurance: " . $e->getMessage());
             return false;
         }
     }
+    
+    public function getAllInsurances() {
+    try {
+        $query = "
+            SELECT ir.insurance_id, c.full_name, ir.type_of_insurance, ir.expiry_date, ir.status
+            FROM nmg_insurance.insurance_registration ir
+            JOIN nmg_insurance.clients c ON ir.client_id = c.client_id
+            ORDER BY ir.expiry_date ASC
+        ";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error fetching all insurances: " . $e->getMessage());
+        return [];
+    }
+}
+
     
     
     
