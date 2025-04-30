@@ -27,20 +27,30 @@ $benefits = $conn->query("SELECT * FROM benefits_contents")->fetchAll();
      <!-- Navigation -->
      <?php include 'nav.php'; ?>
 
-    <section class="benefits">
-        <div class="container">
-            <h2 class="heading bold">Insurance</h2>
-            <div class="benefits-catalogue">
-                <?php foreach ($benefits as $benefit): ?>
-                    <div class="benefits-card">
-                        <img src="<?= $benefit['image'] ?>" alt="<?= $benefit['title'] ?>" class="featured-image">
-                        <h3 class="bold"><?= $benefit['title'] ?></h3>
-                        <p class="para-line"><?= $benefit['description'] ?></p>
-                    </div>
-                <?php endforeach; ?>
-            </div>
+     <section class="benefits">
+    <div class="container">
+        <h2 class="heading bold">Insurance</h2>
+        <div class="benefits-catalogue">
+            <?php
+            $hardcodedImages = [
+                "img/insurance1.jpg",
+                "img/insurance2.jpg",
+                "img/insurance3.jpg",
+                "img/benefits4.jpg"
+            ];
+            $index = 0;
+            foreach ($benefits as $benefit): ?>
+                <div class="benefits-card">
+                    <img src="<?= $hardcodedImages[$index] ?>" alt="<?= $benefit['title'] ?>" class="featured-image">
+                    <h3 class="bold"><?= $benefit['title'] ?></h3>
+                    <p class="para-line"><?= $benefit['description'] ?></p>
+                </div>
+                <?php $index++; ?>
+            <?php endforeach; ?>
         </div>
-    </section>
+    </div>
+</section>
+
 
 	<!-- --------------------------- Footer ---------------------------- -->
 	<footer>

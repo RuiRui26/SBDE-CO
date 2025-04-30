@@ -13,7 +13,8 @@
             <li><a href="dashboard.php"><img src="img3/dashboard.png" alt="Dashboard Icon"> Dashboard</a></li>
             <li><a href="cashier_details.php"><img src="img3/adminprofile.png" alt="Admin Icon"> Cashier Profile</a></li>
             <li><a href="cashier.php"><img src="img3/customers.png" alt="Cashier Icon"> Approved Transactions</a></li>
-            <li><a href="search.php"><img src="img3/search.png" alt="Search Icon"> Search Policy</a></li>
+            <li><a href="search.php"><img src="img3/search.png" alt="Search Icon"> Appointed Lost Documents</a></li>
+            <li><a href="search.php"><img src="img3/search.png" alt="Search Icon"> Renewed  </a></li>
             <li><a href="../../Logout_Login/Logout.php"><img src="img3/logout.png" alt="Logout Icon"> Logout</a></li>
         </ul>
     </div>

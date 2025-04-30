@@ -28,10 +28,10 @@ if (!$user) {
     exit;
 }
 
-$user_first_name = $user['first_name'] ?? '';
-$user_middle_name = $user['middle_name'] ?? '';
-$user_last_name = $user['last_name'] ?? '';
-$user_mobile = $user['contact_number'] ?? '';
+$user_first_name = htmlspecialchars($user['first_name'] ?? '');
+$user_middle_name = htmlspecialchars($user['middle_name'] ?? '');
+$user_last_name = htmlspecialchars($user['last_name'] ?? '');
+$user_mobile = htmlspecialchars($user['contact_number'] ?? '');
 
 // Get client information
 $stmt = $pdo->prepare("SELECT client_id FROM clients WHERE user_id = :user_id");
@@ -55,18 +55,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pdo->beginTransaction();
 
     try {
-        // Process form data
-        $plate_number = $_POST['plate_number'] ?? null;
-        $mv_file_number = $_POST['mv_file_number'] ?? null;
-        $chassis_number = $_POST['chassis_number'] ?? null;
-        $vehicle_type = $_POST['vehicle_type'] ?? null;
-        $insurance_type = $_POST['insurance_type'] ?? null;
-        $start_date = $_POST['start_date'] ?? null;
-        $brand = $_POST['brand'] ?? null;
-        $model = $_POST['model'] ?? null;
-        $year = $_POST['year'] ?? null;
-        $color = $_POST['color'] ?? null;
-        $is_proxy = $_POST['is_proxy'] ?? 'no';
+        // Sanitize and validate input
+        $plate_number = !empty($_POST['plate_number']) ? preg_replace('/[^A-Z0-9]/', '', strtoupper($_POST['plate_number'])) : null;
+        $mv_file_number = !empty($_POST['mv_file_number']) ? preg_replace('/[^0-9]/', '', $_POST['mv_file_number']) : null;
+        $chassis_number = !empty($_POST['chassis_number']) ? preg_replace('/[^A-Z0-9]/', '', strtoupper($_POST['chassis_number'])) : null;
+        $vehicle_type = !empty($_POST['vehicle_type']) ? htmlspecialchars($_POST['vehicle_type']) : null;
+        $insurance_type = !empty($_POST['insurance_type']) ? htmlspecialchars($_POST['insurance_type']) : null;
+        $start_date = !empty($_POST['start_date']) ? $_POST['start_date'] : null;
+        $brand = !empty($_POST['brand']) ? htmlspecialchars($_POST['brand']) : null;
+        $model = !empty($_POST['model']) ? htmlspecialchars($_POST['model']) : null;
+        $year = !empty($_POST['year']) ? intval($_POST['year']) : null;
+        $color = !empty($_POST['color']) ? htmlspecialchars($_POST['color']) : null;
+        $is_proxy = ($_POST['is_proxy'] ?? 'no') === 'yes' ? 'yes' : 'no';
 
         // Validate required fields
         $errors = [];
@@ -84,27 +84,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Validate file uploads
+        $allowed_mime_types = ['image/jpeg', 'image/png', 'image/gif'];
+        $max_file_size = 5 * 1024 * 1024; // 5MB
+        
         if (empty($_FILES['or_picture']['tmp_name'])) {
             $errors[] = "OR picture is required.";
+        } elseif (!in_array(mime_content_type($_FILES['or_picture']['tmp_name']), $allowed_mime_types)) {
+            $errors[] = "OR picture must be a valid image file (JPEG, PNG, GIF).";
+        } elseif ($_FILES['or_picture']['size'] > $max_file_size) {
+            $errors[] = "OR picture must be less than 5MB.";
         }
+
         if (empty($_FILES['cr_picture']['tmp_name'])) {
             $errors[] = "CR picture is required.";
+        } elseif (!in_array(mime_content_type($_FILES['cr_picture']['tmp_name']), $allowed_mime_types)) {
+            $errors[] = "CR picture must be a valid image file (JPEG, PNG, GIF).";
+        } elseif ($_FILES['cr_picture']['size'] > $max_file_size) {
+            $errors[] = "CR picture must be less than 5MB.";
         }
 
         // Validate proxy information if registering as proxy
         if ($is_proxy === 'yes') {
-            if (empty($_POST['proxy_first_name'])) $errors[] = "Proxy first name is required.";
-            if (empty($_POST['proxy_last_name'])) $errors[] = "Proxy last name is required.";
-            if (empty($_POST['proxy_relationship'])) $errors[] = "Proxy relationship is required.";
-            if (empty($_POST['proxy_contact'])) $errors[] = "Proxy contact number is required.";
-            if (empty($_POST['proxy_birthday'])) $errors[] = "Proxy birthday is required.";
-            if (empty($_FILES['authorization_letter']['tmp_name'])) {
-                $errors[] = "Authorization letter is required for proxy registration.";
+            $proxy_first_name = !empty($_POST['proxy_first_name']) ? htmlspecialchars($_POST['proxy_first_name']) : null;
+            $proxy_last_name = !empty($_POST['proxy_last_name']) ? htmlspecialchars($_POST['proxy_last_name']) : null;
+            $proxy_relationship = !empty($_POST['proxy_relationship']) ? htmlspecialchars($_POST['proxy_relationship']) : null;
+            $proxy_contact = !empty($_POST['proxy_contact']) ? preg_replace('/[^0-9]/', '', $_POST['proxy_contact']) : null;
+            $proxy_birthday = !empty($_POST['proxy_birthday']) ? $_POST['proxy_birthday'] : null;
+            
+            if (empty($proxy_first_name)) $errors[] = "Proxy first name is required.";
+            if (empty($proxy_last_name)) $errors[] = "Proxy last name is required.";
+            if (empty($proxy_relationship)) $errors[] = "Proxy relationship is required.";
+            if (empty($proxy_contact)) $errors[] = "Proxy contact number is required.";
+            if (empty($proxy_birthday)) $errors[] = "Proxy birthday is required.";
+            
+            if ($proxy_relationship === 'Other' && empty($_POST['other_relationship'])) {
+                $errors[] = "Please specify proxy relationship.";
             }
             
-            // Validate relationship if "Other" is selected
-            if ($_POST['proxy_relationship'] === 'Other' && empty($_POST['other_relationship'])) {
-                $errors[] = "Please specify proxy relationship.";
+            if (empty($_FILES['authorization_letter']['tmp_name'])) {
+                $errors[] = "Authorization letter is required for proxy registration.";
+            } elseif (!in_array(mime_content_type($_FILES['authorization_letter']['tmp_name']), $allowed_mime_types)) {
+                $errors[] = "Authorization letter must be a valid image file (JPEG, PNG, GIF).";
+            } elseif ($_FILES['authorization_letter']['size'] > $max_file_size) {
+                $errors[] = "Authorization letter must be less than 5MB.";
             }
         }
 
@@ -116,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $vehicle_id = null;
         if (!empty($plate_number)) {
             $stmt = $pdo->prepare("SELECT vehicle_id FROM vehicles WHERE plate_number = :plate_number");
-            $stmt->bindParam(':plate_number', $plate_number);
+            $stmt->bindParam(':plate_number', $plate_number, PDO::PARAM_STR);
             $stmt->execute();
             $existing_vehicle = $stmt->fetch(PDO::FETCH_ASSOC);
             
@@ -125,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } elseif (!empty($mv_file_number)) {
             $stmt = $pdo->prepare("SELECT vehicle_id FROM vehicles WHERE mv_file_number = :mv_file_number");
-            $stmt->bindParam(':mv_file_number', $mv_file_number);
+            $stmt->bindParam(':mv_file_number', $mv_file_number, PDO::PARAM_STR);
             $stmt->execute();
             $existing_vehicle = $stmt->fetch(PDO::FETCH_ASSOC);
             
@@ -142,15 +164,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                   (:client_id, :plate_number, :vehicle_type, :chassis_number, :mv_file_number, :insurance_type, :brand, :model, :year, :color)");
             
             $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
-            $stmt->bindParam(':plate_number', $plate_number);
-            $stmt->bindParam(':vehicle_type', $vehicle_type);
-            $stmt->bindParam(':chassis_number', $chassis_number);
-            $stmt->bindParam(':mv_file_number', $mv_file_number);
-            $stmt->bindParam(':insurance_type', $insurance_type);
-            $stmt->bindParam(':brand', $brand);
-            $stmt->bindParam(':model', $model);
-            $stmt->bindParam(':year', $year);
-            $stmt->bindParam(':color', $color);
+            $stmt->bindParam(':plate_number', $plate_number, PDO::PARAM_STR);
+            $stmt->bindParam(':vehicle_type', $vehicle_type, PDO::PARAM_STR);
+            $stmt->bindParam(':chassis_number', $chassis_number, PDO::PARAM_STR);
+            $stmt->bindParam(':mv_file_number', $mv_file_number, PDO::PARAM_STR);
+            $stmt->bindParam(':insurance_type', $insurance_type, PDO::PARAM_STR);
+            $stmt->bindParam(':brand', $brand, PDO::PARAM_STR);
+            $stmt->bindParam(':model', $model, PDO::PARAM_STR);
+            $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+            $stmt->bindParam(':color', $color, PDO::PARAM_STR);
             
             if (!$stmt->execute()) {
                 throw new Exception("Failed to create vehicle record.");
@@ -164,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Create upload directory if it doesn't exist
         if (!file_exists($upload_dir)) {
-            if (!mkdir($upload_dir, 0777, true)) {
+            if (!mkdir($upload_dir, 0755, true)) {
                 throw new Exception("Failed to create upload directory.");
             }
         }
@@ -172,90 +194,83 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Process OR picture
         $or_picture_path = null;
         if (isset($_FILES['or_picture']) && $_FILES['or_picture']['error'] === UPLOAD_ERR_OK) {
-            $or_file_name = "OR_" . $client_id . "_" . time() . "." . pathinfo($_FILES['or_picture']['name'], PATHINFO_EXTENSION);
+            $file_ext = pathinfo($_FILES['or_picture']['name'], PATHINFO_EXTENSION);
+            $or_file_name = "OR_" . $client_id . "_" . time() . "." . $file_ext;
             $or_picture_path = $upload_dir . $or_file_name;
             
             if (!move_uploaded_file($_FILES['or_picture']['tmp_name'], $or_picture_path)) {
                 throw new Exception("Failed to upload OR picture.");
             }
-        } else {
-            throw new Exception("OR picture upload failed with error code: " . $_FILES['or_picture']['error']);
         }
 
         // Process CR picture
         $cr_picture_path = null;
         if (isset($_FILES['cr_picture']) && $_FILES['cr_picture']['error'] === UPLOAD_ERR_OK) {
-            $cr_file_name = "CR_" . $client_id . "_" . time() . "." . pathinfo($_FILES['cr_picture']['name'], PATHINFO_EXTENSION);
+            $file_ext = pathinfo($_FILES['cr_picture']['name'], PATHINFO_EXTENSION);
+            $cr_file_name = "CR_" . $client_id . "_" . time() . "." . $file_ext;
             $cr_picture_path = $upload_dir . $cr_file_name;
             
             if (!move_uploaded_file($_FILES['cr_picture']['tmp_name'], $cr_picture_path)) {
                 throw new Exception("Failed to upload CR picture.");
             }
-        } else {
-            throw new Exception("CR picture upload failed with error code: " . $_FILES['cr_picture']['error']);
         }
 
         // Process proxy information if registering as proxy
-$proxy_id = null;
-$authorization_letter_path = null;
+        $proxy_id = null;
+        $authorization_letter_path = null;
 
-if ($is_proxy === 'yes') {
-    // Process authorization letter
-    if (isset($_FILES['authorization_letter']) && $_FILES['authorization_letter']['error'] === UPLOAD_ERR_OK) {
-        $auth_file_name = "AUTH_" . $client_id . "_" . time() . "." . pathinfo($_FILES['authorization_letter']['name'], PATHINFO_EXTENSION);
-        $authorization_letter_path = $upload_dir . $auth_file_name;
-        
-        if (!move_uploaded_file($_FILES['authorization_letter']['tmp_name'], $authorization_letter_path)) {
-            throw new Exception("Failed to upload authorization letter.");
+        if ($is_proxy === 'yes') {
+            // Process authorization letter
+            if (isset($_FILES['authorization_letter']) && $_FILES['authorization_letter']['error'] === UPLOAD_ERR_OK) {
+                $file_ext = pathinfo($_FILES['authorization_letter']['name'], PATHINFO_EXTENSION);
+                $auth_file_name = "AUTH_" . $client_id . "_" . time() . "." . $file_ext;
+                $authorization_letter_path = $upload_dir . $auth_file_name;
+                
+                if (!move_uploaded_file($_FILES['authorization_letter']['tmp_name'], $authorization_letter_path)) {
+                    throw new Exception("Failed to upload authorization letter.");
+                }
+            }
+            
+            // Insert proxy information
+            $proxy_middle_name = !empty($_POST['proxy_middle_name']) ? htmlspecialchars($_POST['proxy_middle_name']) : null;
+            $proxy_relationship_final = ($proxy_relationship === 'Other') ? 
+                htmlspecialchars($_POST['other_relationship']) : $proxy_relationship;
+            
+            $stmt = $pdo->prepare("INSERT INTO proxies 
+                                  (user_id, client_id, first_name, middle_name, last_name, birthday, relationship, contact_number, authorization_letter_path) 
+                                  VALUES 
+                                  (:user_id, :client_id, :first_name, :middle_name, :last_name, :birthday, :relationship, :contact_number, :auth_letter_path)");
+            
+            $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+            $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
+            $stmt->bindParam(':first_name', $proxy_first_name, PDO::PARAM_STR);
+            $stmt->bindParam(':middle_name', $proxy_middle_name, PDO::PARAM_STR);
+            $stmt->bindParam(':last_name', $proxy_last_name, PDO::PARAM_STR);
+            $stmt->bindParam(':birthday', $proxy_birthday, PDO::PARAM_STR);
+            $stmt->bindParam(':relationship', $proxy_relationship_final, PDO::PARAM_STR);
+            $stmt->bindParam(':contact_number', $proxy_contact, PDO::PARAM_STR);
+            $stmt->bindParam(':auth_letter_path', $authorization_letter_path, PDO::PARAM_STR);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to save proxy information.");
+            }
+            
+            $proxy_id = $pdo->lastInsertId();
         }
-    } else {
-        throw new Exception("Authorization letter upload failed with error code: " . $_FILES['authorization_letter']['error']);
-    }
-    
-    // Insert proxy information - include BOTH user_id and client_id
-    $proxy_first_name = $_POST['proxy_first_name'];
-    $proxy_middle_name = $_POST['proxy_middle_name'] ?? null;
-    $proxy_last_name = $_POST['proxy_last_name'];
-    $proxy_birthday = $_POST['proxy_birthday'];
-    $proxy_relationship = $_POST['proxy_relationship'] === 'Other' ? $_POST['other_relationship'] : $_POST['proxy_relationship'];
-    $proxy_contact = $_POST['proxy_contact'];
-    
-    $stmt = $pdo->prepare("INSERT INTO proxies 
-                          (user_id, client_id, first_name, middle_name, last_name, birthday, relationship, contact_number, authorization_letter_path) 
-                          VALUES 
-                          (:user_id, :client_id, :first_name, :middle_name, :last_name, :birthday, :relationship, :contact_number, :auth_letter_path)");
-    
-    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-    $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
-    $stmt->bindParam(':first_name', $proxy_first_name);
-    $stmt->bindParam(':middle_name', $proxy_middle_name);
-    $stmt->bindParam(':last_name', $proxy_last_name);
-    $stmt->bindParam(':birthday', $proxy_birthday);
-    $stmt->bindParam(':relationship', $proxy_relationship);
-    $stmt->bindParam(':contact_number', $proxy_contact);
-    $stmt->bindParam(':auth_letter_path', $authorization_letter_path);
-    
-    if (!$stmt->execute()) {
-        throw new Exception("Failed to save proxy information: " . implode(" ", $stmt->errorInfo()));
-    }
-    
-    $proxy_id = $pdo->lastInsertId();
-}
 
         // Insert insurance registration
         $stmt = $pdo->prepare("INSERT INTO insurance_registration 
-        (client_id, vehicle_id, proxy_id, type_of_insurance, or_picture, cr_picture, start_date, created_at)
-        VALUES 
-        (:client_id, :vehicle_id, :proxy_id, :type_of_insurance, :or_picture, :cr_picture, :start_date, NOW())");
-    
+                              (client_id, vehicle_id, proxy_id, type_of_insurance, or_picture, cr_picture, start_date, created_at)
+                              VALUES 
+                              (:client_id, :vehicle_id, :proxy_id, :type_of_insurance, :or_picture, :cr_picture, :start_date, NOW())");
         
         $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
         $stmt->bindParam(':vehicle_id', $vehicle_id, PDO::PARAM_INT);
         $stmt->bindParam(':proxy_id', $proxy_id, PDO::PARAM_INT);
-        $stmt->bindParam(':type_of_insurance', $insurance_type);
-        $stmt->bindParam(':or_picture', $or_picture_path);
-        $stmt->bindParam(':cr_picture', $cr_picture_path);
-        $stmt->bindParam(':start_date', $start_date);
+        $stmt->bindParam(':type_of_insurance', $insurance_type, PDO::PARAM_STR);
+        $stmt->bindParam(':or_picture', $or_picture_path, PDO::PARAM_STR);
+        $stmt->bindParam(':cr_picture', $cr_picture_path, PDO::PARAM_STR);
+        $stmt->bindParam(':start_date', $start_date, PDO::PARAM_STR);
         
         if (!$stmt->execute()) {
             throw new Exception("Failed to submit insurance registration.");
@@ -307,7 +322,6 @@ if ($is_proxy === 'yes') {
     <link rel="stylesheet" href="css/register_insurance.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    
 </head>
 
 <body>
@@ -336,174 +350,178 @@ if ($is_proxy === 'yes') {
                     <div class="step-title">Submit</div>
                 </div>
             </div>
+            <div class="back-button-container">
+                <button type="button" class="back-button" onclick="goBack()">
+                    &larr; Back to Previous Page
+                </button>
+            </div>
         </div>
 
         <div class="form-container">
         <form id="insuranceForm" action="../../PHP_Files/User_View/register_insurance.php" method="POST" enctype="multipart/form-data" class="insurance-form">
-            <!-- First Step: Type of Insurance -->
-            <div class="form-step active" id="step1">
-                <h3>Step 1: Insurance Type</h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="insurance_type" class="required">Type of Insurance</label>
-                        <select id="insurance_type" name="insurance_type" required onchange="showInsuranceInfo(); updateNextButtonState();">
-                            <option value="">Select Insurance Type</option>
-                            <option value="TPL">Third Party Liability (TPL)</option>
-                            <option value="TPPD">Third Party Property Damage (TPPD)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button type="button" id="step1NextBtn" disabled onclick="goToStep(2)">Next</button>
-                </div>
-            </div>
-
-            <!-- Second Step: Personal Information -->
-            <div class="form-step" id="step2">
-                <h3>Step 2: Personal Information</h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="first_name" class="required">First Name</label>
-                        <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($user_first_name); ?>" required readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="middle_name">Middle Name</label>
-                        <input type="text" id="middle_name" name="middle_name" value="<?php echo htmlspecialchars($user_middle_name); ?>" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="last_name" class="required">Last Name</label>
-                        <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($user_last_name); ?>" required readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="mobile" class="required">Mobile Number</label>
-                        <input type="text" id="mobile" name="mobile" value="<?php echo htmlspecialchars($user_mobile); ?>" required readonly>
-                    </div>
-                    
-                     <!-- Proxy Registration Section -->
-                     <div class="form-group full-width">
-                        <label for="is_proxy">Are you registering as a proxy?</label>
-                        <select id="is_proxy" name="is_proxy" onchange="toggleProxyFields()">
-                            <option value="no">No</option>
-                            <option value="yes">Yes</option>
-                        </select>
-                    </div>
-                    
-                    <div id="proxyFields" class="form-grid" style="display: none;">
+                <!-- First Step: Type of Insurance -->
+                <div class="form-step active" id="step1">
+                    <h3>Step 1: Insurance Type</h3>
+                    <div class="form-grid">
                         <div class="form-group">
-                            <label for="proxy_first_name" class="required">First Name</label>
-                            <input type="text" id="proxy_first_name" name="proxy_first_name" onblur="validateInputForXSS(this)">
-                        </div>
-                        <div class="form-group">
-                            <label for="proxy_middle_name">Middle Name (Optional)</label>
-                            <input type="text" id="proxy_middle_name" name="proxy_middle_name" onblur="validateInputForXSS(this)">
-                        </div>
-                        <div class="form-group">
-                            <label for="proxy_last_name" class="required">Last Name</label>
-                            <input type="text" id="proxy_last_name" name="proxy_last_name" onblur="validateInputForXSS(this)">
-                        </div>
-                        <div class="form-group">
-                            <label for="proxy_birthday" class="required">Birthday</label>
-                            <input type="date" id="proxy_birthday" name="proxy_birthday" onchange="checkProxyAge()">
-                            <div id="proxyAgeValidation" class="age-validation"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="proxy_relationship" class="required">Relationship</label>
-                            <select id="proxy_relationship" name="proxy_relationship" onchange="toggleOtherRelationship()">
-                                <option value="">Select Relationship</option>
-                                <option value="Relative">Relative</option>
-                                <option value="Friend">Friend</option>
-                                <option value="Representative">Representative</option>
-                                <option value="Other">Other (please specify)</option>
+                            <label for="insurance_type" class="required">Type of Insurance</label>
+                            <select id="insurance_type" name="insurance_type" required onchange="showInsuranceInfo(); updateNextButtonState();">
+                                <option value="">Select Insurance Type</option>
+                                <option value="TPL">Third Party Liability (TPL)</option>
+                                <option value="TPPD">Third Party Property Damage (TPPD)</option>
                             </select>
                         </div>
-                        <div class="form-group" id="otherRelationshipContainer" style="display: none;">
-                            <label for="other_relationship" class="required">Specify Relationship</label>
-                            <input type="text" id="other_relationship" name="other_relationship" onblur="validateInputForXSS(this)">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="step1NextBtn" disabled onclick="goToStep(2)">Next</button>
+                    </div>
+                </div>
+
+                <!-- Second Step: Personal Information -->
+                <div class="form-step" id="step2">
+                    <h3>Step 2: Personal Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="first_name" class="required">First Name</label>
+                            <input type="text" id="first_name" name="first_name" value="<?php echo $user_first_name; ?>" required readonly>
                         </div>
                         <div class="form-group">
-                            <label for="proxy_contact" class="required">Contact Number</label>
-                            <input type="text" id="proxy_contact" name="proxy_contact" onblur="validateInputForXSS(this)">
+                            <label for="middle_name">Middle Name</label>
+                            <input type="text" id="middle_name" name="middle_name" value="<?php echo $user_middle_name; ?>" readonly>
                         </div>
+                        <div class="form-group">
+                            <label for="last_name" class="required">Last Name</label>
+                            <input type="text" id="last_name" name="last_name" value="<?php echo $user_last_name; ?>" required readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="mobile" class="required">Mobile Number</label>
+                            <input type="text" id="mobile" name="mobile" value="<?php echo $user_mobile; ?>" required readonly>
+                        </div>
+                        
+                        <!-- Proxy Registration Section -->
                         <div class="form-group full-width">
-                            <label for="authorization_letter" class="required">Authorization Letter (Image)</label>
-                            <input type="file" id="authorization_letter" name="authorization_letter" accept="image/*" onchange="validateAuthorizationLetter()">
-                            <small>Upload a clear image of the signed authorization letter</small>
-                            <span class="error-message" id="authorizationLetterError"></span>
+                            <label for="is_proxy">Are you registering as a proxy?</label>
+                            <select id="is_proxy" name="is_proxy" onchange="toggleProxyFields()">
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select>
+                        </div>
+                        
+                        <div id="proxyFields" class="form-grid" style="display: none;">
+                            <div class="form-group">
+                                <label for="proxy_first_name" class="required">First Name</label>
+                                <input type="text" id="proxy_first_name" name="proxy_first_name" onblur="validateInputForXSS(this)">
+                            </div>
+                            <div class="form-group">
+                                <label for="proxy_middle_name">Middle Name (Optional)</label>
+                                <input type="text" id="proxy_middle_name" name="proxy_middle_name" onblur="validateInputForXSS(this)">
+                            </div>
+                            <div class="form-group">
+                                <label for="proxy_last_name" class="required">Last Name</label>
+                                <input type="text" id="proxy_last_name" name="proxy_last_name" onblur="validateInputForXSS(this)">
+                            </div>
+                            <div class="form-group">
+                                <label for="proxy_birthday" class="required">Birthday</label>
+                                <input type="date" id="proxy_birthday" name="proxy_birthday" onchange="checkProxyAge()">
+                                <div id="proxyAgeValidation" class="age-validation"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="proxy_relationship" class="required">Relationship</label>
+                                <select id="proxy_relationship" name="proxy_relationship" onchange="toggleOtherRelationship()">
+                                    <option value="">Select Relationship</option>
+                                    <option value="Relative">Relative</option>
+                                    <option value="Friend">Friend</option>
+                                    <option value="Representative">Representative</option>
+                                    <option value="Other">Other (please specify)</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="otherRelationshipContainer" style="display: none;">
+                                <label for="other_relationship" class="required">Specify Relationship</label>
+                                <input type="text" id="other_relationship" name="other_relationship" onblur="validateInputForXSS(this)">
+                            </div>
+                            <div class="form-group">
+                                <label for="proxy_contact" class="required">Contact Number</label>
+                                <input type="text" id="proxy_contact" name="proxy_contact" onblur="validateInputForXSS(this)">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="authorization_letter" class="required">Authorization Letter (Image)</label>
+                                <input type="file" id="authorization_letter" name="authorization_letter" accept="image/*" onchange="validateAuthorizationLetter()">
+                                <small>Upload a clear image of the signed authorization letter</small>
+                                <span class="error-message" id="authorizationLetterError"></span>
+                            </div>
                         </div>
                     </div>
+                    <div class="form-actions">
+                        <button type="button" onclick="goToStep(1)">Back</button>
+                        <button type="button" id="step2NextBtn" onclick="goToStep(3)">Next</button>
+                    </div>
                 </div>
-                <div class="form-actions">
-                    <button type="button" onclick="goToStep(1)">Back</button>
-                    <button type="button" id="step2NextBtn" onclick="goToStep(3)">Next</button>
-                </div>
-            </div>
 
-            <!-- Third Step: Vehicle Information and Document Upload -->
-            <div class="form-step" id="step3">
-                <h3>Step 3: Vehicle Information and Document Upload</h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="plate_number">Plate Number</label>
-                        <input type="text" id="plate_number" name="plate_number" placeholder="Enter plate number" oninput="validateIdentifierFields()" onblur="validateInputForXSS(this)">
-                        <span class="error-message" id="plateError"></span>
+                <!-- Third Step: Vehicle Information and Document Upload -->
+                <div class="form-step" id="step3">
+                    <h3>Step 3: Vehicle Information and Document Upload</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="plate_number">Plate Number</label>
+                            <input type="text" id="plate_number" name="plate_number" placeholder="Enter plate number" oninput="validateIdentifierFields()" onblur="validateInputForXSS(this)">
+                            <span class="error-message" id="plateError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="mv_file_number">MV File Number</label>
+                            <input type="text" id="mv_file_number" name="mv_file_number" maxlength="15" placeholder="15-character MV File" oninput="validateIdentifierFields()" onblur="validateInputForXSS(this)">
+                            <span class="error-message" id="mvFileError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="brand" class="required">Brand</label>
+                            <input type="text" id="brand" name="brand" placeholder="e.g. Toyota" required oninput="updateNextButtonState()" onblur="validateInputForXSS(this)">
+                            <span class="error-message" id="brandError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="model" class="required">Model</label>
+                            <input type="text" id="model" name="model" placeholder="e.g. Corolla" required oninput="updateNextButtonState()" onblur="validateInputForXSS(this)">
+                            <span class="error-message" id="modelError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="year" class="required">Year</label>
+                            <input type="number" id="year" name="year" placeholder="e.g. 2020" min="1900" max="2099" step="1" required oninput="updateNextButtonState()" onblur="validateYear()">
+                            <span class="error-message" id="yearError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicle_type" class="required">Vehicle Type</label>
+                            <select id="vehicle_type" name="vehicle_type" required onchange="updateNextButtonState()">
+                                <option value="">Select Vehicle Type</option>
+                                <option value="Motorcycle">Motorcycle</option>
+                                <option value="4 Wheels">4 Wheels</option>
+                                <option value="Truck">Truck</option>
+                            </select>
+                            <span class="error-message" id="vehicleTypeError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="color" class="required">Color</label>
+                            <input type="text" id="color" name="color" placeholder="e.g. Red" required oninput="updateNextButtonState()" onblur="validateInputForXSS(this)">
+                            <span class="error-message" id="colorError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="chassis_number" class="required">Chassis Number</label>
+                            <input type="text" id="chassis_number" name="chassis_number" placeholder="Enter chassis number" required oninput="updateNextButtonState()" onblur="validateInputForXSS(this)">
+                            <span class="error-message" id="chassisError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="or_picture" class="required">OR Picture</label>
+                            <input type="file" id="or_picture" name="or_picture" accept="image/*" required onchange="validateFileUpload(this, 'OR'); updateNextButtonState()">
+                            <span class="error-message" id="orPictureError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="cr_picture" class="required">CR Picture</label>
+                            <input type="file" id="cr_picture" name="cr_picture" accept="image/*" required onchange="validateFileUpload(this, 'CR'); updateNextButtonState()">
+                            <span class="error-message" id="crPictureError"></span>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="mv_file_number">MV File Number</label>
-                        <input type="text" id="mv_file_number" name="mv_file_number" maxlength="15" placeholder="15-character MV File" oninput="validateIdentifierFields()" onblur="validateInputForXSS(this)">
-                        <span class="error-message" id="mvFileError"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="brand" class="required">Brand</label>
-                        <input type="text" id="brand" name="brand" placeholder="e.g. Toyota" required oninput="updateNextButtonState()" onblur="validateInputForXSS(this)">
-                        <span class="error-message" id="brandError"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="model" class="required">Model</label>
-                        <input type="text" id="model" name="model" placeholder="e.g. Corolla" required oninput="updateNextButtonState()" onblur="validateInputForXSS(this)">
-                        <span class="error-message" id="modelError"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="year" class="required">Year</label>
-                        <input type="number" id="year" name="year" placeholder="e.g. 2020" min="1900" max="2099" step="1" required oninput="updateNextButtonState()" onblur="validateYear()">
-                        <span class="error-message" id="yearError"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="vehicle_type" class="required">Vehicle Type</label>
-                        <select id="vehicle_type" name="vehicle_type" required onchange="updateNextButtonState()">
-                            <option value="">Select Vehicle Type</option>
-                            <option value="Motorcycle">Motorcycle</option>
-                            <option value="4 Wheels">4 Wheels</option>
-                            <option value="Truck">Truck</option>
-                        </select>
-                        <span class="error-message" id="vehicleTypeError"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="color" class="required">Color</label>
-                        <input type="text" id="color" name="color" placeholder="e.g. Red" required oninput="updateNextButtonState()" onblur="validateInputForXSS(this)">
-                        <span class="error-message" id="colorError"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="chassis_number" class="required">Chassis Number</label>
-                        <input type="text" id="chassis_number" name="chassis_number" placeholder="Enter chassis number" required oninput="updateNextButtonState()" onblur="validateInputForXSS(this)">
-                        <span class="error-message" id="chassisError"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="or_picture" class="required">OR Picture</label>
-                        <input type="file" id="or_picture" name="or_picture" accept="image/*" required onchange="validateFileUpload(this, 'OR'); updateNextButtonState()">
-                        <span class="error-message" id="orPictureError"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="cr_picture" class="required">CR Picture</label>
-                        <input type="file" id="cr_picture" name="cr_picture" accept="image/*" required onchange="validateFileUpload(this, 'CR'); updateNextButtonState()">
-                        <span class="error-message" id="crPictureError"></span>
+                    <div class="form-actions">
+                        <button type="button" onclick="goToStep(2)">Back</button>
+                        <button type="button" id="submitBtn" disabled onclick="showDateModal()">Submit</button>
                     </div>
                 </div>
-                <div class="form-actions">
-                    <button type="button" onclick="goToStep(2)">Back</button>
-                    <button type="button" id="submitBtn" disabled onclick="showDateModal()">Submit</button>
-                </div>
-            </div>
-
             </form>
         </div>
     </main>
@@ -593,7 +611,6 @@ function validateInputForXSS(inputElement) {
             text: 'The input contains potentially harmful content. Please try again.',
             confirmButtonText: 'OK'
         }).then(() => {
-            // Clear the input field after the user acknowledges the error
             inputElement.value = '';
             inputElement.focus();
         });
@@ -625,9 +642,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-// [Rest of your existing JavaScript code remains exactly the same...]
-// Only the XSS validation function has been modified as shown above
-
 // Navigation functions
 function goToStep(step) {
     if (step < 1 || step > totalSteps) return;
@@ -647,6 +661,14 @@ function goToStep(step) {
     // Update button states
     updateNextButtonState();
     updateProgressIndicator();
+}
+
+function goBack() {
+    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+        window.location.href = document.referrer;
+    } else {
+        window.location.href = 'index.php';
+    }
 }
 
 // Update the progress indicator to highlight current step
@@ -848,10 +870,11 @@ function validateFileUpload(input, type) {
     
     if (input.files && input.files.length > 0) {
         const file = input.files[0];
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
         
         // Check file type
-        if (!file.type.match('image.*')) {
-            errorElement.textContent = `${type} must be an image file`;
+        if (!validTypes.includes(file.type)) {
+            errorElement.textContent = `${type} must be a valid image file (JPEG, PNG, GIF)`;
             input.value = '';
             return false;
         }
@@ -874,10 +897,11 @@ function validateAuthorizationLetter() {
     
     if (input.files && input.files.length > 0) {
         const file = input.files[0];
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
         
         // Check file type
-        if (!file.type.match('image.*')) {
-            errorElement.textContent = 'Authorization letter must be an image file';
+        if (!validTypes.includes(file.type)) {
+            errorElement.textContent = 'Authorization letter must be a valid image file (JPEG, PNG, GIF)';
             input.value = '';
             return false;
         }

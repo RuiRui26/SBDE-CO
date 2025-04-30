@@ -46,6 +46,66 @@ if (!$document) {
     <link rel="icon" type="image/png" href="img2/logo.png">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/lost_details.css">
+    <style>
+        .status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.pending {
+            background-color: #FFF3CD;
+            color: #856404;
+        }
+        .status.approved {
+            background-color: #D4EDDA;
+            color: #155724;
+        }
+        .status.rejected {
+            background-color: #F8D7DA;
+            color: #721C24;
+        }
+        .details-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .details-row {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .details-row:last-child {
+            border-bottom: none;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .back-btn, .update-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-btn {
+            background: #6c757d;
+            color: white;
+        }
+        .update-btn {
+            background: #007bff;
+            color: white;
+        }
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+        }
+    </style>
 </head>
 
 <body>
@@ -80,9 +140,10 @@ if (!$document) {
 
         <!-- Action Buttons -->
         <div class="action-buttons">
-            <a href="lost_customer.php" class="back-btn">Back</a>
-            <form method="POST" action="../../PHP_Files/CRUD_Functions/update_lost_status.php">
+            <a href="lost_documents.php" class="back-btn">Back</a>
+            <form method="POST" action="update_lost_status.php">
                 <input type="hidden" name="lost_document_id" value="<?= $document['lost_document_id'] ?>">
+                <input type="hidden" name="redirect_to" value="lost_documents.php">
                 <select name="status">
                     <option value="Pending" <?= $document['status'] === 'Pending' ? 'selected' : '' ?>>Pending</option>
                     <option value="Approved" <?= $document['status'] === 'Approved' ? 'selected' : '' ?>>Approved</option>
