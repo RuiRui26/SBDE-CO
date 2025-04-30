@@ -1,10 +1,8 @@
 <?php
 session_start(); 
 $allowed_roles = ['Staff'];
-require('../../Logout_Login/Restricted.php');
+require '../../Logout_Login/Restricted.php';
 ?>
-
-
 
 
 <!DOCTYPE html>
@@ -14,15 +12,14 @@ require('../../Logout_Login/Restricted.php');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer</title>
-    <link rel="icon" type="image/png" href="img5/logo.png">
+    <link rel="icon" type="image/png" href="img2/logo.png">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/customer.css">
 </head>
 
 <body>
-    
     <!-- Sidebar -->
-    <?php include 'sidebar.php'; ?>
+   <?php include 'sidebar.php'; ?>
 
     <div class="main-content">
 
@@ -40,6 +37,20 @@ require('../../Logout_Login/Restricted.php');
                 <button class="view-btn" onclick="viewAllInsurance()">View</button>
             </div>
 
+            <!-- Archive Container -->
+            <div class="info-box">
+                <img src="img5/logo.png" alt="LTO" class="box-logo">
+                <h2>Lost Documents</h2>
+                <button class="view-btn" onclick="viewAllLto()">View</button>
+            </div>
+
+            <!-- Renewal Container -->
+            <div class="info-box">
+                 <img src="img5 /logo.png" alt="Renewal" class="box-logo">
+                <h2>Renewal</h2>
+                <button class="view-btn" onclick="viewAllRenewal()">View</button>
+            </div>
+        </div>
 
     </div>
 
@@ -49,8 +60,12 @@ require('../../Logout_Login/Restricted.php');
         }
 
         function viewAllLto() {
-            window.location.href = 'lto_customer.php';
+            window.location.href = 'lost_customer.php';
         }
+        function viewAllRenewal() {
+            window.location.href = 'renewal_customer.php';
+        }
+
 
         function handleSearch() {
             alert("Searching for client information...");
