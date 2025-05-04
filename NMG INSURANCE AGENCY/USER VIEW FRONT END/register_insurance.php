@@ -471,31 +471,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="text" id="mv_file_number" name="mv_file_number" maxlength="15" placeholder="15-character MV File" oninput="validateIdentifierFields()" onblur="validateInputForXSS(this)">
                             <span class="error-message" id="mvFileError"></span>
                         </div>
-                        <div class="form-group">
-                            <label for="brand" class="required">Brand</label>
-                            <input type="text" id="brand" name="brand" placeholder="e.g. Toyota" required oninput="updateNextButtonState()" onblur="validateInputForXSS(this)">
-                            <span class="error-message" id="brandError"></span>
-                        </div>
-                        <div class="form-group">
-                            <label for="model" class="required">Model</label>
-                            <input type="text" id="model" name="model" placeholder="e.g. Corolla" required oninput="updateNextButtonState()" onblur="validateInputForXSS(this)">
-                            <span class="error-message" id="modelError"></span>
-                        </div>
+                       <!-- Brand Dropdown -->
+<div class="form-group">
+    <label for="brand" class="required">Brand</label>
+    <select id="brand" name="brand" required onchange="populateModels()">
+        <option value="">-- Select Brand --</option>
+        <optgroup label="Cars">
+            <option value="Honda|car">Honda</option>
+            <option value="Toyota|car">Toyota</option>
+            <option value="Ford|car">Ford</option>
+            <option value="Suzuki|car">Suzuki</option>
+            <option value="Nissan|car">Nissan</option>
+            <option value="Mitsubishi|car">Mitsubishi</option>
+            <option value="Hyundai|car">Hyundai</option>
+        </optgroup>
+        <optgroup label="Motorcycles">
+            <option value="Honda|motorcycle">Honda (MC)</option>
+            <option value="Suzuki|motorcycle">Suzuki (MC)</option>
+            <option value="Yamaha|motorcycle">Yamaha</option>
+            <option value="Kawasaki|motorcycle">Kawasaki</option>
+        </optgroup>
+    </select>
+    <span class="error-message" id="brandError"></span>
+</div>
+                        <!-- Model Dropdown -->
+<div class="form-group">
+    <label for="model" class="required">Model</label>
+    <select id="model" name="model" required onchange="setVehicleType()">
+        <option value="">-- Select Model --</option>
+    </select>
+    <span class="error-message" id="modelError"></span>
+</div>
                         <div class="form-group">
                             <label for="year" class="required">Year</label>
                             <input type="number" id="year" name="year" placeholder="e.g. 2020" min="1900" max="2099" step="1" required oninput="updateNextButtonState()" onblur="validateYear()">
                             <span class="error-message" id="yearError"></span>
                         </div>
-                        <div class="form-group">
-                            <label for="vehicle_type" class="required">Vehicle Type</label>
-                            <select id="vehicle_type" name="vehicle_type" required onchange="updateNextButtonState()">
-                                <option value="">Select Vehicle Type</option>
-                                <option value="Motorcycle">Motorcycle</option>
-                                <option value="4 Wheels">4 Wheels</option>
-                                <option value="Truck">Truck</option>
-                            </select>
-                            <span class="error-message" id="vehicleTypeError"></span>
-                        </div>
+                        <!-- Auto-filled Type -->
+<div class="form-group">
+    <label for="vehicle_type" class="required">Vehicle Type</label>
+    <input type="text" id="vehicle_type" name="vehicle_type" readonly>
+    <span class="error-message" id="vehicleTypeError"></span>
+</div>
                         <div class="form-group">
                             <label for="color" class="required">Color</label>
                             <input type="text" id="color" name="color" placeholder="e.g. Red" required oninput="updateNextButtonState()" onblur="validateInputForXSS(this)">
@@ -596,6 +613,213 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
 <script>
+//VEHICLE TYPES SCRIPT DROPDOWN
+const vehicleData = {
+    "Honda|car": {
+        "CITY": "SEDAN",
+        "CIVIC": "SEDAN",
+        "BR-V": "SUV",
+        "HR-V": "SUV",
+        "CR-V": "SUV",
+        "BRIO": "HATCHBACK",
+        "CITY HATCHBACK": "HATCHBACK"
+    },
+    "Toyota|car": {
+        "VIOS": "SEDAN",
+        "COROLLA ALTIS": "SEDAN",
+        "CAMRY": "SEDAN",
+        "WIGO": "HATCHBACK",
+        "RAIZE": "CROSSOVERS",
+        "YARIS CROSS": "SUV",
+        "COROLLA CROSS": "SUV",
+        "RAV4": "SUV",
+        "RUSH": "SUV",
+        "VELOZ": "SUV",
+        "FORTUNER": "SUV",
+        "LAND CRUISER PRADO": "SUV",
+        "LAND CRUISER LC300": "SUV",
+        "AVANZA": "MPV",
+        "INNOVA": "MPV",
+        "ZENIX": "MPV",
+        "ALPHARD": "MPV",
+        "HIACE": "MPV",
+        "SUPER GRANDIA": "MPV",
+        "COASTER": "MPV",
+        "HILUX": "PICKUPS",
+        "HILUX GR-S": "PICKUPS",
+        "TAMARAW": "PICKUPS"
+    },
+    "Ford|car": {
+        "TERRITORY": "SUV",
+        "EVEREST": "SUV",
+        "EXPLORER": "SUV",
+        "BRONCO": "SUV",
+        "RANGER": "PICKUP"
+    },
+    "Suzuki|car": {
+        "DZIRE": "SUV",
+        "CIAZ": "SEDAN",
+        "SWIFT": "HATCHBACK",
+        "S-PRESSO": "HATCHBACK",
+        "CELERIO": "HATCHBACK",
+        "ERTIGA": "MPV",
+        "XL7": "MPV",
+        "JIMNY": "SUV",
+        "VITARA": "SUV",
+        "S-CROSSOVER": "CROSSOVER",
+        "CARRY": "PICKUP"
+    },
+    "Nissan|car": {
+        "ALMERA": "SEDAN",
+        "SYLPHY": "SEDAN",
+        "LEAF": "HATCHBACK",
+        "JUKE": "CROSSOVER",
+        "KICKS-E POWER": "CROSSOVER",
+        "X-TRAIL": "SUV",
+        "TERRA": "SUV",
+        "NAVARA": "SUV",
+        "URVAN": "MPV",
+        "PATROL": "MPV"
+    },
+    "Mitsubishi|car": {
+        "MIRAGE": "HATCHBACK",
+        "MIRAGE G4": "SEDAN",
+        "LANCER": "SEDAN",
+        "XPANDER": "MPV",
+        "XPANDER CROSS": "MPV/SUV",
+        "MONTERO SPORT": "SUV",
+        "PAJERO": "SUV",
+        "OUTLANDER PHEV": "SUV",
+        "STRADA": "PICKUP",
+        "L300": "MPV/VAN"
+    },
+    "Hyundai|car": {
+        "ACCENT": "SEDAN",
+        "ELANTRA": "SEDAN",
+        "IONIQ 5": "SUV (EV)",
+        "IONIQ 6": "SEDAN (EV)",
+        "CRETA": "SUV",
+        "TUCSON": "SUV",
+        "SANTA FE": "SUV",
+        "PALISADE": "SUV",
+        "STARIA": "MPV",
+        "STARGAZER": "MPV",
+        "PORTER": "PICKUP",
+        "H-100": "PICKUP"
+    },
+    "Honda|motorcycle": {
+        "BEAT": "SCOOTER",
+        "CLICK 125i": "SCOOTER",
+        "CLICK 160": "SCOOTER",
+        "PCX160": "SCOOTER",
+        "ADV160": "SCOOTER",
+        "AIRBLADE160": "SCOOTER",
+        "WAVE110": "UNDERBONE",
+        "WAVE125": "UNDERBONE",
+        "XRM125": "UNDERBONE",
+        "RS125FI": "UNDERBONE",
+        "SUPRA GTR150": "UNDERBONE",
+        "CB150R": "SPORT",
+        "CB650R": "SPORT",
+        "CBR150R": "SPORT",
+        "CBR500R": "SPORT",
+        "CBR650R": "SPORT",
+        "CBR1000RR FIREBLADE": "SPORT",
+        "CRF150L": "TOURING",
+        "CRF300L": "TOURING",
+        "CB500X": "TOURING",
+        "AFRICA TWIN": "TOURING"
+    },
+    "Suzuki|motorcycle": {
+        "BURGMAN STREET": "SCOOTER",
+        "ADDRESS": "SCOOTER",
+        "AVENIS": "SCOOTER",
+        "SKYWAVE 125": "SCOOTER",
+        "SMASH": "UNDERBONE",
+        "RAIDER J Crossover": "UNDERBONE",
+        "RAIDER R150 Carb": "UNDERBONE",
+        "RAIDER R150 Fi": "UNDERBONE",
+        "GSX-S150": "SPORT",
+        "GSX-R150": "SPORT",
+        "GIXXER 250": "SPORT",
+        "SV 650": "SPORT",
+        "GSX-R1000": "SPORT"
+    },
+    "Yamaha|motorcycle": {
+        "MIO SPORTY": "SCOOTER",
+        "MIO i 125": "SCOOTER",
+        "MIO SOUL i": "SCOOTER",
+        "MIO AEROX": "SCOOTER",
+        "MIO GRAVIS": "SCOOTER",
+        "NMAX": "SCOOTER",
+        "XMAX": "SCOOTER",
+        "TMAX": "SCOOTER",
+        "VEGA FORCE i": "UNDERBONE",
+        "SNIPER 155": "UNDERBONE",
+        "CRYPTON X": "UNDERBONE",
+        "YZF-R15": "SPORT",
+        "YZF-R3": "SPORT",
+        "YZF-R7": "SPORT",
+        "MT-15": "SPORT",
+        "MT-03": "SPORT",
+        "MT-07": "SPORT",
+        "MT-09": "SPORT"
+    },
+    "Kawasaki|motorcycle": {
+        "BARAKO II": "UNDERBONE",
+        "CT150": "UNDERBONE",
+        "FURY": "UNDERBONE",
+        "ROUSER NS160": "UNDERBONE",
+        "ROUSER NS200": "UNDERBONE",
+        "NINJA 400": "SPORT",
+        "NINJA 650": "SPORT",
+        "NINJA ZX-6R": "SPORT",
+        "NINJA ZX-10R": "SPORT",
+        "Z400": "SPORT",
+        "Z650": "SPORT",
+        "Z900": "SPORT",
+        "Z H2": "SPORT"
+    }
+    // Add more entries for other brands similarly...
+};
+
+function populateModels() {
+    const brandSelect = document.getElementById('brand');
+    const modelSelect = document.getElementById('model');
+    const selectedBrand = brandSelect.value;
+
+    modelSelect.innerHTML = '<option value="">-- Select Model --</option>';
+
+    if (selectedBrand && vehicleData[selectedBrand]) {
+        for (const model in vehicleData[selectedBrand]) {
+            const option = document.createElement('option');
+            option.value = model;
+            option.text = model;
+            modelSelect.add(option);
+        }
+    }
+
+    document.getElementById('vehicle_type').value = '';
+}
+
+function setVehicleType() {
+    const brandSelect = document.getElementById('brand');
+    const modelSelect = document.getElementById('model');
+    const vehicleTypeInput = document.getElementById('vehicle_type');
+    const brandKey = brandSelect.value;
+    const selectedModel = modelSelect.value;
+
+    if (vehicleData[brandKey] && vehicleData[brandKey][selectedModel]) {
+        vehicleTypeInput.value = vehicleData[brandKey][selectedModel];
+    } else {
+        vehicleTypeInput.value = '';
+    }
+}
+
+
+
+
+
 // Global variables
 let currentStep = 1;
 const totalSteps = 3;
